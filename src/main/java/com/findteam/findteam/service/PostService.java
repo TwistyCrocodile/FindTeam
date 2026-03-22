@@ -4,6 +4,7 @@ import com.findteam.findteam.dto.CreatePostRequest;
 import com.findteam.findteam.dto.PostPageResponse;
 import com.findteam.findteam.dto.PostResponse;
 import com.findteam.findteam.exception.InvalidPaginationException;
+import com.findteam.findteam.exception.PostNotFoundException;
 import com.findteam.findteam.exception.UserNotFoundException;
 import com.findteam.findteam.model.Post;
 import com.findteam.findteam.model.PostGoal;
@@ -84,6 +85,24 @@ public class PostService {
 				result.getTotalElements(),
 				result.getTotalPages(),
 				result.isLast());
+	}
+
+	@Transactional
+	public PostResponse closePost(Long postId) {
+		Post post = getPostOrThrow(postId);
+		post.setStatus(PostStatus.CLOSED);
+		return toPostResponse(postRepository.save(post));
+	}
+
+	@Transactional
+	public PostResponse reopenPost(Long postId) {
+		Post post = getPostOrThrow(postId);
+		post.setStatus(PostStatus.ACTIVE);
+		return toPostResponse(postRepository.save(post));
+	}
+
+	private Post getPostOrThrow(Long postId) {
+		return postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException(postId));
 	}
 
 	private PostResponse toPostResponse(Post post) {

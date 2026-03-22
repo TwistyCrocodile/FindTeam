@@ -49,6 +49,11 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(ex.getMessage()));
 	}
 
+	@ExceptionHandler(PostNotFoundException.class)
+	public ResponseEntity<ErrorResponse> handlePostNotFound(PostNotFoundException ex) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(ex.getMessage()));
+	}
+
 	@ExceptionHandler(UserAlreadyExistsException.class)
 	public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException ex) {
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(error(ex.getMessage()));

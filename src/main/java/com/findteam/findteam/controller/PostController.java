@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,5 +43,15 @@ public class PostController {
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size) {
 		return ResponseEntity.ok(postService.getFilteredPosts(type, goal, status, page, size));
+	}
+
+	@PatchMapping("/{postId}/close")
+	public ResponseEntity<PostResponse> closePost(@PathVariable Long postId) {
+		return ResponseEntity.ok(postService.closePost(postId));
+	}
+
+	@PatchMapping("/{postId}/reopen")
+	public ResponseEntity<PostResponse> reopenPost(@PathVariable Long postId) {
+		return ResponseEntity.ok(postService.reopenPost(postId));
 	}
 }
