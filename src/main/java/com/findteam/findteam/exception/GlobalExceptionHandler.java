@@ -1,13 +1,32 @@
 package com.findteam.findteam.exception;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+	/**
+	 * Bean Validation failed on a {@code @Valid} controller parameter (e.g. request body).
+	 */
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<ValidationErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+		Map<String, String> errors = new LinkedHashMap<>();
+		for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+			// One message per field; first wins (stable order from BindingResult).
+			errors.putIfAbsent(fieldError.getField(), fieldError.getDefaultMessage());
+		}
+		ValidationErrorResponse body =
+				new ValidationErrorResponse("Validation failed", LocalDateTime.now(), errors);
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+	}
 
 	@ExceptionHandler(UserNotFoundException.class)
 	public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException ex) {
