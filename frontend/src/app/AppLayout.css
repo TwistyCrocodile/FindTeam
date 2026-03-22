@@ -1,0 +1,29 @@
+.app-shell {
+  max-width: 560px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 12px 14px 28px;
+  padding-bottom: max(28px, env(safe-area-inset-bottom));
+}
+
+.app-header {
+  margin-bottom: 16px;
+}
+
+.app-title {
+  margin: 0 0 4px;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.app-subtitle {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  color: #52525b;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
