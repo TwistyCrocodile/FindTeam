@@ -14,9 +14,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-	/**
-	 * Bean Validation failed on a {@code @Valid} controller parameter (e.g. request body).
-	 */
 	/** Invalid query/path parameter type (e.g. bad enum literal for {@code type}, {@code goal}, {@code status}). */
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
 	public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
@@ -27,6 +24,14 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error(message));
 	}
 
+	@ExceptionHandler(InvalidPaginationException.class)
+	public ResponseEntity<ErrorResponse> handleInvalidPagination(InvalidPaginationException ex) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error(ex.getMessage()));
+	}
+
+	/**
+	 * Bean Validation failed on a {@code @Valid} controller parameter (e.g. request body).
+	 */
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ValidationErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
 		Map<String, String> errors = new LinkedHashMap<>();
