@@ -9,6 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -16,6 +17,16 @@ public class GlobalExceptionHandler {
 	/**
 	 * Bean Validation failed on a {@code @Valid} controller parameter (e.g. request body).
 	 */
+	/** Invalid query/path parameter type (e.g. bad enum literal for {@code type}, {@code goal}, {@code status}). */
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
+		String name = ex.getName();
+		Object value = ex.getValue();
+		String detail = value != null ? " (received: " + value + ")" : "";
+		String message = "Invalid value for parameter '" + name + "'" + detail;
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error(message));
+	}
+
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ValidationErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
 		Map<String, String> errors = new LinkedHashMap<>();

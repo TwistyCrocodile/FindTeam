@@ -2,6 +2,9 @@ package com.findteam.findteam.controller;
 
 import com.findteam.findteam.dto.CreatePostRequest;
 import com.findteam.findteam.dto.PostResponse;
+import com.findteam.findteam.model.PostGoal;
+import com.findteam.findteam.model.PostStatus;
+import com.findteam.findteam.model.PostType;
 import com.findteam.findteam.service.PostService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -30,7 +34,10 @@ public class PostController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<PostResponse>> getAllPosts() {
-		return ResponseEntity.ok(postService.getAllPosts());
+	public ResponseEntity<List<PostResponse>> getPosts(
+			@RequestParam(required = false) PostType type,
+			@RequestParam(required = false) PostGoal goal,
+			@RequestParam(required = false) PostStatus status) {
+		return ResponseEntity.ok(postService.getFilteredPosts(type, goal, status));
 	}
 }

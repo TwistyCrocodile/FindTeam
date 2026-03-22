@@ -4,11 +4,16 @@ import com.findteam.findteam.dto.CreatePostRequest;
 import com.findteam.findteam.dto.PostResponse;
 import com.findteam.findteam.exception.UserNotFoundException;
 import com.findteam.findteam.model.Post;
+import com.findteam.findteam.model.PostGoal;
 import com.findteam.findteam.model.PostStatus;
+import com.findteam.findteam.model.PostType;
 import com.findteam.findteam.model.User;
 import com.findteam.findteam.repository.PostRepository;
 import com.findteam.findteam.repository.UserRepository;
+import com.findteam.findteam.specification.PostSpecification;
 import java.util.List;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,11 +49,19 @@ public class PostService {
 	}
 
 	/**
-	 * Loads posts and maps to DTOs in one transaction so lazy {@code author} can be initialized.
+	 * Feed query: optional filters; all {@code null} means every post. Newest first.
+	 * Runs in one transaction so lazy {@code author} can be loaded while mapping.
 	 */
 	@Transactional(readOnly = true)
-	public List<PostResponse> getAllPosts() {
-		return postRepository.findAllByOrderByCreatedAtDesc().stream().map(this::toPostResponse).toList();
+	public List<PostResponse> getFilteredPosts(PostType type, PostGoal goal, PostStatus status) {
+		Specification<Post> spec = Specification.where(PostSpecification.hasType(type))
+				.and(PostSpecification.hasGoal(goal))
+				.and(PostSpecification.hasStatus(status));
+		return postRepository
+				.findAll(spec, Sort.by(Sort.Direction.DESC, "createdAt"))
+				.stream()
+				.map(this::toPostResponse)
+				.toList();
 	}
 
 	private PostResponse toPostResponse(Post post) {
