@@ -59,6 +59,16 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(error(ex.getMessage()));
 	}
 
+	@ExceptionHandler(NicknameAlreadyTakenException.class)
+	public ResponseEntity<ErrorResponse> handleNicknameAlreadyTaken(NicknameAlreadyTakenException ex) {
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(error(ex.getMessage()));
+	}
+
+	@ExceptionHandler(PostAccessDeniedException.class)
+	public ResponseEntity<ErrorResponse> handlePostAccessDenied(PostAccessDeniedException ex) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error(ex.getMessage()));
+	}
+
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

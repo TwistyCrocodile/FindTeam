@@ -4,6 +4,7 @@ import com.findteam.findteam.dto.CreatePostRequest;
 import com.findteam.findteam.dto.PostPageResponse;
 import com.findteam.findteam.dto.PostResponse;
 import com.findteam.findteam.exception.InvalidPaginationException;
+import com.findteam.findteam.exception.PostAccessDeniedException;
 import com.findteam.findteam.exception.PostNotFoundException;
 import com.findteam.findteam.exception.UserNotFoundException;
 import com.findteam.findteam.model.Post;
@@ -88,17 +89,37 @@ public class PostService {
 	}
 
 	@Transactional
-	public PostResponse closePost(Long postId) {
+	public PostResponse closePost(Long postId, Long requesterTelegramId) {
 		Post post = getPostOrThrow(postId);
+		assertRequesterIsOwner(post, requesterTelegramId);
 		post.setStatus(PostStatus.CLOSED);
 		return toPostResponse(postRepository.save(post));
 	}
 
 	@Transactional
-	public PostResponse reopenPost(Long postId) {
+	public PostResponse reopenPost(Long postId, Long requesterTelegramId) {
 		Post post = getPostOrThrow(postId);
+		assertRequesterIsOwner(post, requesterTelegramId);
 		post.setStatus(PostStatus.ACTIVE);
 		return toPostResponse(postRepository.save(post));
+	}
+
+	@Transactional
+	public PostResponse deletePost(Long postId, Long requesterTelegramId) {
+		Post post = getPostOrThrow(postId);
+		assertRequesterIsOwner(post, requesterTelegramId);
+		PostResponse response = toPostResponse(post);
+		postRepository.delete(post);
+		return response;
+	}
+
+	private void assertRequesterIsOwner(Post post, Long requesterTelegramId) {
+		// MVP contract: for now we trust the explicit telegramId passed from the frontend.
+		// In production, verify Telegram initData server-side instead of relying on query params.
+		Long authorTelegramId = post.getAuthor().getTelegramId();
+		if (!authorTelegramId.equals(requesterTelegramId)) {
+			throw new PostAccessDeniedException(post.getId(), requesterTelegramId);
+		}
 	}
 
 	private Post getPostOrThrow(Long postId) {
@@ -110,7 +131,7 @@ public class PostService {
 		PostResponse response = new PostResponse();
 		response.setId(post.getId());
 		response.setTelegramId(author.getTelegramId());
-		response.setUsername(author.getUsername());
+		response.setNickname(author.getNickname());
 		response.setType(post.getType());
 		response.setTitle(post.getTitle());
 		response.setDescription(post.getDescription());

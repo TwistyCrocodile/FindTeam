@@ -72,7 +72,7 @@ export function CreatePostForm({ telegramId, onCreated }: Props) {
   return (
     <section className="create-post">
       <h2 className="create-post__heading">Create a post</h2>
-      <p className="create-post__hint">Posting as Telegram ID: {telegramId}</p>
+      <p className="create-post__hint">Posting as your profile</p>
       <form className="create-post__form" onSubmit={onSubmit}>
         <label className="field">
           <span>Type</span>

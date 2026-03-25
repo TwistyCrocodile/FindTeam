@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -46,12 +47,23 @@ public class PostController {
 	}
 
 	@PatchMapping("/{postId}/close")
-	public ResponseEntity<PostResponse> closePost(@PathVariable Long postId) {
-		return ResponseEntity.ok(postService.closePost(postId));
+	public ResponseEntity<PostResponse> closePost(
+			@PathVariable Long postId,
+			@RequestParam Long telegramId) {
+		return ResponseEntity.ok(postService.closePost(postId, telegramId));
 	}
 
 	@PatchMapping("/{postId}/reopen")
-	public ResponseEntity<PostResponse> reopenPost(@PathVariable Long postId) {
-		return ResponseEntity.ok(postService.reopenPost(postId));
+	public ResponseEntity<PostResponse> reopenPost(
+			@PathVariable Long postId,
+			@RequestParam Long telegramId) {
+		return ResponseEntity.ok(postService.reopenPost(postId, telegramId));
+	}
+
+	@DeleteMapping("/{postId}")
+	public ResponseEntity<PostResponse> deletePost(
+			@PathVariable Long postId,
+			@RequestParam Long telegramId) {
+		return ResponseEntity.ok(postService.deletePost(postId, telegramId));
 	}
 }

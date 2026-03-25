@@ -40,15 +40,22 @@ export async function createPost(payload: CreatePostRequest): Promise<PostRespon
 }
 
 /** PATCH /api/posts/{id}/close */
-export async function closePost(postId: number): Promise<PostResponse> {
-  const res = await fetch(apiUrl(`/api/posts/${postId}/close`), { method: 'PATCH' });
+export async function closePost(postId: number, telegramId: number): Promise<PostResponse> {
+  const res = await fetch(apiUrl(`/api/posts/${postId}/close?telegramId=${telegramId}`), { method: 'PATCH' });
   if (!res.ok) throw new Error(await parseErrorMessage(res));
   return res.json() as Promise<PostResponse>;
 }
 
 /** PATCH /api/posts/{id}/reopen */
-export async function reopenPost(postId: number): Promise<PostResponse> {
-  const res = await fetch(apiUrl(`/api/posts/${postId}/reopen`), { method: 'PATCH' });
+export async function reopenPost(postId: number, telegramId: number): Promise<PostResponse> {
+  const res = await fetch(apiUrl(`/api/posts/${postId}/reopen?telegramId=${telegramId}`), { method: 'PATCH' });
+  if (!res.ok) throw new Error(await parseErrorMessage(res));
+  return res.json() as Promise<PostResponse>;
+}
+
+/** DELETE /api/posts/{id} */
+export async function deletePost(postId: number, telegramId: number): Promise<PostResponse> {
+  const res = await fetch(apiUrl(`/api/posts/${postId}?telegramId=${telegramId}`), { method: 'DELETE' });
   if (!res.ok) throw new Error(await parseErrorMessage(res));
   return res.json() as Promise<PostResponse>;
 }

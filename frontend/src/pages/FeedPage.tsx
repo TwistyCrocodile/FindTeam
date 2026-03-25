@@ -18,14 +18,16 @@ function postMatchesQuery(post: PostResponse, q: string) {
 
 type Props = {
   reloadToken: number;
+  viewerTelegramId: number;
 };
 
-export function FeedPage({ reloadToken }: Props) {
+export function FeedPage({ reloadToken, viewerTelegramId }: Props) {
   const [search, setSearch] = useState('');
 
   const [filterType, setFilterType] = useState<PostType | ''>('');
   const [filterGoal, setFilterGoal] = useState<PostGoal | ''>('');
-  const [filterStatus, setFilterStatus] = useState<PostStatus | ''>('');
+  // Product direction: default to ACTIVE-first when user hasn't explicitly changed it.
+  const [filterStatus, setFilterStatus] = useState<PostStatus | ''>('ACTIVE');
 
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [page, setPage] = useState(0);
@@ -83,6 +85,10 @@ export function FeedPage({ reloadToken }: Props) {
 
   function handlePostUpdated(updated: PostResponse) {
     setPosts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+  }
+
+  function handlePostDeleted(postId: number) {
+    setPosts((prev) => prev.filter((p) => p.id !== postId));
   }
 
   const normalizedSearch = useMemo(() => normalizeQuery(search), [search]);
@@ -149,7 +155,12 @@ export function FeedPage({ reloadToken }: Props) {
       <ul className="feed__list">
         {visiblePosts.map((p) => (
           <li key={p.id}>
-            <PostCard post={p} onPostUpdated={handlePostUpdated} />
+            <PostCard
+              post={p}
+              viewerTelegramId={viewerTelegramId}
+              onPostUpdated={handlePostUpdated}
+              onPostDeleted={handlePostDeleted}
+            />
           </li>
         ))}
       </ul>

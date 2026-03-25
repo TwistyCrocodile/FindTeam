@@ -1,0 +1,52 @@
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #3f3f46;
+}
+
+.field input,
+.field textarea {
+  font-weight: 400;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #d4d4d8;
+  background: #fafafa;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 72px;
+}
+
+.form-msg {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.form-msg--ok {
+  color: #15803d;
+}
+
+.form-msg--error {
+  color: #b91c1c;
+}
+
+.btn--primary {
+  background: #18181b;
+  color: #fff;
+  margin-top: 4px;
+}
+
+.btn--primary:disabled {
+  opacity: 0.6;
+}
+

@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { closePost, reopenPost } from '../api/posts';
+import { closePost, deletePost, reopenPost } from '../api/posts';
 import type { PostResponse } from '../types/post';
 import './PostCard.css';
 
 type Props = {
   post: PostResponse;
+  viewerTelegramId: number;
   onPostUpdated: (p: PostResponse) => void;
+  onPostDeleted: (postId: number) => void;
 };
 
 function formatWhen(iso: string) {
@@ -16,22 +18,25 @@ function formatWhen(iso: string) {
   }
 }
 
-export function PostCard({ post, onPostUpdated }: Props) {
+export function PostCard({ post, viewerTelegramId, onPostUpdated, onPostDeleted }: Props) {
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [applyNotice, setApplyNotice] = useState<string | null>(null);
 
-  function handleApply() {
-    // TODO: later open Telegram chat with author
-    // For now, keep it simple.
-    alert(`Applied to "${post.title}"`);
-    console.log('Apply clicked', { postId: post.id, telegramId: post.telegramId });
+  const isOwner = post.telegramId === viewerTelegramId;
+
+  async function handleApply() {
+    // MVP: keep this local and non-invasive; real flow comes later.
+    setApplyNotice('Application flow is not implemented yet.');
+    setActionError(null);
   }
 
   async function handleClose() {
     setActionError(null);
+    setApplyNotice(null);
     setBusy(true);
     try {
-      const updated = await closePost(post.id);
+      const updated = await closePost(post.id, viewerTelegramId);
       onPostUpdated(updated);
     } catch (e) {
       setActionError(e instanceof Error ? e.message : 'Could not close post');
@@ -42,12 +47,27 @@ export function PostCard({ post, onPostUpdated }: Props) {
 
   async function handleReopen() {
     setActionError(null);
+    setApplyNotice(null);
     setBusy(true);
     try {
-      const updated = await reopenPost(post.id);
+      const updated = await reopenPost(post.id, viewerTelegramId);
       onPostUpdated(updated);
     } catch (e) {
       setActionError(e instanceof Error ? e.message : 'Could not reopen post');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleDelete() {
+    setActionError(null);
+    setApplyNotice(null);
+    setBusy(true);
+    try {
+      await deletePost(post.id, viewerTelegramId);
+      onPostDeleted(post.id);
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : 'Could not delete post');
     } finally {
       setBusy(false);
     }
@@ -62,11 +82,11 @@ export function PostCard({ post, onPostUpdated }: Props) {
         </span>
       </div>
       <p className="post-card__meta">
-        <strong>{post.username ?? 'Unknown user'}</strong>
+        <strong>{post.nickname ?? 'Unknown user'}</strong>
         <span className="post-card__dot">·</span>
-        <span>{post.type}</span>
+        <span className="post-card__meta-pill">{post.type}</span>
         <span className="post-card__dot">·</span>
-        <span>{post.goal}</span>
+        <span className="post-card__meta-pill">{post.goal}</span>
       </p>
       <p className="post-card__stack">
         <span className="post-card__label">Stack</span> {post.stack}
@@ -83,16 +103,26 @@ export function PostCard({ post, onPostUpdated }: Props) {
       <p className="post-card__time">{formatWhen(post.createdAt)}</p>
 
       <div className="post-card__actions">
-        <button type="button" className="btn btn--primary" disabled={busy} onClick={handleApply}>
-          Apply
-        </button>
-        <button type="button" className="btn btn--secondary" disabled={busy} onClick={handleClose}>
-          Close post
-        </button>
-        <button type="button" className="btn btn--secondary" disabled={busy} onClick={handleReopen}>
-          Reopen post
-        </button>
+        {!isOwner ? (
+          <button type="button" className="btn btn--primary" disabled={busy} onClick={() => void handleApply()}>
+            Apply
+          </button>
+        ) : null}
+        {isOwner ? (
+          <>
+            <button type="button" className="btn btn--secondary" disabled={busy} onClick={() => void handleClose()}>
+              Close post
+            </button>
+            <button type="button" className="btn btn--secondary" disabled={busy} onClick={() => void handleReopen()}>
+              Reopen post
+            </button>
+            <button type="button" className="btn btn--secondary" disabled={busy} onClick={() => void handleDelete()}>
+              Delete post
+            </button>
+          </>
+        ) : null}
       </div>
+      {applyNotice ? <p className="post-card__apply-notice">{applyNotice}</p> : null}
       {actionError ? <p className="post-card__error">{actionError}</p> : null}
     </article>
   );

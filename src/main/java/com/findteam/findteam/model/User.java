@@ -26,7 +26,14 @@ public class User {
 	@Column(nullable = false, unique = true)
 	private Long telegramId;
 
-	private String username;
+	/**
+	 * Public nickname used inside the app.
+	 * <p>
+	 * Note: we currently map this to the historical {@code username} column to avoid requiring a DB migration.
+	 * A future migration can rename the column once data is aligned.
+	 */
+	@Column(name = "username", nullable = false, unique = true, length = 32)
+	private String nickname;
 
 	private String bio;
 

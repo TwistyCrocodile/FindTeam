@@ -51,6 +51,42 @@
   font-size: 1.05rem;
 }
 
+.profile__name-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.profile__edit-btn {
+  border: 1px solid #d4d4d8;
+  background: #fff;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.profile__edit {
+  margin-top: 12px;
+}
+
+.profile__edit-actions {
+  margin-top: 10px;
+}
+
+.profile__cancel-btn {
+  border: none;
+  background: #e4e4e7;
+  color: #18181b;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  width: 100%;
+}
+
 .profile__state {
   margin: 0 0 10px;
   color: #52525b;

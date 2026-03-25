@@ -27,14 +27,13 @@ export function TelegramUserStrip() {
   }
 
   const display = [user.firstName, user.lastName].filter(Boolean).join(' ');
-  const handle = user.username ? `@${user.username}` : `id ${user.id}`;
+  const labelFallback = 'Telegram user';
 
   return (
     <div className="tg-strip tg-strip--user">
       <span className="tg-strip__label">Signed in as</span>
       <span className="tg-strip__name">
-        {display || handle}
-        {display && user.username ? ` (${handle})` : null}
+        {display || labelFallback}
       </span>
     </div>
   );

@@ -42,11 +42,22 @@
   margin: 8px 0 6px;
   font-size: 0.85rem;
   color: #52525b;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  overflow-wrap: anywhere;
 }
 
 .post-card__dot {
-  margin: 0 4px;
   opacity: 0.5;
+}
+
+.post-card__meta-pill {
+  font-weight: 700;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .post-card__stack,
@@ -107,4 +118,14 @@
   margin: 8px 0 0;
   font-size: 0.85rem;
   color: #b91c1c;
+}
+
+.post-card__apply-notice {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: #52525b;
+  background: #f4f4f5;
+  border: 1px solid #e4e4e7;
+  border-radius: 10px;
+  padding: 10px 12px;
 }

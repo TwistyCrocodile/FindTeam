@@ -1,20 +1,28 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getPosts } from '../api/posts';
+import { updateUserProfile } from '../api/users';
 import { PostCard } from '../components/PostCard';
+import { UserProfileForm } from '../components/UserProfileForm';
 import type { PostResponse } from '../types/post';
+import type { UserProfileResponse } from '../types/user';
 import './ProfilePage.css';
 
 const PROFILE_PAGE_SIZE = 50;
 
 type Props = {
   telegramId: number;
-  username?: string;
+  profile: UserProfileResponse;
+  onProfileUpdated: (profile: UserProfileResponse) => void;
 };
 
-export function ProfilePage({ telegramId, username }: Props) {
+export function ProfilePage({ telegramId, profile, onProfileUpdated }: Props) {
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [editing, setEditing] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [profileSaving, setProfileSaving] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -34,16 +42,25 @@ export function ProfilePage({ telegramId, username }: Props) {
     void load();
   }, [load]);
 
-  const displayName = useMemo(() => {
-    if (username?.trim()) return `@${username.trim()}`;
-    return `id ${telegramId}`;
-  }, [telegramId, username]);
-
   const myPosts = useMemo(() => posts.filter((p) => p.telegramId === telegramId), [posts, telegramId]);
 
   function handlePostUpdated(updated: PostResponse) {
     setPosts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
   }
+
+  function handlePostDeleted(postId: number) {
+    setPosts((prev) => prev.filter((p) => p.id !== postId));
+  }
+
+  const initialFormValues = useMemo(
+    () => ({
+      nickname: profile.nickname,
+      bio: profile.bio ?? '',
+      stack: profile.stack,
+      githubUrl: profile.githubUrl ?? '',
+    }),
+    [profile],
+  );
 
   return (
     <section className="profile">
@@ -51,21 +68,66 @@ export function ProfilePage({ telegramId, username }: Props) {
         <div className="profile__top">
           <div className="profile__avatar" aria-hidden="true" />
           <div className="profile__meta">
-            <h2 className="profile__name">{displayName}</h2>
-            <p className="profile__row">
-              <span className="profile__label">Bio</span> Building cool stuff with teammates.
-            </p>
-            <p className="profile__row">
-              <span className="profile__label">Stack</span> React, TypeScript, Spring Boot
-            </p>
-            <p className="profile__row">
-              <span className="profile__label">GitHub</span>{' '}
-              <a href="https://github.com/" target="_blank" rel="noreferrer">
-                github.com
-              </a>
-            </p>
+            <div className="profile__name-row">
+              <h2 className="profile__name">{profile.nickname}</h2>
+              {!editing ? (
+                <button type="button" className="profile__edit-btn" onClick={() => setEditing(true)}>
+                  Edit profile
+                </button>
+              ) : null}
+            </div>
+
+            {!editing ? (
+              <>
+                <p className="profile__row">
+                  <span className="profile__label">Bio</span> {profile.bio || '—'}
+                </p>
+                <p className="profile__row">
+                  <span className="profile__label">Stack</span> {profile.stack}
+                </p>
+                <p className="profile__row">
+                  <span className="profile__label">GitHub</span>{' '}
+                  {profile.githubUrl ? (
+                    <a href={profile.githubUrl} target="_blank" rel="noreferrer">
+                      {profile.githubUrl}
+                    </a>
+                  ) : (
+                    '—'
+                  )}
+                </p>
+              </>
+            ) : null}
           </div>
         </div>
+
+        {editing ? (
+          <div className="profile__edit">
+            <UserProfileForm
+              initialValues={initialFormValues}
+              submitLabel="Save changes"
+              loading={profileSaving}
+              serverError={profileError}
+              onSubmit={async (values) => {
+                setProfileError(null);
+                setProfileSaving(true);
+                try {
+                  const updated = await updateUserProfile(telegramId, values);
+                  onProfileUpdated(updated);
+                  setEditing(false);
+                } catch (e) {
+                  setProfileError(e instanceof Error ? e.message : 'Request failed');
+                } finally {
+                  setProfileSaving(false);
+                }
+              }}
+            />
+            <div className="profile__edit-actions">
+              <button type="button" className="profile__cancel-btn" onClick={() => setEditing(false)} disabled={profileSaving}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <div className="profile__posts">
@@ -78,7 +140,7 @@ export function ProfilePage({ telegramId, username }: Props) {
         <ul className="profile__list">
           {myPosts.map((p) => (
             <li key={p.id}>
-              <PostCard post={p} onPostUpdated={handlePostUpdated} />
+              <PostCard post={p} viewerTelegramId={telegramId} onPostUpdated={handlePostUpdated} onPostDeleted={handlePostDeleted} />
             </li>
           ))}
         </ul>

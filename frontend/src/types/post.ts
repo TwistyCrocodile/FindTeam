@@ -9,7 +9,7 @@ export type PostStatus = 'ACTIVE' | 'CLOSED';
 export interface PostResponse {
   id: number;
   telegramId: number;
-  username: string | null;
+  nickname: string | null;
   type: PostType;
   title: string;
   description: string;

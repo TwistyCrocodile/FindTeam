@@ -11,7 +11,7 @@ public class PostResponse {
 
 	private Long id;
 	private Long telegramId;
-	private String username;
+	private String nickname;
 	private PostType type;
 	private String title;
 	private String description;
