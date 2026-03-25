@@ -98,6 +98,11 @@
   color: #18181b;
 }
 
+.post-card .btn--primary {
+  background: #18181b;
+  color: #fff;
+}
+
 .post-card__error {
   margin: 8px 0 0;
   font-size: 0.85rem;

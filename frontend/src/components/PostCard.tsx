@@ -20,6 +20,13 @@ export function PostCard({ post, onPostUpdated }: Props) {
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
+  function handleApply() {
+    // TODO: later open Telegram chat with author
+    // For now, keep it simple.
+    alert(`Applied to "${post.title}"`);
+    console.log('Apply clicked', { postId: post.id, telegramId: post.telegramId });
+  }
+
   async function handleClose() {
     setActionError(null);
     setBusy(true);
@@ -76,6 +83,9 @@ export function PostCard({ post, onPostUpdated }: Props) {
       <p className="post-card__time">{formatWhen(post.createdAt)}</p>
 
       <div className="post-card__actions">
+        <button type="button" className="btn btn--primary" disabled={busy} onClick={handleApply}>
+          Apply
+        </button>
         <button type="button" className="btn btn--secondary" disabled={busy} onClick={handleClose}>
           Close post
         </button>

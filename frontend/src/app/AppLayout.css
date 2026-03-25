@@ -2,8 +2,7 @@
   max-width: 560px;
   margin: 0 auto;
   min-height: 100vh;
-  padding: 12px 14px 28px;
-  padding-bottom: max(28px, env(safe-area-inset-bottom));
+  padding: 12px 14px 20px;
 }
 
 .app-header {
@@ -26,4 +25,5 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  padding-bottom: calc(var(--bottom-nav-height, 64px) + 16px + env(safe-area-inset-bottom));
 }

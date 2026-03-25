@@ -7,12 +7,12 @@ const POST_TYPES: PostType[] = ['SEEKING_TEAM', 'SEEKING_MEMBER'];
 const POST_GOALS: PostGoal[] = ['HACKATHON', 'PET_PROJECT', 'STARTUP', 'JOB'];
 
 type Props = {
+  telegramId: number;
   /** After a successful POST, parent refreshes the feed. */
   onCreated: () => void;
 };
 
-export function CreatePostForm({ onCreated }: Props) {
-  const [telegramId, setTelegramId] = useState('');
+export function CreatePostForm({ telegramId, onCreated }: Props) {
   const [type, setType] = useState<PostType>('SEEKING_TEAM');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -25,9 +25,7 @@ export function CreatePostForm({ onCreated }: Props) {
   const [submitting, setSubmitting] = useState(false);
 
   function validate(): string | null {
-    if (!telegramId.trim()) return 'Telegram ID is required.';
-    const idNum = Number(telegramId);
-    if (!Number.isFinite(idNum) || idNum <= 0) return 'Telegram ID must be a positive number.';
+    if (!Number.isFinite(telegramId) || telegramId <= 0) return 'Telegram ID must be a positive number.';
     if (!title.trim()) return 'Title is required.';
     if (!description.trim()) return 'Description is required.';
     if (!stack.trim()) return 'Stack is required.';
@@ -46,7 +44,7 @@ export function CreatePostForm({ onCreated }: Props) {
     }
 
     const payload: CreatePostRequest = {
-      telegramId: Number(telegramId),
+      telegramId,
       type,
       title: title.trim(),
       description: description.trim(),
@@ -74,20 +72,8 @@ export function CreatePostForm({ onCreated }: Props) {
   return (
     <section className="create-post">
       <h2 className="create-post__heading">Create a post</h2>
-      <p className="create-post__hint">
-        For MVP, enter a Telegram user id that already exists in the backend (create user first via API if needed).
-      </p>
+      <p className="create-post__hint">Posting as Telegram ID: {telegramId}</p>
       <form className="create-post__form" onSubmit={onSubmit}>
-        <label className="field">
-          <span>Telegram ID</span>
-          <input
-            inputMode="numeric"
-            value={telegramId}
-            onChange={(e) => setTelegramId(e.target.value)}
-            placeholder="e.g. 123456789"
-          />
-        </label>
-
         <label className="field">
           <span>Type</span>
           <select value={type} onChange={(e) => setType(e.target.value as PostType)}>
