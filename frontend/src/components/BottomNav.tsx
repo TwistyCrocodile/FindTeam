@@ -1,4 +1,5 @@
 import './BottomNav.css';
+import { useLanguage } from '../hooks/useLanguage';
 
 export type TabId = 'posts' | 'create' | 'profile';
 
@@ -8,6 +9,8 @@ type Props = {
 };
 
 export function BottomNav({ currentTab, onTabChange }: Props) {
+  const { t } = useLanguage();
+
   return (
     <nav className="bottom-nav" aria-label="Bottom navigation">
       <button
@@ -15,21 +18,21 @@ export function BottomNav({ currentTab, onTabChange }: Props) {
         className={`bottom-nav__item ${currentTab === 'posts' ? 'bottom-nav__item--active' : ''}`}
         onClick={() => onTabChange('posts')}
       >
-        Posts
+        {t.nav.posts}
       </button>
       <button
         type="button"
         className={`bottom-nav__item ${currentTab === 'create' ? 'bottom-nav__item--active' : ''}`}
         onClick={() => onTabChange('create')}
       >
-        Create
+        {t.nav.create}
       </button>
       <button
         type="button"
         className={`bottom-nav__item ${currentTab === 'profile' ? 'bottom-nav__item--active' : ''}`}
         onClick={() => onTabChange('profile')}
       >
-        Profile
+        {t.nav.profile}
       </button>
     </nav>
   );

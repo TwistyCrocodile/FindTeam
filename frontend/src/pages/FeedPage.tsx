@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getApplicationsByApplicantAuthAware } from '../api/applications';
 import { getPosts } from '../api/posts';
+import { getPostGoalLabel, getPostStatusLabel, getPostTypeLabel } from '../app/translations';
 import { PostCard } from '../components/PostCard';
+import { useLanguage } from '../hooks/useLanguage';
 import type { PostGoal, PostResponse, PostStatus, PostType } from '../types/post';
 import './FeedPage.css';
 
@@ -25,6 +27,7 @@ type Props = {
 };
 
 export function FeedPage({ reloadToken, viewerTelegramId, initData, onViewUserProfile }: Props) {
+  const { t } = useLanguage();
   const [search, setSearch] = useState('');
 
   const [filterType, setFilterType] = useState<PostType | ''>('');
@@ -75,13 +78,13 @@ export function FeedPage({ reloadToken, viewerTelegramId, initData, onViewUserPr
       setPage(0);
       setLast(res.last);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load posts');
+      setError(e instanceof Error ? e.message : t.feed.failedToLoadPosts);
       setPosts([]);
       setLast(true);
     } finally {
       setLoading(false);
     }
-  }, [filters]);
+  }, [filters, t.feed.failedToLoadPosts]);
 
   useEffect(() => {
     void refreshFirstPage();
@@ -98,11 +101,11 @@ export function FeedPage({ reloadToken, viewerTelegramId, initData, onViewUserPr
       setPage(nextPage);
       setLast(res.last);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load more');
+      setError(e instanceof Error ? e.message : t.feed.failedToLoadMore);
     } finally {
       setLoadingMore(false);
     }
-  }, [filters, last, loadingMore, loading, page]);
+  }, [filters, last, loadingMore, loading, page, t.feed.failedToLoadMore]);
 
   function handlePostUpdated(updated: PostResponse) {
     setPosts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
@@ -120,57 +123,57 @@ export function FeedPage({ reloadToken, viewerTelegramId, initData, onViewUserPr
 
   return (
     <section className="feed">
-      <h2 className="feed__heading">Feed</h2>
+      <h2 className="feed__heading">{t.feed.posts}</h2>
 
       <label className="feed__search">
-        <span className="feed__search-label">Search</span>
+        <span className="feed__search-label">{t.feed.search}</span>
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Title, description, stack…"
+          placeholder={t.feed.searchPlaceholder}
           autoComplete="off"
         />
       </label>
 
       <div className="feed__filters">
         <label className="feed__filter">
-          <span>Type</span>
+          <span>{t.feed.type}</span>
           <select value={filterType} onChange={(e) => setFilterType(e.target.value as PostType | '')}>
-            <option value="">All</option>
-            <option value="SEEKING_TEAM">SEEKING_TEAM</option>
-            <option value="SEEKING_MEMBER">SEEKING_MEMBER</option>
+            <option value="">{t.common.all}</option>
+            <option value="SEEKING_TEAM">{getPostTypeLabel(t, 'SEEKING_TEAM')}</option>
+            <option value="SEEKING_MEMBER">{getPostTypeLabel(t, 'SEEKING_MEMBER')}</option>
           </select>
         </label>
         <label className="feed__filter">
-          <span>Goal</span>
+          <span>{t.feed.goal}</span>
           <select value={filterGoal} onChange={(e) => setFilterGoal(e.target.value as PostGoal | '')}>
-            <option value="">All</option>
-            <option value="HACKATHON">HACKATHON</option>
-            <option value="PET_PROJECT">PET_PROJECT</option>
-            <option value="STARTUP">STARTUP</option>
-            <option value="JOB">JOB</option>
+            <option value="">{t.common.all}</option>
+            <option value="HACKATHON">{getPostGoalLabel(t, 'HACKATHON')}</option>
+            <option value="PET_PROJECT">{getPostGoalLabel(t, 'PET_PROJECT')}</option>
+            <option value="STARTUP">{getPostGoalLabel(t, 'STARTUP')}</option>
+            <option value="JOB">{getPostGoalLabel(t, 'JOB')}</option>
           </select>
         </label>
         <label className="feed__filter">
-          <span>Status</span>
+          <span>{t.feed.status}</span>
           <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as PostStatus | '')}>
-            <option value="">All</option>
-            <option value="ACTIVE">ACTIVE</option>
-            <option value="CLOSED">CLOSED</option>
+            <option value="">{t.common.all}</option>
+            <option value="ACTIVE">{getPostStatusLabel(t, 'ACTIVE')}</option>
+            <option value="CLOSED">{getPostStatusLabel(t, 'CLOSED')}</option>
           </select>
         </label>
       </div>
 
-      {loading ? <p className="feed__state">Loading posts…</p> : null}
+      {loading ? <p className="feed__state">{t.feed.loadingPosts}</p> : null}
 
       {!loading && error ? <p className="feed__state feed__state--error">{error}</p> : null}
 
       {!loading && !error && posts.length === 0 ? (
-        <p className="feed__state">No posts yet. Create one or adjust filters.</p>
+        <p className="feed__state">{t.feed.noPostsFound}</p>
       ) : null}
 
       {!loading && !error && posts.length > 0 && visiblePosts.length === 0 ? (
-        <p className="feed__state">No matches for your search.</p>
+        <p className="feed__state">{t.feed.noSearchMatches}</p>
       ) : null}
 
       <ul className="feed__list">
@@ -193,7 +196,7 @@ export function FeedPage({ reloadToken, viewerTelegramId, initData, onViewUserPr
       {!loading && !last ? (
         <div className="feed__more">
           <button type="button" className="btn-load-more" disabled={loadingMore} onClick={() => void loadMore()}>
-            {loadingMore ? 'Loading…' : 'Load more'}
+            {loadingMore ? t.feed.loadingMore : t.feed.loadMore}
           </button>
         </div>
       ) : null}

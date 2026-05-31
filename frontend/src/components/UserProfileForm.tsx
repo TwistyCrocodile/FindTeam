@@ -1,4 +1,5 @@
 import { FormEvent, useMemo, useState } from 'react';
+import { useLanguage } from '../hooks/useLanguage';
 import type { CreateUserProfileRequest } from '../types/user';
 import './UserProfileForm.css';
 
@@ -21,19 +22,20 @@ function normalizeGithubUrl(value: string) {
   return value.trim();
 }
 
-function validateGithubUrl(value: string): string | null {
+function validateGithubUrl(value: string, messages: { httpUrl: string; validUrl: string }): string | null {
   const v = value.trim();
   if (!v) return null;
   try {
     const url = new URL(v);
-    if (url.protocol !== 'http:' && url.protocol !== 'https:') return 'githubUrl must be an http(s) URL.';
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return messages.httpUrl;
     return null;
   } catch {
-    return 'githubUrl must be a valid URL.';
+    return messages.validUrl;
   }
 }
 
 export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading, serverError }: Props) {
+  const { t } = useLanguage();
   const [nickname, setNickname] = useState(initialValues.nickname);
   const [bio, setBio] = useState(initialValues.bio);
   const [stack, setStack] = useState(initialValues.stack);
@@ -46,11 +48,14 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
 
   function validate(): string | null {
     const n = nickname.trim();
-    if (!n) return 'Nickname is required.';
-    if (!nicknamePattern.test(n)) return 'Nickname must be 3..32 chars (letters, numbers, underscore, dot).';
-    if (!stack.trim()) return 'Stack is required.';
-    if (bio.length > 500) return 'Bio must be at most 500 characters.';
-    const githubErr = validateGithubUrl(githubUrl);
+    if (!n) return t.profile.nicknameRequired;
+    if (!nicknamePattern.test(n)) return t.profile.nicknameInvalid;
+    if (!stack.trim()) return t.createPost.stackRequired;
+    if (bio.length > 500) return t.profile.bioTooLong;
+    const githubErr = validateGithubUrl(githubUrl, {
+      httpUrl: t.profile.githubHttpUrl,
+      validUrl: t.profile.githubValidUrl,
+    });
     if (githubErr) return githubErr;
     return null;
   }
@@ -74,7 +79,7 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
         githubUrl: normalizeGithubUrl(githubUrl) || undefined,
       } as Omit<CreateUserProfileRequest, 'telegramId'>);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Request failed';
+      const msg = err instanceof Error ? err.message : t.common.requestFailed;
       setClientError(msg);
     } finally {
       setSubmitting(false);
@@ -84,22 +89,22 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
   return (
     <form className="profile-form" onSubmit={onFormSubmit}>
       <label className="field">
-        <span>Nickname</span>
+        <span>{t.profile.nickname}</span>
         <input value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="e.g. dev_team_1" maxLength={32} />
       </label>
 
       <label className="field">
-        <span>Bio (optional)</span>
+        <span>{t.profile.bioOptional}</span>
         <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={3} maxLength={500} />
       </label>
 
       <label className="field">
-        <span>Stack</span>
+        <span>{t.profile.stack}</span>
         <input value={stack} onChange={(e) => setStack(e.target.value)} placeholder="React, Spring Boot..." maxLength={255} />
       </label>
 
       <label className="field">
-        <span>GitHub URL (optional)</span>
+        <span>{t.profile.githubOptional}</span>
         <input value={githubUrl} onChange={(e) => setGithubUrl(e.target.value)} placeholder="https://github.com/..." maxLength={255} />
       </label>
 
@@ -107,7 +112,7 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
       {serverError && !clientError ? <p className="form-msg form-msg--error">{serverError}</p> : null}
 
       <button type="submit" className="btn btn--primary" disabled={submitting || loading}>
-        {submitting || loading ? 'Saving…' : submitLabel}
+        {submitting || loading ? t.profile.saving : submitLabel}
       </button>
     </form>
   );

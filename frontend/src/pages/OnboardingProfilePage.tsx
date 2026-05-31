@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { createUserProfile } from '../api/users';
 import { UserProfileForm } from '../components/UserProfileForm';
+import { useLanguage } from '../hooks/useLanguage';
 import type { UserProfileResponse } from '../types/user';
 import './OnboardingProfilePage.css';
 
@@ -17,6 +18,7 @@ function sanitizeNicknameSuggestion(value: string | null | undefined) {
 }
 
 export function OnboardingProfilePage({ telegramId, nicknameSuggestion, onCreated }: Props) {
+  const { t } = useLanguage();
   const [serverError, setServerError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -32,14 +34,14 @@ export function OnboardingProfilePage({ telegramId, nicknameSuggestion, onCreate
 
   return (
     <section className="onboarding">
-      <h2 className="onboarding__heading">Finish your profile</h2>
+      <h2 className="onboarding__heading">{t.onboarding.finishProfile}</h2>
       <p className="onboarding__hint">
-        Pick a nickname users can see in the app. Telegram username will not be shown publicly.
+        {t.onboarding.profileHint}
       </p>
 
       <UserProfileForm
         initialValues={initialValues}
-        submitLabel="Create profile"
+        submitLabel={t.onboarding.createProfile}
         loading={loading}
         serverError={serverError}
         onSubmit={async (values) => {
@@ -49,7 +51,7 @@ export function OnboardingProfilePage({ telegramId, nicknameSuggestion, onCreate
             const created = await createUserProfile({ telegramId, ...values });
             onCreated(created);
           } catch (e) {
-            setServerError(e instanceof Error ? e.message : 'Request failed');
+            setServerError(e instanceof Error ? e.message : t.common.requestFailed);
           } finally {
             setLoading(false);
           }

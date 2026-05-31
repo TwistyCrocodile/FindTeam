@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { applyToPostAuthAware } from '../api/applications';
 import { closePostAuthAware, deletePostAuthAware, reopenPostAuthAware } from '../api/posts';
+import { getPostGoalLabel, getPostStatusLabel, getPostTypeLabel } from '../app/translations';
+import { useLanguage } from '../hooks/useLanguage';
 import type { PostResponse } from '../types/post';
 import './PostCard.css';
 
@@ -39,6 +41,7 @@ export function PostCard({
   onViewApplications,
   onViewUserProfile,
 }: Props) {
+  const { t } = useLanguage();
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [applyNotice, setApplyNotice] = useState<string | null>(null);
@@ -60,13 +63,13 @@ export function PostCard({
       await applyToPostAuthAware({ postId: post.id, telegramId: viewerTelegramId }, initData);
       setApplied(true);
       onApplied?.(post.id);
-      setApplyNotice('Application sent');
+      setApplyNotice(t.applications.applicationSent);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Could not apply';
+      const msg = e instanceof Error ? e.message : t.applications.couldNotApply;
       if (msg.toLowerCase().includes('already exists')) {
         setApplied(true);
         onApplied?.(post.id);
-        setApplyNotice('You have already applied to this post.');
+        setApplyNotice(t.applications.alreadyApplied);
       } else {
         setActionError(msg);
       }
@@ -83,7 +86,7 @@ export function PostCard({
       const updated = await closePostAuthAware(post.id, viewerTelegramId, initData);
       onPostUpdated(updated);
     } catch (e) {
-      setActionError(e instanceof Error ? e.message : 'Could not close post');
+      setActionError(e instanceof Error ? e.message : t.postActions.couldNotClose);
     } finally {
       setBusy(false);
     }
@@ -97,13 +100,16 @@ export function PostCard({
       const updated = await reopenPostAuthAware(post.id, viewerTelegramId, initData);
       onPostUpdated(updated);
     } catch (e) {
-      setActionError(e instanceof Error ? e.message : 'Could not reopen post');
+      setActionError(e instanceof Error ? e.message : t.postActions.couldNotReopen);
     } finally {
       setBusy(false);
     }
   }
 
   async function handleDelete() {
+    if (!window.confirm(t.common.deleteConfirmMessage)) {
+      return;
+    }
     setActionError(null);
     setApplyNotice(null);
     setBusy(true);
@@ -111,7 +117,7 @@ export function PostCard({
       await deletePostAuthAware(post.id, viewerTelegramId, initData);
       onPostDeleted(post.id);
     } catch (e) {
-      setActionError(e instanceof Error ? e.message : 'Could not delete post');
+      setActionError(e instanceof Error ? e.message : t.postActions.couldNotDelete);
     } finally {
       setBusy(false);
     }
@@ -122,7 +128,7 @@ export function PostCard({
       <div className="post-card__head">
         <h2 className="post-card__title">{post.title}</h2>
         <span className={`post-card__status post-card__status--${post.status.toLowerCase()}`}>
-          {post.status}
+          {getPostStatusLabel(t, post.status)}
         </span>
       </div>
       <p className="post-card__meta">
@@ -132,23 +138,23 @@ export function PostCard({
             className="post-card__author"
             onClick={() => onViewUserProfile(post.telegramId)}
           >
-            {post.nickname ?? 'Unknown user'}
+            {post.nickname ?? t.common.unknownUser}
           </button>
         ) : (
-          <strong>{post.nickname ?? 'Unknown user'}</strong>
+          <strong>{post.nickname ?? t.common.unknownUser}</strong>
         )}
         <span className="post-card__dot">·</span>
-        <span className="post-card__meta-pill">{post.type}</span>
+        <span className="post-card__meta-pill">{getPostTypeLabel(t, post.type)}</span>
         <span className="post-card__dot">·</span>
-        <span className="post-card__meta-pill">{post.goal}</span>
+        <span className="post-card__meta-pill">{getPostGoalLabel(t, post.goal)}</span>
       </p>
       <p className="post-card__stack">
-        <span className="post-card__label">Stack</span> {post.stack}
+        <span className="post-card__label">{t.createPost.stack}</span> {post.stack}
       </p>
       <p className="post-card__description">{post.description}</p>
       {post.eventLink ? (
         <p className="post-card__link">
-          <span className="post-card__label">Link</span>{' '}
+          <span className="post-card__label">{t.common.link}</span>{' '}
           <a href={post.eventLink} target="_blank" rel="noreferrer">
             {post.eventLink}
           </a>
@@ -164,7 +170,13 @@ export function PostCard({
             disabled={busy || alreadyApplied || isClosed}
             onClick={() => void handleApply()}
           >
-            {busy ? 'Sending…' : isClosed ? 'Closed' : alreadyApplied ? 'Applied' : 'Apply'}
+            {busy
+              ? t.applications.applying
+              : isClosed
+                ? t.postActions.closedButton
+                : alreadyApplied
+                  ? t.applications.applied
+                  : t.applications.apply}
           </button>
         ) : null}
         {isOwner ? (
@@ -176,17 +188,17 @@ export function PostCard({
                 disabled={busy}
                 onClick={() => onViewApplications(post.id)}
               >
-                View Applications
+                {t.applications.viewApplications}
               </button>
             ) : null}
             <button type="button" className="btn btn--secondary" disabled={busy} onClick={() => void handleClose()}>
-              Close post
+              {t.postActions.closePost}
             </button>
             <button type="button" className="btn btn--secondary" disabled={busy} onClick={() => void handleReopen()}>
-              Reopen post
+              {t.postActions.reopenPost}
             </button>
             <button type="button" className="btn btn--secondary" disabled={busy} onClick={() => void handleDelete()}>
-              Delete post
+              {t.postActions.deletePost}
             </button>
           </>
         ) : null}

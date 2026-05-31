@@ -5,6 +5,8 @@ import {
   getApplicationsForPostAuthAware,
   rejectApplicationAuthAware,
 } from '../api/applications';
+import { getApplicationStatusLabel } from '../app/translations';
+import { useLanguage } from '../hooks/useLanguage';
 import { ContactInfoView } from './ContactInfoView';
 import type { ApplicationResponse } from '../types/application';
 import type { ContactInfoResponse } from '../types/user';
@@ -26,13 +28,8 @@ function formatWhen(iso: string) {
   }
 }
 
-function formatStatus(status: ApplicationResponse['status']) {
-  if (status === 'PENDING') return 'Pending review';
-  if (status === 'ACCEPTED') return 'Accepted';
-  return 'Rejected';
-}
-
 export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onViewUserProfile, onClose }: Props) {
+  const { t } = useLanguage();
   const [applications, setApplications] = useState<ApplicationResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,12 +46,12 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
       const list = await getApplicationsForPostAuthAware(postId, ownerTelegramId, initData);
       setApplications(list);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load applications');
+      setError(e instanceof Error ? e.message : t.applications.failedToLoadApplications);
       setApplications([]);
     } finally {
       setLoading(false);
     }
-  }, [postId, ownerTelegramId, initData]);
+  }, [postId, ownerTelegramId, initData, t.applications.failedToLoadApplications]);
 
   useEffect(() => {
     void load();
@@ -67,7 +64,7 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
       const updated = await acceptApplicationAuthAware(id, ownerTelegramId, initData);
       setApplications((prev) => prev.map((a) => (a.id === id ? updated : a)));
     } catch (e) {
-      setActionError(e instanceof Error ? e.message : 'Could not accept');
+      setActionError(e instanceof Error ? e.message : t.applications.couldNotAccept);
     } finally {
       setBusyId(null);
     }
@@ -80,7 +77,7 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
       const updated = await rejectApplicationAuthAware(id, ownerTelegramId, initData);
       setApplications((prev) => prev.map((a) => (a.id === id ? updated : a)));
     } catch (e) {
-      setActionError(e instanceof Error ? e.message : 'Could not reject');
+      setActionError(e instanceof Error ? e.message : t.applications.couldNotReject);
     } finally {
       setBusyId(null);
     }
@@ -88,7 +85,7 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
 
   async function handleViewContact(id: number) {
     if (!initData) {
-      setContactErrorById((prev) => ({ ...prev, [id]: 'Open in Telegram to view contact.' }));
+      setContactErrorById((prev) => ({ ...prev, [id]: t.common.openInTelegram }));
       return;
     }
 
@@ -100,7 +97,7 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
     } catch (e) {
       setContactErrorById((prev) => ({
         ...prev,
-        [id]: e instanceof Error ? e.message : 'Could not load contact info',
+        [id]: e instanceof Error ? e.message : t.contact.couldNotLoadContact,
       }));
     } finally {
       setContactBusyId(null);
@@ -110,16 +107,16 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
   return (
     <div className="post-applications">
       <div className="post-applications__head">
-        <h4 className="post-applications__title">Applications</h4>
+        <h4 className="post-applications__title">{t.applications.applications}</h4>
         <button type="button" className="post-applications__close" onClick={onClose}>
-          Close
+          {t.common.close}
         </button>
       </div>
 
-      {loading ? <p className="post-applications__state">Loading…</p> : null}
+      {loading ? <p className="post-applications__state">{t.common.loading}</p> : null}
       {!loading && error ? <p className="post-applications__state post-applications__state--error">{error}</p> : null}
       {!loading && !error && applications.length === 0 ? (
-        <p className="post-applications__state">No applications yet.</p>
+        <p className="post-applications__state">{t.applications.noApplicationsYet}</p>
       ) : null}
 
       <ul className="post-applications__list">
@@ -138,7 +135,7 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
                 <strong>{a.applicantNickname}</strong>
               )}
               <span className={`post-applications__status post-applications__status--${a.status.toLowerCase()}`}>
-                {formatStatus(a.status)}
+                {getApplicationStatusLabel(t, a.status)}
               </span>
             </div>
             <p className="post-applications__time">{formatWhen(a.createdAt)}</p>
@@ -150,7 +147,7 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
                   disabled={busyId !== null}
                   onClick={() => void handleAccept(a.id)}
                 >
-                  {busyId === a.id ? '…' : 'Accept'}
+                  {busyId === a.id ? '...' : t.applications.accept}
                 </button>
                 <button
                   type="button"
@@ -158,7 +155,7 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
                   disabled={busyId !== null}
                   onClick={() => void handleReject(a.id)}
                 >
-                  {busyId === a.id ? '…' : 'Reject'}
+                  {busyId === a.id ? '...' : t.applications.reject}
                 </button>
               </div>
             ) : null}
@@ -170,7 +167,7 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
                   disabled={contactBusyId !== null}
                   onClick={() => void handleViewContact(a.id)}
                 >
-                  {contactBusyId === a.id ? 'Loading…' : 'View contact'}
+                  {contactBusyId === a.id ? t.contact.loadingContact : t.contact.viewContact}
                 </button>
                 {contactErrorById[a.id] ? (
                   <p className="post-applications__contact-note post-applications__contact-note--error">

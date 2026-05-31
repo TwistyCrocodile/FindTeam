@@ -1,5 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { createPostAuthAware } from '../api/posts';
+import { getPostGoalLabel, getPostTypeLabel } from '../app/translations';
+import { useLanguage } from '../hooks/useLanguage';
 import type { CreatePostRequest, PostGoal, PostType } from '../types/post';
 import './CreatePostForm.css';
 
@@ -14,6 +16,7 @@ type Props = {
 };
 
 export function CreatePostForm({ telegramId, initData, onCreated }: Props) {
+  const { t } = useLanguage();
   const [type, setType] = useState<PostType>('SEEKING_TEAM');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -26,10 +29,10 @@ export function CreatePostForm({ telegramId, initData, onCreated }: Props) {
   const [submitting, setSubmitting] = useState(false);
 
   function validate(): string | null {
-    if (!Number.isFinite(telegramId) || telegramId <= 0) return 'Telegram ID must be a positive number.';
-    if (!title.trim()) return 'Title is required.';
-    if (!description.trim()) return 'Description is required.';
-    if (!stack.trim()) return 'Stack is required.';
+    if (!Number.isFinite(telegramId) || telegramId <= 0) return t.createPost.telegramIdInvalid;
+    if (!title.trim()) return t.createPost.titleRequired;
+    if (!description.trim()) return t.createPost.descriptionRequired;
+    if (!stack.trim()) return t.createPost.stackRequired;
     return null;
   }
 
@@ -57,14 +60,14 @@ export function CreatePostForm({ telegramId, initData, onCreated }: Props) {
     setSubmitting(true);
     try {
       await createPostAuthAware(payload, initData);
-      setServerMessage('Post created.');
+      setServerMessage(t.createPost.created);
       setTitle('');
       setDescription('');
       setStack('');
       setEventLink('');
       onCreated();
     } catch (err) {
-      setServerMessage(err instanceof Error ? err.message : 'Request failed');
+      setServerMessage(err instanceof Error ? err.message : t.common.requestFailed);
     } finally {
       setSubmitting(false);
     }
@@ -72,48 +75,48 @@ export function CreatePostForm({ telegramId, initData, onCreated }: Props) {
 
   return (
     <section className="create-post">
-      <h2 className="create-post__heading">Create a post</h2>
-      <p className="create-post__hint">Posting as your profile</p>
+      <h2 className="create-post__heading">{t.createPost.heading}</h2>
+      <p className="create-post__hint">{t.createPost.postingAs}</p>
       <form className="create-post__form" onSubmit={onSubmit}>
         <label className="field">
-          <span>Type</span>
+          <span>{t.createPost.type}</span>
           <select value={type} onChange={(e) => setType(e.target.value as PostType)}>
-            {POST_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
+            {POST_TYPES.map((postType) => (
+              <option key={postType} value={postType}>
+                {getPostTypeLabel(t, postType)}
               </option>
             ))}
           </select>
         </label>
 
         <label className="field">
-          <span>Title</span>
+          <span>{t.createPost.title}</span>
           <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} />
         </label>
 
         <label className="field">
-          <span>Description</span>
+          <span>{t.createPost.description}</span>
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} maxLength={1000} />
         </label>
 
         <label className="field">
-          <span>Stack</span>
+          <span>{t.createPost.stack}</span>
           <input value={stack} onChange={(e) => setStack(e.target.value)} maxLength={255} />
         </label>
 
         <label className="field">
-          <span>Goal</span>
+          <span>{t.createPost.goal}</span>
           <select value={goal} onChange={(e) => setGoal(e.target.value as PostGoal)}>
             {POST_GOALS.map((g) => (
               <option key={g} value={g}>
-                {g}
+                {getPostGoalLabel(t, g)}
               </option>
             ))}
           </select>
         </label>
 
         <label className="field">
-          <span>Event link (optional)</span>
+          <span>{t.createPost.eventLink}</span>
           <input
             value={eventLink}
             onChange={(e) => setEventLink(e.target.value)}
@@ -124,13 +127,13 @@ export function CreatePostForm({ telegramId, initData, onCreated }: Props) {
 
         {clientError ? <p className="form-msg form-msg--error">{clientError}</p> : null}
         {serverMessage ? (
-          <p className={`form-msg ${serverMessage.startsWith('Post created') ? 'form-msg--ok' : 'form-msg--error'}`}>
+          <p className={`form-msg ${serverMessage === t.createPost.created ? 'form-msg--ok' : 'form-msg--error'}`}>
             {serverMessage}
           </p>
         ) : null}
 
         <button type="submit" className="btn btn--primary" disabled={submitting}>
-          {submitting ? 'Submitting…' : 'Publish post'}
+          {submitting ? t.createPost.submitting : t.createPost.submit}
         </button>
       </form>
     </section>

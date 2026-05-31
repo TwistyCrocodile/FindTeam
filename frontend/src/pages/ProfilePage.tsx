@@ -2,12 +2,14 @@ import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react
 import { getApplicationContact, getApplicationsByApplicantAuthAware } from '../api/applications';
 import { getCurrentUserPosts, getPosts } from '../api/posts';
 import { getMyContactInfo, updateMyContactInfo, updateUserProfileAuthAware } from '../api/users';
+import { getApplicationStatusLabel, getPostGoalLabel, getPostStatusLabel } from '../app/translations';
 import { ContactInfoView } from '../components/ContactInfoView';
 import { PostApplicationsPanel } from '../components/PostApplicationsPanel';
 import { PostCard } from '../components/PostCard';
 import { UserProfileForm } from '../components/UserProfileForm';
+import { useLanguage } from '../hooks/useLanguage';
 import { useTheme } from '../hooks/useTheme';
-import type { ApplicationResponse, ApplicationStatus } from '../types/application';
+import type { ApplicationResponse } from '../types/application';
 import type { PostResponse } from '../types/post';
 import type { ContactInfoResponse, UserProfileResponse } from '../types/user';
 import './ProfilePage.css';
@@ -22,12 +24,6 @@ function formatWhen(iso: string) {
   }
 }
 
-function formatApplicationStatus(status: ApplicationStatus) {
-  if (status === 'PENDING') return 'Pending review';
-  if (status === 'ACCEPTED') return 'Accepted';
-  return 'Rejected';
-}
-
 type Props = {
   telegramId: number;
   initData?: string | null;
@@ -37,6 +33,7 @@ type Props = {
 };
 
 export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, onViewUserProfile }: Props) {
+  const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -78,12 +75,12 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
         setPosts(res.content);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load profile');
+      setError(e instanceof Error ? e.message : t.profile.failedToLoadProfile);
       setPosts([]);
     } finally {
       setLoading(false);
     }
-  }, [initData]);
+  }, [initData, t.profile.failedToLoadProfile]);
 
   useEffect(() => {
     void load();
@@ -96,12 +93,12 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
       const list = await getApplicationsByApplicantAuthAware(telegramId, initData);
       setApplications(list);
     } catch (e) {
-      setApplicationsError(e instanceof Error ? e.message : 'Failed to load applications');
+      setApplicationsError(e instanceof Error ? e.message : t.profile.failedToLoadApplications);
       setApplications([]);
     } finally {
       setApplicationsLoading(false);
     }
-  }, [telegramId, initData]);
+  }, [telegramId, initData, t.profile.failedToLoadApplications]);
 
   useEffect(() => {
     void loadApplications();
@@ -125,7 +122,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
         setContactInfo(info);
         setContactDraft(draft);
       } catch (e) {
-        if (!cancelled) setContactMessage(e instanceof Error ? e.message : 'Failed to load contact info');
+        if (!cancelled) setContactMessage(e instanceof Error ? e.message : t.contact.couldNotLoadContact);
       } finally {
         if (!cancelled) setContactLoading(false);
       }
@@ -135,7 +132,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
     return () => {
       cancelled = true;
     };
-  }, [initData]);
+  }, [initData, t.contact.couldNotLoadContact]);
 
   const myPosts = useMemo(() => posts.filter((p) => p.telegramId === telegramId), [posts, telegramId]);
 
@@ -175,9 +172,9 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
         contactGithubUrl: updated.contactGithubUrl ?? '',
         contactEmail: updated.contactEmail ?? '',
       });
-      setContactMessage('Contact info saved.');
+      setContactMessage(t.contact.contactInfoSaved);
     } catch (e) {
-      setContactMessage(e instanceof Error ? e.message : 'Could not save contact info');
+      setContactMessage(e instanceof Error ? e.message : t.contact.couldNotSaveContact);
     } finally {
       setContactSaving(false);
     }
@@ -185,7 +182,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
 
   async function handleViewContact(applicationId: number) {
     if (!initData) {
-      setContactErrorById((prev) => ({ ...prev, [applicationId]: 'Open in Telegram to view contact.' }));
+      setContactErrorById((prev) => ({ ...prev, [applicationId]: t.common.openInTelegram }));
       return;
     }
 
@@ -197,7 +194,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
     } catch (e) {
       setContactErrorById((prev) => ({
         ...prev,
-        [applicationId]: e instanceof Error ? e.message : 'Could not load contact info',
+        [applicationId]: e instanceof Error ? e.message : t.contact.couldNotLoadContact,
       }));
     } finally {
       setContactBusyId(null);
@@ -214,7 +211,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
               <h2 className="profile__name">{profile.nickname}</h2>
               {!editing ? (
                 <button type="button" className="profile__edit-btn" onClick={() => setEditing(true)}>
-                  Edit profile
+                  {t.profile.editProfile}
                 </button>
               ) : null}
             </div>
@@ -222,13 +219,13 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
             {!editing ? (
               <>
                 <p className="profile__row">
-                  <span className="profile__label">Bio</span> {profile.bio || '—'}
+                  <span className="profile__label">{t.profile.bio}</span> {profile.bio || '—'}
                 </p>
                 <p className="profile__row">
-                  <span className="profile__label">Stack</span> {profile.stack}
+                  <span className="profile__label">{t.profile.stack}</span> {profile.stack}
                 </p>
                 <p className="profile__row">
-                  <span className="profile__label">GitHub</span>{' '}
+                  <span className="profile__label">{t.profile.github}</span>{' '}
                   {profile.githubUrl ? (
                     <a href={profile.githubUrl} target="_blank" rel="noreferrer">
                       {profile.githubUrl}
@@ -246,7 +243,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
           <div className="profile__edit">
             <UserProfileForm
               initialValues={initialFormValues}
-              submitLabel="Save changes"
+              submitLabel={t.common.saveChanges}
               loading={profileSaving}
               serverError={profileError}
               onSubmit={async (values) => {
@@ -257,7 +254,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
                   onProfileUpdated(updated);
                   setEditing(false);
                 } catch (e) {
-                  setProfileError(e instanceof Error ? e.message : 'Request failed');
+                  setProfileError(e instanceof Error ? e.message : t.common.requestFailed);
                 } finally {
                   setProfileSaving(false);
                 }
@@ -265,7 +262,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
             />
             <div className="profile__edit-actions">
               <button type="button" className="profile__cancel-btn" onClick={() => setEditing(false)} disabled={profileSaving}>
-                Cancel
+                {t.common.cancel}
               </button>
             </div>
           </div>
@@ -273,39 +270,59 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
       </div>
 
       <div className="profile__theme-card">
-        <h3 className="profile__posts-heading">Theme</h3>
-        <div className="profile__theme-options" role="group" aria-label="Theme">
+        <h3 className="profile__posts-heading">{t.profile.theme}</h3>
+        <div className="profile__theme-options" role="group" aria-label={t.profile.theme}>
           <button
             type="button"
             className={`profile__theme-btn ${theme === 'dark' ? 'profile__theme-btn--active' : ''}`}
             onClick={() => setTheme('dark')}
           >
-            Dark
+            {t.profile.dark}
           </button>
           <button
             type="button"
             className={`profile__theme-btn ${theme === 'light' ? 'profile__theme-btn--active' : ''}`}
             onClick={() => setTheme('light')}
           >
-            Light
+            {t.profile.light}
+          </button>
+        </div>
+      </div>
+
+      <div className="profile__theme-card">
+        <h3 className="profile__posts-heading">{t.profile.language}</h3>
+        <div className="profile__theme-options" role="group" aria-label={t.profile.language}>
+          <button
+            type="button"
+            className={`profile__theme-btn ${language === 'en' ? 'profile__theme-btn--active' : ''}`}
+            onClick={() => setLanguage('en')}
+          >
+            EN
+          </button>
+          <button
+            type="button"
+            className={`profile__theme-btn ${language === 'ru' ? 'profile__theme-btn--active' : ''}`}
+            onClick={() => setLanguage('ru')}
+          >
+            RU
           </button>
         </div>
       </div>
 
       <div className="profile__contact-card">
-        <h3 className="profile__posts-heading">Contact info</h3>
+        <h3 className="profile__posts-heading">{t.contact.contactInfo}</h3>
         <p className="profile__contact-hint">
-          Contact info is shared only after an application is accepted and only with the accepted application pair.
+          {t.contact.contactHint}
         </p>
 
         {!initData ? (
-          <p className="profile__state">Contact editing requires Telegram Mini App mode.</p>
+          <p className="profile__state">{t.contact.contactEditingRequiresTelegram}</p>
         ) : (
           <>
-            {contactLoading ? <p className="profile__state">Loading contact info…</p> : null}
+            {contactLoading ? <p className="profile__state">{t.contact.loadingContactInfo}</p> : null}
             <form className="profile__contact-form" onSubmit={handleContactSubmit}>
               <label className="profile__contact-field">
-                <span>Telegram username</span>
+                <span>{t.contact.telegramUsername}</span>
                 <input
                   value={contactDraft.contactTelegramUsername}
                   onChange={(e) =>
@@ -316,7 +333,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
                 />
               </label>
               <label className="profile__contact-field">
-                <span>GitHub URL</span>
+                <span>{t.contact.githubUrl}</span>
                 <input
                   value={contactDraft.contactGithubUrl}
                   onChange={(e) => setContactDraft((prev) => ({ ...prev, contactGithubUrl: e.target.value }))}
@@ -325,7 +342,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
                 />
               </label>
               <label className="profile__contact-field">
-                <span>Email</span>
+                <span>{t.contact.email}</span>
                 <input
                   type="email"
                   value={contactDraft.contactEmail}
@@ -335,28 +352,28 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
                 />
               </label>
               <button type="submit" className="profile__contact-save" disabled={contactSaving}>
-                {contactSaving ? 'Saving…' : 'Save contact info'}
+                {contactSaving ? t.contact.saving : t.contact.saveContactInfo}
               </button>
             </form>
             {contactMessage ? (
-              <p className={`profile__state ${contactMessage.endsWith('saved.') ? '' : 'profile__state--error'}`}>
+              <p className={`profile__state ${contactMessage === t.contact.contactInfoSaved ? '' : 'profile__state--error'}`}>
                 {contactMessage}
               </p>
             ) : null}
             <div className="profile__contact-preview">
-              <h4 className="profile__contact-preview-title">Current contact info</h4>
-              <ContactInfoView contact={contactInfo} emptyMessage="You have not added contact info yet." />
+              <h4 className="profile__contact-preview-title">{t.contact.currentContactInfo}</h4>
+              <ContactInfoView contact={contactInfo} emptyMessage={t.contact.noOwnContactInfo} />
             </div>
           </>
         )}
       </div>
 
       <div className="profile__posts">
-        <h3 className="profile__posts-heading">My posts</h3>
+        <h3 className="profile__posts-heading">{t.profile.myPosts}</h3>
 
-        {loading ? <p className="profile__state">Loading…</p> : null}
+        {loading ? <p className="profile__state">{t.common.loading}</p> : null}
         {!loading && error ? <p className="profile__state profile__state--error">{error}</p> : null}
-        {!loading && !error && myPosts.length === 0 ? <p className="profile__state">No posts yet.</p> : null}
+        {!loading && !error && myPosts.length === 0 ? <p className="profile__state">{t.profile.noPosts}</p> : null}
 
         <ul className="profile__list">
           {myPosts.map((p) => (
@@ -390,14 +407,14 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
       </div>
 
       <div className="profile__applications">
-        <h3 className="profile__posts-heading">My applications</h3>
+        <h3 className="profile__posts-heading">{t.profile.myApplications}</h3>
 
-        {applicationsLoading ? <p className="profile__state">Loading…</p> : null}
+        {applicationsLoading ? <p className="profile__state">{t.common.loading}</p> : null}
         {!applicationsLoading && applicationsError ? (
           <p className="profile__state profile__state--error">{applicationsError}</p>
         ) : null}
         {!applicationsLoading && !applicationsError && applications.length === 0 ? (
-          <p className="profile__state">You have not applied to any posts yet.</p>
+          <p className="profile__state">{t.profile.noApplications}</p>
         ) : null}
 
         <ul className="profile__application-list">
@@ -410,13 +427,13 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
                 <div className="profile__application-main">
                   <h4 className="profile__application-title">{application.postTitle}</h4>
                   <p className="profile__application-meta">
-                    <span>{application.postGoal}</span>
+                    <span>{getPostGoalLabel(t, application.postGoal)}</span>
                     <span className="profile__application-dot">·</span>
-                    <span>{application.postStatus}</span>
+                    <span>{getPostStatusLabel(t, application.postStatus)}</span>
                   </p>
                 </div>
                 <span className={`profile__application-status profile__application-status--${application.status.toLowerCase()}`}>
-                  {formatApplicationStatus(application.status)}
+                  {getApplicationStatusLabel(t, application.status)}
                 </span>
               </div>
               <p className="profile__application-time">{formatWhen(application.createdAt)}</p>
@@ -429,7 +446,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
                     disabled={contactBusyId !== null}
                     onClick={() => void handleViewContact(application.id)}
                   >
-                    {contactBusyId === application.id ? 'Loading…' : 'View contact'}
+                    {contactBusyId === application.id ? t.contact.loadingContact : t.contact.viewContact}
                   </button>
                   {contactErrorById[application.id] ? (
                     <p className="profile__application-contact-note profile__application-contact-note--error">

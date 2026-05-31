@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BottomNav, type TabId } from '../components/BottomNav';
+import { useLanguage } from '../hooks/useLanguage';
 import { useTelegramEnvironment } from '../hooks/useTelegramEnvironment';
 import { CreatePostPage } from './CreatePostPage';
 import { FeedPage } from './FeedPage';
@@ -12,6 +13,7 @@ import type { UserProfileResponse } from '../types/user';
 const FALLBACK_TELEGRAM_ID = 123456789;
 
 export function HomePage() {
+  const { t } = useLanguage();
   const [currentTab, setCurrentTab] = useState<TabId>('posts');
   const [feedReloadToken, setFeedReloadToken] = useState(0);
 
@@ -46,7 +48,7 @@ export function HomePage() {
           return;
         }
 
-        setProfileError(err instanceof Error ? err.message : 'Failed to load profile');
+        setProfileError(err instanceof Error ? err.message : t.profile.failedToLoadProfile);
         setProfileStatus('onboarding');
       }
     }
@@ -55,7 +57,7 @@ export function HomePage() {
     return () => {
       cancelled = true;
     };
-  }, [telegramId, initData]);
+  }, [telegramId, initData, t.profile.failedToLoadProfile]);
 
   function handleCreated() {
     setFeedReloadToken((x) => x + 1);
@@ -63,7 +65,7 @@ export function HomePage() {
   }
 
   if (profileStatus === 'loading') {
-    return <p>Loading profile…</p>;
+    return <p>{t.common.loadingProfile}</p>;
   }
 
   if (profileStatus === 'onboarding') {
@@ -83,7 +85,7 @@ export function HomePage() {
 
   if (!profile) {
     return (
-      <p>{profileError ?? 'Profile not loaded.'}</p>
+      <p>{profileError ?? t.profile.profileNotLoaded}</p>
     );
   }
 

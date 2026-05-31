@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getPublicUserPosts, getPublicUserProfile } from '../api/users';
+import { getPostGoalLabel, getPostTypeLabel } from '../app/translations';
+import { useLanguage } from '../hooks/useLanguage';
 import type { PostResponse } from '../types/post';
 import type { PublicUserProfileResponse } from '../types/user';
 import './PublicProfileView.css';
@@ -18,6 +20,7 @@ function formatWhen(iso: string) {
 }
 
 export function PublicProfileView({ telegramId, onBack }: Props) {
+  const { t } = useLanguage();
   const [profile, setProfile] = useState<PublicUserProfileResponse | null>(null);
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,11 +39,11 @@ export function PublicProfileView({ telegramId, onBack }: Props) {
     } catch (e) {
       setProfile(null);
       setPosts([]);
-      setError(e instanceof Error ? e.message : 'Failed to load profile');
+      setError(e instanceof Error ? e.message : t.publicProfile.failedToLoadProfile);
     } finally {
       setLoading(false);
     }
-  }, [telegramId]);
+  }, [telegramId, t.publicProfile.failedToLoadProfile]);
 
   useEffect(() => {
     void load();
@@ -49,10 +52,12 @@ export function PublicProfileView({ telegramId, onBack }: Props) {
   return (
     <section className="public-profile">
       <button type="button" className="public-profile__back" onClick={onBack}>
-        ← Back
+        ← {t.common.back}
       </button>
 
-      {loading ? <p className="public-profile__state">Loading profile…</p> : null}
+      <h2 className="public-profile__heading">{t.publicProfile.publicProfile}</h2>
+
+      {loading ? <p className="public-profile__state">{t.common.loadingProfile}</p> : null}
 
       {!loading && error ? (
         <p className="public-profile__state public-profile__state--error">{error}</p>
@@ -64,13 +69,13 @@ export function PublicProfileView({ telegramId, onBack }: Props) {
             <div className="public-profile__avatar" aria-hidden="true" />
             <h2 className="public-profile__name">{profile.nickname}</h2>
             <p className="public-profile__row">
-              <span className="public-profile__label">Bio</span> {profile.bio || '—'}
+              <span className="public-profile__label">{t.profile.bio}</span> {profile.bio || '—'}
             </p>
             <p className="public-profile__row">
-              <span className="public-profile__label">Stack</span> {profile.stack}
+              <span className="public-profile__label">{t.profile.stack}</span> {profile.stack}
             </p>
             <p className="public-profile__row">
-              <span className="public-profile__label">GitHub</span>{' '}
+              <span className="public-profile__label">{t.profile.github}</span>{' '}
               {profile.githubUrl ? (
                 <a href={profile.githubUrl} target="_blank" rel="noreferrer">
                   {profile.githubUrl}
@@ -79,30 +84,30 @@ export function PublicProfileView({ telegramId, onBack }: Props) {
                 '—'
               )}
             </p>
-            <p className="public-profile__meta">Member since {formatWhen(profile.createdAt)}</p>
+            <p className="public-profile__meta">{t.publicProfile.memberSince} {formatWhen(profile.createdAt)}</p>
           </div>
 
           <div className="public-profile__posts">
-            <h3 className="public-profile__posts-heading">Active posts</h3>
-            <p className="public-profile__posts-hint">Only open (ACTIVE) posts are shown on public profiles.</p>
+            <h3 className="public-profile__posts-heading">{t.publicProfile.activePosts}</h3>
+            <p className="public-profile__posts-hint">{t.publicProfile.activePostsHint}</p>
 
             {posts.length === 0 ? (
-              <p className="public-profile__state">No active posts yet.</p>
+              <p className="public-profile__state">{t.publicProfile.noActivePosts}</p>
             ) : (
               <ul className="public-profile__posts-list">
                 {posts.map((post) => (
                   <li key={post.id} className="public-profile__post">
                     <div className="public-profile__post-head">
                       <h4 className="public-profile__post-title">{post.title}</h4>
-                      <span className="public-profile__post-pill">{post.type}</span>
+                      <span className="public-profile__post-pill">{getPostTypeLabel(t, post.type)}</span>
                     </div>
                     <p className="public-profile__post-meta">
-                      <span>{post.goal}</span>
+                      <span>{getPostGoalLabel(t, post.goal)}</span>
                       <span className="public-profile__dot">·</span>
                       <span>{formatWhen(post.createdAt)}</span>
                     </p>
                     <p className="public-profile__post-stack">
-                      <span className="public-profile__label">Stack</span> {post.stack}
+                      <span className="public-profile__label">{t.profile.stack}</span> {post.stack}
                     </p>
                     <p className="public-profile__post-description">{post.description}</p>
                     {post.eventLink ? (

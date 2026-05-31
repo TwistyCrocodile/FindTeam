@@ -1,4 +1,5 @@
 import type { ContactInfoResponse } from '../types/user';
+import { useLanguage } from '../hooks/useLanguage';
 
 type Props = {
   contact: ContactInfoResponse;
@@ -10,8 +11,11 @@ export function hasContactInfo(contact: ContactInfoResponse | null) {
 }
 
 export function ContactInfoView({ contact, emptyMessage = 'User has not added contact info yet.' }: Props) {
+  const { t } = useLanguage();
+
   if (!hasContactInfo(contact)) {
-    return <p className="contact-info__empty">{emptyMessage}</p>;
+    const message = emptyMessage === 'User has not added contact info yet.' ? t.contact.userNoContactInfo : emptyMessage;
+    return <p className="contact-info__empty">{message}</p>;
   }
 
   return (

@@ -16,6 +16,11 @@
   cursor: pointer;
 }
 
+.public-profile__heading {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
 .public-profile__state {
   margin: 0;
   font-size: 0.9rem;

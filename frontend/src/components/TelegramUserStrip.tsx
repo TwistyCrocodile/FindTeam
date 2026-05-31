@@ -1,3 +1,4 @@
+import { useLanguage } from '../hooks/useLanguage';
 import { useTelegramEnvironment } from '../hooks/useTelegramEnvironment';
 import './TelegramUserStrip.css';
 
@@ -6,13 +7,14 @@ import './TelegramUserStrip.css';
  * In plain browser dev, shows a short hint instead.
  */
 export function TelegramUserStrip() {
+  const { t } = useLanguage();
   const { inTelegram, user, initData } = useTelegramEnvironment();
 
   if (!inTelegram) {
     return (
       <div className="tg-strip tg-strip--dev">
-        <span className="tg-strip__label">Dev mode</span>
-        <span className="tg-strip__hint">Open inside Telegram for real user context.</span>
+        <span className="tg-strip__label">{t.onboarding.devMode}</span>
+        <span className="tg-strip__hint">{t.onboarding.openInTelegramHint}</span>
       </div>
     );
   }
@@ -22,23 +24,23 @@ export function TelegramUserStrip() {
       <div className="tg-strip">
         <span className="tg-strip__label">Telegram</span>
         <span className="tg-strip__hint">
-          {initData ? 'Telegram auth data detected.' : 'User data not in launch params.'}
+          {initData ? t.onboarding.telegramAuthDetected : t.onboarding.userDataMissing}
         </span>
       </div>
     );
   }
 
   const display = [user.firstName, user.lastName].filter(Boolean).join(' ');
-  const labelFallback = 'Telegram user';
+  const labelFallback = t.onboarding.telegramUser;
 
   return (
     <div className="tg-strip tg-strip--user">
-      <span className="tg-strip__label">Signed in as</span>
+      <span className="tg-strip__label">{t.onboarding.signedInAs}</span>
       <span className="tg-strip__name">
         {display || labelFallback}
       </span>
       <span className="tg-strip__hint">
-        {initData ? 'Telegram auth data detected.' : 'Telegram auth data missing.'}
+        {initData ? t.onboarding.telegramAuthDetected : t.onboarding.telegramAuthMissing}
       </span>
     </div>
   );
