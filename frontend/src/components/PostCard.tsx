@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { applyToPost } from '../api/applications';
 import { closePost, deletePost, reopenPost } from '../api/posts';
 import type { PostResponse } from '../types/post';
 import './PostCard.css';
@@ -8,6 +9,12 @@ type Props = {
   viewerTelegramId: number;
   onPostUpdated: (p: PostResponse) => void;
   onPostDeleted: (postId: number) => void;
+  /** True if the viewer already applied to this post (from feed preload). */
+  hasApplied?: boolean;
+  onApplied?: (postId: number) => void;
+  /** Profile owner view: show View Applications. */
+  showApplicationsButton?: boolean;
+  onViewApplications?: (postId: number) => void;
 };
 
 function formatWhen(iso: string) {
@@ -18,17 +25,49 @@ function formatWhen(iso: string) {
   }
 }
 
-export function PostCard({ post, viewerTelegramId, onPostUpdated, onPostDeleted }: Props) {
+export function PostCard({
+  post,
+  viewerTelegramId,
+  onPostUpdated,
+  onPostDeleted,
+  hasApplied = false,
+  onApplied,
+  showApplicationsButton = false,
+  onViewApplications,
+}: Props) {
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [applyNotice, setApplyNotice] = useState<string | null>(null);
+  const [applied, setApplied] = useState(hasApplied);
+
+  useEffect(() => {
+    setApplied(hasApplied);
+  }, [hasApplied]);
 
   const isOwner = post.telegramId === viewerTelegramId;
+  const alreadyApplied = applied || hasApplied;
 
   async function handleApply() {
-    // MVP: keep this local and non-invasive; real flow comes later.
-    setApplyNotice('Application flow is not implemented yet.');
     setActionError(null);
+    setApplyNotice(null);
+    setBusy(true);
+    try {
+      await applyToPost({ postId: post.id, telegramId: viewerTelegramId });
+      setApplied(true);
+      onApplied?.(post.id);
+      setApplyNotice('Application sent');
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Could not apply';
+      if (msg.toLowerCase().includes('already exists')) {
+        setApplied(true);
+        onApplied?.(post.id);
+        setApplyNotice('You have already applied to this post.');
+      } else {
+        setActionError(msg);
+      }
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleClose() {
@@ -104,12 +143,27 @@ export function PostCard({ post, viewerTelegramId, onPostUpdated, onPostDeleted 
 
       <div className="post-card__actions">
         {!isOwner ? (
-          <button type="button" className="btn btn--primary" disabled={busy} onClick={() => void handleApply()}>
-            Apply
+          <button
+            type="button"
+            className="btn btn--primary"
+            disabled={busy || alreadyApplied}
+            onClick={() => void handleApply()}
+          >
+            {busy ? 'Sending…' : alreadyApplied ? 'Applied' : 'Apply'}
           </button>
         ) : null}
         {isOwner ? (
           <>
+            {showApplicationsButton && onViewApplications ? (
+              <button
+                type="button"
+                className="btn btn--secondary"
+                disabled={busy}
+                onClick={() => onViewApplications(post.id)}
+              >
+                View Applications
+              </button>
+            ) : null}
             <button type="button" className="btn btn--secondary" disabled={busy} onClick={() => void handleClose()}>
               Close post
             </button>
@@ -122,7 +176,7 @@ export function PostCard({ post, viewerTelegramId, onPostUpdated, onPostDeleted 
           </>
         ) : null}
       </div>
-      {applyNotice ? <p className="post-card__apply-notice">{applyNotice}</p> : null}
+      {applyNotice ? <p className="post-card__apply-notice post-card__apply-notice--ok">{applyNotice}</p> : null}
       {actionError ? <p className="post-card__error">{actionError}</p> : null}
     </article>
   );

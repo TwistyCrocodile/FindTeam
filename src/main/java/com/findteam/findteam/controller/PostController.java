@@ -1,13 +1,16 @@
 package com.findteam.findteam.controller;
 
+import com.findteam.findteam.dto.ApplicationResponse;
 import com.findteam.findteam.dto.CreatePostRequest;
 import com.findteam.findteam.dto.PostPageResponse;
 import com.findteam.findteam.dto.PostResponse;
 import com.findteam.findteam.model.PostGoal;
 import com.findteam.findteam.model.PostStatus;
 import com.findteam.findteam.model.PostType;
+import com.findteam.findteam.service.ApplicationService;
 import com.findteam.findteam.service.PostService;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,9 +28,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 public class PostController {
 
 	private final PostService postService;
+	private final ApplicationService applicationService;
 
-	public PostController(PostService postService) {
+	public PostController(PostService postService, ApplicationService applicationService) {
 		this.postService = postService;
+		this.applicationService = applicationService;
 	}
 
 	@PostMapping
@@ -65,5 +70,12 @@ public class PostController {
 			@PathVariable Long postId,
 			@RequestParam Long telegramId) {
 		return ResponseEntity.ok(postService.deletePost(postId, telegramId));
+	}
+
+	@GetMapping("/{postId}/applications")
+	public ResponseEntity<List<ApplicationResponse>> getApplicationsForPost(
+			@PathVariable Long postId,
+			@RequestParam Long telegramId) {
+		return ResponseEntity.ok(applicationService.getApplicationsForPost(postId, telegramId));
 	}
 }

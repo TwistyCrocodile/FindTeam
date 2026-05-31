@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getPosts } from '../api/posts';
 import { updateUserProfile } from '../api/users';
+import { PostApplicationsPanel } from '../components/PostApplicationsPanel';
 import { PostCard } from '../components/PostCard';
 import { UserProfileForm } from '../components/UserProfileForm';
 import type { PostResponse } from '../types/post';
@@ -23,6 +24,7 @@ export function ProfilePage({ telegramId, profile, onProfileUpdated }: Props) {
   const [editing, setEditing] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
   const [profileSaving, setProfileSaving] = useState(false);
+  const [applicationsPostId, setApplicationsPostId] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -140,7 +142,26 @@ export function ProfilePage({ telegramId, profile, onProfileUpdated }: Props) {
         <ul className="profile__list">
           {myPosts.map((p) => (
             <li key={p.id}>
-              <PostCard post={p} viewerTelegramId={telegramId} onPostUpdated={handlePostUpdated} onPostDeleted={handlePostDeleted} />
+              <PostCard
+                post={p}
+                viewerTelegramId={telegramId}
+                showApplicationsButton
+                onViewApplications={(postId) =>
+                  setApplicationsPostId((current) => (current === postId ? null : postId))
+                }
+                onPostUpdated={handlePostUpdated}
+                onPostDeleted={(postId) => {
+                  handlePostDeleted(postId);
+                  if (applicationsPostId === postId) setApplicationsPostId(null);
+                }}
+              />
+              {applicationsPostId === p.id ? (
+                <PostApplicationsPanel
+                  postId={p.id}
+                  ownerTelegramId={telegramId}
+                  onClose={() => setApplicationsPostId(null)}
+                />
+              ) : null}
             </li>
           ))}
         </ul>

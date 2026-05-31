@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { getApplicationsByApplicant } from '../api/applications';
 import { getPosts } from '../api/posts';
 import { PostCard } from '../components/PostCard';
 import type { PostGoal, PostResponse, PostStatus, PostType } from '../types/post';
@@ -35,6 +36,24 @@ export function FeedPage({ reloadToken, viewerTelegramId }: Props) {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [appliedPostIds, setAppliedPostIds] = useState<Set<number>>(() => new Set());
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadMyApplications() {
+      try {
+        const list = await getApplicationsByApplicant(viewerTelegramId);
+        if (cancelled) return;
+        setAppliedPostIds(new Set(list.map((a) => a.postId)));
+      } catch {
+        if (!cancelled) setAppliedPostIds(new Set());
+      }
+    }
+    void loadMyApplications();
+    return () => {
+      cancelled = true;
+    };
+  }, [viewerTelegramId, reloadToken]);
 
   const filters = useMemo(
     () => ({
@@ -158,6 +177,8 @@ export function FeedPage({ reloadToken, viewerTelegramId }: Props) {
             <PostCard
               post={p}
               viewerTelegramId={viewerTelegramId}
+              hasApplied={appliedPostIds.has(p.id)}
+              onApplied={(postId) => setAppliedPostIds((prev) => new Set(prev).add(postId))}
               onPostUpdated={handlePostUpdated}
               onPostDeleted={handlePostDeleted}
             />

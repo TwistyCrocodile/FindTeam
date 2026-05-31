@@ -69,6 +69,21 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error(ex.getMessage()));
 	}
 
+	@ExceptionHandler(ApplicationAlreadyExistsException.class)
+	public ResponseEntity<ErrorResponse> handleApplicationAlreadyExists(ApplicationAlreadyExistsException ex) {
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(error(ex.getMessage()));
+	}
+
+	@ExceptionHandler(CannotApplyToOwnPostException.class)
+	public ResponseEntity<ErrorResponse> handleCannotApplyToOwnPost(CannotApplyToOwnPostException ex) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error(ex.getMessage()));
+	}
+
+	@ExceptionHandler(ApplicationNotFoundException.class)
+	public ResponseEntity<ErrorResponse> handleApplicationNotFound(ApplicationNotFoundException ex) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(ex.getMessage()));
+	}
+
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

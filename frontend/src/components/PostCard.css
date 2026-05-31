@@ -129,3 +129,9 @@
   border-radius: 10px;
   padding: 10px 12px;
 }
+
+.post-card__apply-notice--ok {
+  color: #166534;
+  background: #dcfce7;
+  border-color: #bbf7d0;
+}
