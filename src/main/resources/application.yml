@@ -16,3 +16,20 @@ spring:
 
 telegram:
   bot-token: ${TELEGRAM_BOT_TOKEN:}
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: postgres
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/findteam}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME:findteam}
+    password: ${DB_PASSWORD:findteam}
+  jpa:
+    show-sql: true
+    hibernate:
+      # Local PostgreSQL development only. Production should use migrations later, e.g. Flyway or Liquibase.
+      ddl-auto: update
