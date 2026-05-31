@@ -3,6 +3,7 @@ import type {
   CreateApplicationRequest,
   CreateCurrentUserApplicationRequest,
 } from '../types/application';
+import type { ContactInfoResponse } from '../types/user';
 import { apiFetch, apiUrl, parseErrorMessage } from './client';
 
 export async function applyToPost(payload: CreateApplicationRequest): Promise<ApplicationResponse> {
@@ -126,4 +127,10 @@ export async function rejectApplicationAuthAware(
   initData?: string | null,
 ): Promise<ApplicationResponse> {
   return initData ? rejectApplicationSecure(applicationId, initData) : rejectApplication(applicationId, telegramId);
+}
+
+export async function getApplicationContact(applicationId: number, initData: string): Promise<ContactInfoResponse> {
+  const res = await apiFetch(`/api/applications/${applicationId}/contact-secure`, undefined, initData);
+  if (!res.ok) throw new Error(await parseErrorMessage(res));
+  return res.json() as Promise<ContactInfoResponse>;
 }

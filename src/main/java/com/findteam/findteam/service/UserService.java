@@ -1,8 +1,10 @@
 package com.findteam.findteam.service;
 
+import com.findteam.findteam.dto.ContactInfoResponse;
 import com.findteam.findteam.dto.CreateUserProfileRequest;
 import com.findteam.findteam.dto.RegisterCurrentUserRequest;
 import com.findteam.findteam.dto.RegisterUserRequest;
+import com.findteam.findteam.dto.UpdateContactInfoRequest;
 import com.findteam.findteam.dto.UpdateUserProfileRequest;
 import com.findteam.findteam.dto.UserProfileResponse;
 import com.findteam.findteam.exception.NicknameAlreadyTakenException;
@@ -92,6 +94,24 @@ public class UserService {
 				.orElseThrow(() -> new UserNotFoundException(telegramId));
 	}
 
+	public ContactInfoResponse getContactInfo(Long telegramId) {
+		return userRepository.findByTelegramId(telegramId)
+				.map(this::toContactInfoResponse)
+				.orElseThrow(() -> new UserNotFoundException(telegramId));
+	}
+
+	@Transactional
+	public ContactInfoResponse updateContactInfo(Long telegramId, UpdateContactInfoRequest request) {
+		User user = userRepository.findByTelegramId(telegramId)
+				.orElseThrow(() -> new UserNotFoundException(telegramId));
+
+		user.setContactTelegramUsername(normalizeTelegramUsername(request.getContactTelegramUsername()));
+		user.setContactGithubUrl(normalizeBlank(request.getContactGithubUrl()));
+		user.setContactEmail(normalizeBlank(request.getContactEmail()));
+
+		return toContactInfoResponse(userRepository.save(user));
+	}
+
 	private UserProfileResponse toUserProfileResponse(User user) {
 		UserProfileResponse response = new UserProfileResponse();
 		response.setTelegramId(user.getTelegramId());
@@ -101,5 +121,25 @@ public class UserService {
 		response.setGithubUrl(user.getGithubUrl());
 		response.setCreatedAt(user.getCreatedAt());
 		return response;
+	}
+
+	private ContactInfoResponse toContactInfoResponse(User user) {
+		ContactInfoResponse response = new ContactInfoResponse();
+		response.setContactTelegramUsername(user.getContactTelegramUsername());
+		response.setContactGithubUrl(user.getContactGithubUrl());
+		response.setContactEmail(user.getContactEmail());
+		return response;
+	}
+
+	private String normalizeTelegramUsername(String value) {
+		String normalized = normalizeBlank(value);
+		return normalized == null ? null : normalized.replaceFirst("^@", "");
+	}
+
+	private String normalizeBlank(String value) {
+		if (value == null || value.isBlank()) {
+			return null;
+		}
+		return value.trim();
 	}
 }

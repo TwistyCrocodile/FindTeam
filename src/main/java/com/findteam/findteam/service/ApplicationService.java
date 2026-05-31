@@ -1,10 +1,12 @@
 package com.findteam.findteam.service;
 
 import com.findteam.findteam.dto.ApplicationResponse;
+import com.findteam.findteam.dto.ContactInfoResponse;
 import com.findteam.findteam.exception.ApplicationAlreadyExistsException;
 import com.findteam.findteam.exception.ApplicationNotFoundException;
 import com.findteam.findteam.exception.CannotApplyToClosedPostException;
 import com.findteam.findteam.exception.CannotApplyToOwnPostException;
+import com.findteam.findteam.exception.ContactNotAvailableException;
 import com.findteam.findteam.exception.PostAccessDeniedException;
 import com.findteam.findteam.exception.PostNotFoundException;
 import com.findteam.findteam.exception.UserNotFoundException;
@@ -97,6 +99,24 @@ public class ApplicationService {
 		return toApplicationResponse(applicationRepository.save(application));
 	}
 
+	@Transactional(readOnly = true)
+	public ContactInfoResponse getUnlockedContactInfo(Long applicationId, Long requesterTelegramId) {
+		Application application = getApplicationOrThrow(applicationId);
+		if (application.getStatus() != ApplicationStatus.ACCEPTED) {
+			throw ContactNotAvailableException.notAccepted(applicationId);
+		}
+
+		User owner = application.getPost().getAuthor();
+		User applicant = application.getApplicant();
+		if (owner.getTelegramId().equals(requesterTelegramId)) {
+			return toContactInfoResponse(applicant);
+		}
+		if (applicant.getTelegramId().equals(requesterTelegramId)) {
+			return toContactInfoResponse(owner);
+		}
+		throw ContactNotAvailableException.accessDenied(applicationId, requesterTelegramId);
+	}
+
 	private Application getApplicationOrThrow(Long applicationId) {
 		return applicationRepository.findById(applicationId)
 				.orElseThrow(() -> new ApplicationNotFoundException(applicationId));
@@ -125,6 +145,14 @@ public class ApplicationService {
 		response.setStatus(application.getStatus());
 		response.setContactAvailable(application.getStatus() == ApplicationStatus.ACCEPTED);
 		response.setCreatedAt(application.getCreatedAt());
+		return response;
+	}
+
+	private ContactInfoResponse toContactInfoResponse(User user) {
+		ContactInfoResponse response = new ContactInfoResponse();
+		response.setContactTelegramUsername(user.getContactTelegramUsername());
+		response.setContactGithubUrl(user.getContactGithubUrl());
+		response.setContactEmail(user.getContactEmail());
 		return response;
 	}
 }

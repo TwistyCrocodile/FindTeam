@@ -1,13 +1,14 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { getApplicationsByApplicantAuthAware } from '../api/applications';
+import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { getApplicationContact, getApplicationsByApplicantAuthAware } from '../api/applications';
 import { getCurrentUserPosts, getPosts } from '../api/posts';
-import { updateUserProfile } from '../api/users';
+import { getMyContactInfo, updateMyContactInfo, updateUserProfile } from '../api/users';
+import { ContactInfoView } from '../components/ContactInfoView';
 import { PostApplicationsPanel } from '../components/PostApplicationsPanel';
 import { PostCard } from '../components/PostCard';
 import { UserProfileForm } from '../components/UserProfileForm';
 import type { ApplicationResponse, ApplicationStatus } from '../types/application';
 import type { PostResponse } from '../types/post';
-import type { UserProfileResponse } from '../types/user';
+import type { ContactInfoResponse, UserProfileResponse } from '../types/user';
 import './ProfilePage.css';
 
 const PROFILE_PAGE_SIZE = 50;
@@ -45,6 +46,22 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated }:
   const [profileError, setProfileError] = useState<string | null>(null);
   const [profileSaving, setProfileSaving] = useState(false);
   const [applicationsPostId, setApplicationsPostId] = useState<number | null>(null);
+  const [contactInfo, setContactInfo] = useState<ContactInfoResponse>({
+    contactTelegramUsername: '',
+    contactGithubUrl: '',
+    contactEmail: '',
+  });
+  const [contactDraft, setContactDraft] = useState({
+    contactTelegramUsername: '',
+    contactGithubUrl: '',
+    contactEmail: '',
+  });
+  const [contactLoading, setContactLoading] = useState(false);
+  const [contactSaving, setContactSaving] = useState(false);
+  const [contactMessage, setContactMessage] = useState<string | null>(null);
+  const [unlockedContacts, setUnlockedContacts] = useState<Record<number, ContactInfoResponse>>({});
+  const [contactBusyId, setContactBusyId] = useState<number | null>(null);
+  const [contactErrorById, setContactErrorById] = useState<Record<number, string>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -87,6 +104,36 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated }:
     void loadApplications();
   }, [loadApplications]);
 
+  useEffect(() => {
+    if (!initData) return;
+
+    let cancelled = false;
+    async function loadContactInfo() {
+      setContactLoading(true);
+      setContactMessage(null);
+      try {
+        const info = await getMyContactInfo(initData as string);
+        if (cancelled) return;
+        const draft = {
+          contactTelegramUsername: info.contactTelegramUsername ?? '',
+          contactGithubUrl: info.contactGithubUrl ?? '',
+          contactEmail: info.contactEmail ?? '',
+        };
+        setContactInfo(info);
+        setContactDraft(draft);
+      } catch (e) {
+        if (!cancelled) setContactMessage(e instanceof Error ? e.message : 'Failed to load contact info');
+      } finally {
+        if (!cancelled) setContactLoading(false);
+      }
+    }
+
+    void loadContactInfo();
+    return () => {
+      cancelled = true;
+    };
+  }, [initData]);
+
   const myPosts = useMemo(() => posts.filter((p) => p.telegramId === telegramId), [posts, telegramId]);
 
   function handlePostUpdated(updated: PostResponse) {
@@ -106,6 +153,53 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated }:
     }),
     [profile],
   );
+
+  async function handleContactSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!initData) return;
+
+    setContactSaving(true);
+    setContactMessage(null);
+    try {
+      const updated = await updateMyContactInfo(initData, {
+        contactTelegramUsername: contactDraft.contactTelegramUsername.trim().replace(/^@/, ''),
+        contactGithubUrl: contactDraft.contactGithubUrl.trim(),
+        contactEmail: contactDraft.contactEmail.trim(),
+      });
+      setContactInfo(updated);
+      setContactDraft({
+        contactTelegramUsername: updated.contactTelegramUsername ?? '',
+        contactGithubUrl: updated.contactGithubUrl ?? '',
+        contactEmail: updated.contactEmail ?? '',
+      });
+      setContactMessage('Contact info saved.');
+    } catch (e) {
+      setContactMessage(e instanceof Error ? e.message : 'Could not save contact info');
+    } finally {
+      setContactSaving(false);
+    }
+  }
+
+  async function handleViewContact(applicationId: number) {
+    if (!initData) {
+      setContactErrorById((prev) => ({ ...prev, [applicationId]: 'Open in Telegram to view contact.' }));
+      return;
+    }
+
+    setContactBusyId(applicationId);
+    setContactErrorById((prev) => ({ ...prev, [applicationId]: '' }));
+    try {
+      const contact = await getApplicationContact(applicationId, initData);
+      setUnlockedContacts((prev) => ({ ...prev, [applicationId]: contact }));
+    } catch (e) {
+      setContactErrorById((prev) => ({
+        ...prev,
+        [applicationId]: e instanceof Error ? e.message : 'Could not load contact info',
+      }));
+    } finally {
+      setContactBusyId(null);
+    }
+  }
 
   return (
     <section className="profile">
@@ -173,6 +267,65 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated }:
             </div>
           </div>
         ) : null}
+      </div>
+
+      <div className="profile__contact-card">
+        <h3 className="profile__posts-heading">Contact info</h3>
+        <p className="profile__contact-hint">
+          Contact info is shared only after an application is accepted and only with the accepted application pair.
+        </p>
+
+        {!initData ? (
+          <p className="profile__state">Contact editing requires Telegram Mini App mode.</p>
+        ) : (
+          <>
+            {contactLoading ? <p className="profile__state">Loading contact info…</p> : null}
+            <form className="profile__contact-form" onSubmit={handleContactSubmit}>
+              <label className="profile__contact-field">
+                <span>Telegram username</span>
+                <input
+                  value={contactDraft.contactTelegramUsername}
+                  onChange={(e) =>
+                    setContactDraft((prev) => ({ ...prev, contactTelegramUsername: e.target.value }))
+                  }
+                  placeholder="username"
+                  maxLength={32}
+                />
+              </label>
+              <label className="profile__contact-field">
+                <span>GitHub URL</span>
+                <input
+                  value={contactDraft.contactGithubUrl}
+                  onChange={(e) => setContactDraft((prev) => ({ ...prev, contactGithubUrl: e.target.value }))}
+                  placeholder="https://github.com/username"
+                  maxLength={255}
+                />
+              </label>
+              <label className="profile__contact-field">
+                <span>Email</span>
+                <input
+                  type="email"
+                  value={contactDraft.contactEmail}
+                  onChange={(e) => setContactDraft((prev) => ({ ...prev, contactEmail: e.target.value }))}
+                  placeholder="you@example.com"
+                  maxLength={255}
+                />
+              </label>
+              <button type="submit" className="profile__contact-save" disabled={contactSaving}>
+                {contactSaving ? 'Saving…' : 'Save contact info'}
+              </button>
+            </form>
+            {contactMessage ? (
+              <p className={`profile__state ${contactMessage.endsWith('saved.') ? '' : 'profile__state--error'}`}>
+                {contactMessage}
+              </p>
+            ) : null}
+            <div className="profile__contact-preview">
+              <h4 className="profile__contact-preview-title">Current contact info</h4>
+              <ContactInfoView contact={contactInfo} emptyMessage="You have not added contact info yet." />
+            </div>
+          </>
+        )}
       </div>
 
       <div className="profile__posts">
@@ -246,10 +399,22 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated }:
 
               {application.contactAvailable ? (
                 <div className="profile__application-contact">
-                  <p className="profile__application-contact-note">Contact will be available in a future version.</p>
-                  <button type="button" className="profile__application-contact-btn" disabled>
-                    Contact (soon)
+                  <button
+                    type="button"
+                    className="profile__application-contact-btn"
+                    disabled={contactBusyId !== null}
+                    onClick={() => void handleViewContact(application.id)}
+                  >
+                    {contactBusyId === application.id ? 'Loading…' : 'View contact'}
                   </button>
+                  {contactErrorById[application.id] ? (
+                    <p className="profile__application-contact-note profile__application-contact-note--error">
+                      {contactErrorById[application.id]}
+                    </p>
+                  ) : null}
+                  {unlockedContacts[application.id] ? (
+                    <ContactInfoView contact={unlockedContacts[application.id]} />
+                  ) : null}
                 </div>
               ) : null}
             </li>

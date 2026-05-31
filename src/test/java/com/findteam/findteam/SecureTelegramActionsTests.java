@@ -3,6 +3,7 @@ package com.findteam.findteam;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -108,6 +109,52 @@ class SecureTelegramActionsTests {
 								}
 								"""))
 				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void acceptedApplicationUnlocksOtherUsersContactInfo() throws Exception {
+		User owner = saveUser(6006L, "contact_owner");
+		owner.setContactEmail("owner@example.com");
+		owner.setContactGithubUrl("https://github.com/owner");
+		userRepository.save(owner);
+		User applicant = saveUser(7007L, "contact_applicant");
+		applicant.setContactTelegramUsername("applicant_user");
+		userRepository.save(applicant);
+		Post post = savePost(owner, PostStatus.ACTIVE);
+		Application application = saveApplication(post, applicant);
+		application.setStatus(ApplicationStatus.ACCEPTED);
+		applicationRepository.save(application);
+
+		mockMvc.perform(get("/api/applications/{applicationId}/contact-secure", application.getId())
+						.header(INIT_DATA_HEADER, validInitData(applicant.getTelegramId(), applicant.getNickname())))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.contactEmail", is("owner@example.com")))
+				.andExpect(jsonPath("$.contactGithubUrl", is("https://github.com/owner")));
+
+		mockMvc.perform(get("/api/applications/{applicationId}/contact-secure", application.getId())
+						.header(INIT_DATA_HEADER, validInitData(owner.getTelegramId(), owner.getNickname())))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.contactTelegramUsername", is("applicant_user")));
+	}
+
+	@Test
+	void contactInfoIsForbiddenForPendingApplicationOrUnrelatedUser() throws Exception {
+		User owner = saveUser(8008L, "pending_owner");
+		User applicant = saveUser(9009L, "pending_applicant");
+		User unrelated = saveUser(1010L, "unrelated_user");
+		Post post = savePost(owner, PostStatus.ACTIVE);
+		Application application = saveApplication(post, applicant);
+
+		mockMvc.perform(get("/api/applications/{applicationId}/contact-secure", application.getId())
+						.header(INIT_DATA_HEADER, validInitData(applicant.getTelegramId(), applicant.getNickname())))
+				.andExpect(status().isForbidden());
+
+		application.setStatus(ApplicationStatus.ACCEPTED);
+		applicationRepository.save(application);
+
+		mockMvc.perform(get("/api/applications/{applicationId}/contact-secure", application.getId())
+						.header(INIT_DATA_HEADER, validInitData(unrelated.getTelegramId(), unrelated.getNickname())))
+				.andExpect(status().isForbidden());
 	}
 
 	private User saveUser(Long telegramId, String nickname) {

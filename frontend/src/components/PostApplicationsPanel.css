@@ -144,6 +144,40 @@
 }
 
 .post-applications__btn--contact {
-  background: #e4e4e7;
+  background: #18181b;
+  color: #fff;
+}
+
+.post-applications__contact-note--error {
+  color: #b91c1c;
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+
+.contact-info__row {
+  display: grid;
+  grid-template-columns: 82px 1fr;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.contact-info__row dt {
+  font-weight: 800;
+  color: #18181b;
+}
+
+.contact-info__row dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.contact-info__empty {
+  margin: 0;
   color: #52525b;
+  font-size: 0.9rem;
 }

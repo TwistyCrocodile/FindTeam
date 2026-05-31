@@ -41,6 +41,12 @@ public class User {
 
 	private String githubUrl;
 
+	private String contactTelegramUsername;
+
+	private String contactGithubUrl;
+
+	private String contactEmail;
+
 	@Column(nullable = false, updatable = false)
 	private LocalDateTime createdAt;
 

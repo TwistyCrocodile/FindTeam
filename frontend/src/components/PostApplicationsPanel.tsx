@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   acceptApplicationAuthAware,
+  getApplicationContact,
   getApplicationsForPostAuthAware,
   rejectApplicationAuthAware,
 } from '../api/applications';
+import { ContactInfoView } from './ContactInfoView';
 import type { ApplicationResponse } from '../types/application';
+import type { ContactInfoResponse } from '../types/user';
 import './PostApplicationsPanel.css';
 
 type Props = {
@@ -34,6 +37,9 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onClo
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [contactBusyId, setContactBusyId] = useState<number | null>(null);
+  const [unlockedContacts, setUnlockedContacts] = useState<Record<number, ContactInfoResponse>>({});
+  const [contactErrorById, setContactErrorById] = useState<Record<number, string>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -76,6 +82,27 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onClo
       setActionError(e instanceof Error ? e.message : 'Could not reject');
     } finally {
       setBusyId(null);
+    }
+  }
+
+  async function handleViewContact(id: number) {
+    if (!initData) {
+      setContactErrorById((prev) => ({ ...prev, [id]: 'Open in Telegram to view contact.' }));
+      return;
+    }
+
+    setContactBusyId(id);
+    setContactErrorById((prev) => ({ ...prev, [id]: '' }));
+    try {
+      const contact = await getApplicationContact(id, initData);
+      setUnlockedContacts((prev) => ({ ...prev, [id]: contact }));
+    } catch (e) {
+      setContactErrorById((prev) => ({
+        ...prev,
+        [id]: e instanceof Error ? e.message : 'Could not load contact info',
+      }));
+    } finally {
+      setContactBusyId(null);
     }
   }
 
@@ -126,10 +153,20 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onClo
             ) : null}
             {a.status === 'ACCEPTED' && a.contactAvailable ? (
               <div className="post-applications__contact">
-                <p className="post-applications__contact-note">Contact will be available in a future version.</p>
-                <button type="button" className="post-applications__btn post-applications__btn--contact" disabled>
-                  Contact (soon)
+                <button
+                  type="button"
+                  className="post-applications__btn post-applications__btn--contact"
+                  disabled={contactBusyId !== null}
+                  onClick={() => void handleViewContact(a.id)}
+                >
+                  {contactBusyId === a.id ? 'Loading…' : 'View contact'}
                 </button>
+                {contactErrorById[a.id] ? (
+                  <p className="post-applications__contact-note post-applications__contact-note--error">
+                    {contactErrorById[a.id]}
+                  </p>
+                ) : null}
+                {unlockedContacts[a.id] ? <ContactInfoView contact={unlockedContacts[a.id]} /> : null}
               </div>
             ) : null}
           </li>

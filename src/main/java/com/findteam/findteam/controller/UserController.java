@@ -1,12 +1,14 @@
 package com.findteam.findteam.controller;
 
+import com.findteam.findteam.dto.ContactInfoResponse;
 import com.findteam.findteam.dto.CreateUserProfileRequest;
 import com.findteam.findteam.dto.RegisterCurrentUserRequest;
 import com.findteam.findteam.dto.RegisterUserRequest;
 import com.findteam.findteam.dto.TelegramAuthUser;
+import com.findteam.findteam.dto.UpdateContactInfoRequest;
 import com.findteam.findteam.dto.UpdateUserProfileRequest;
 import com.findteam.findteam.dto.UserProfileResponse;
-import com.findteam.findteam.service.TelegramInitDataService;
+import com.findteam.findteam.service.CurrentTelegramUserService;
 import com.findteam.findteam.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -25,11 +27,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
 	private final UserService userService;
-	private final TelegramInitDataService telegramInitDataService;
+	private final CurrentTelegramUserService currentTelegramUserService;
 
-	public UserController(UserService userService, TelegramInitDataService telegramInitDataService) {
+	public UserController(UserService userService, CurrentTelegramUserService currentTelegramUserService) {
 		this.userService = userService;
-		this.telegramInitDataService = telegramInitDataService;
+		this.currentTelegramUserService = currentTelegramUserService;
 	}
 
 	@PostMapping
@@ -48,7 +50,7 @@ public class UserController {
 	public ResponseEntity<UserProfileResponse> registerCurrentUser(
 			@RequestHeader(name = "X-Telegram-Init-Data", required = false) String initData,
 			@Valid @RequestBody RegisterCurrentUserRequest request) {
-		TelegramAuthUser authUser = telegramInitDataService.verifyAndExtractUser(initData);
+		TelegramAuthUser authUser = currentTelegramUserService.resolve(initData);
 		UserProfileResponse body = userService.registerCurrentUser(authUser.telegramId(), request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(body);
 	}
@@ -66,8 +68,23 @@ public class UserController {
 	@GetMapping("/me")
 	public ResponseEntity<UserProfileResponse> getCurrentUserProfile(
 			@RequestHeader(name = "X-Telegram-Init-Data", required = false) String initData) {
-		TelegramAuthUser authUser = telegramInitDataService.verifyAndExtractUser(initData);
+		TelegramAuthUser authUser = currentTelegramUserService.resolve(initData);
 		return ResponseEntity.ok(userService.getByTelegramId(authUser.telegramId()));
+	}
+
+	@GetMapping("/me/contact")
+	public ResponseEntity<ContactInfoResponse> getCurrentUserContactInfo(
+			@RequestHeader(name = "X-Telegram-Init-Data", required = false) String initData) {
+		TelegramAuthUser authUser = currentTelegramUserService.resolve(initData);
+		return ResponseEntity.ok(userService.getContactInfo(authUser.telegramId()));
+	}
+
+	@PutMapping("/me/contact")
+	public ResponseEntity<ContactInfoResponse> updateCurrentUserContactInfo(
+			@RequestHeader(name = "X-Telegram-Init-Data", required = false) String initData,
+			@Valid @RequestBody UpdateContactInfoRequest request) {
+		TelegramAuthUser authUser = currentTelegramUserService.resolve(initData);
+		return ResponseEntity.ok(userService.updateContactInfo(authUser.telegramId(), request));
 	}
 
 	@PutMapping("/{telegramId}")

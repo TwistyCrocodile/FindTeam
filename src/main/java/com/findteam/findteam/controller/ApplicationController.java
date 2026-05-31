@@ -1,6 +1,7 @@
 package com.findteam.findteam.controller;
 
 import com.findteam.findteam.dto.ApplicationResponse;
+import com.findteam.findteam.dto.ContactInfoResponse;
 import com.findteam.findteam.dto.CreateCurrentUserApplicationRequest;
 import com.findteam.findteam.dto.CreateApplicationRequest;
 import com.findteam.findteam.dto.TelegramAuthUser;
@@ -61,6 +62,14 @@ public class ApplicationController {
 			@RequestHeader(name = "X-Telegram-Init-Data", required = false) String initData) {
 		TelegramAuthUser authUser = currentTelegramUserService.resolve(initData);
 		return ResponseEntity.ok(applicationService.getApplicationsByApplicant(authUser.telegramId()));
+	}
+
+	@GetMapping("/{id}/contact-secure")
+	public ResponseEntity<ContactInfoResponse> getUnlockedContactInfo(
+			@PathVariable Long id,
+			@RequestHeader(name = "X-Telegram-Init-Data", required = false) String initData) {
+		TelegramAuthUser authUser = currentTelegramUserService.resolve(initData);
+		return ResponseEntity.ok(applicationService.getUnlockedContactInfo(id, authUser.telegramId()));
 	}
 
 	@PatchMapping("/{id}/accept")
