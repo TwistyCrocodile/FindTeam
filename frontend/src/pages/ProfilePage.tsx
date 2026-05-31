@@ -1,14 +1,30 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { getApplicationsByApplicant } from '../api/applications';
 import { getPosts } from '../api/posts';
 import { updateUserProfile } from '../api/users';
 import { PostApplicationsPanel } from '../components/PostApplicationsPanel';
 import { PostCard } from '../components/PostCard';
 import { UserProfileForm } from '../components/UserProfileForm';
+import type { ApplicationResponse, ApplicationStatus } from '../types/application';
 import type { PostResponse } from '../types/post';
 import type { UserProfileResponse } from '../types/user';
 import './ProfilePage.css';
 
 const PROFILE_PAGE_SIZE = 50;
+
+function formatWhen(iso: string) {
+  try {
+    return new Date(iso).toLocaleString();
+  } catch {
+    return iso;
+  }
+}
+
+function formatApplicationStatus(status: ApplicationStatus) {
+  if (status === 'PENDING') return 'Pending review';
+  if (status === 'ACCEPTED') return 'Accepted';
+  return 'Rejected';
+}
 
 type Props = {
   telegramId: number;
@@ -20,6 +36,9 @@ export function ProfilePage({ telegramId, profile, onProfileUpdated }: Props) {
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [applications, setApplications] = useState<ApplicationResponse[]>([]);
+  const [applicationsLoading, setApplicationsLoading] = useState(true);
+  const [applicationsError, setApplicationsError] = useState<string | null>(null);
 
   const [editing, setEditing] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
@@ -43,6 +62,24 @@ export function ProfilePage({ telegramId, profile, onProfileUpdated }: Props) {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const loadApplications = useCallback(async () => {
+    setApplicationsLoading(true);
+    setApplicationsError(null);
+    try {
+      const list = await getApplicationsByApplicant(telegramId);
+      setApplications(list);
+    } catch (e) {
+      setApplicationsError(e instanceof Error ? e.message : 'Failed to load applications');
+      setApplications([]);
+    } finally {
+      setApplicationsLoading(false);
+    }
+  }, [telegramId]);
+
+  useEffect(() => {
+    void loadApplications();
+  }, [loadApplications]);
 
   const myPosts = useMemo(() => posts.filter((p) => p.telegramId === telegramId), [posts, telegramId]);
 
@@ -161,6 +198,51 @@ export function ProfilePage({ telegramId, profile, onProfileUpdated }: Props) {
                   ownerTelegramId={telegramId}
                   onClose={() => setApplicationsPostId(null)}
                 />
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="profile__applications">
+        <h3 className="profile__posts-heading">My applications</h3>
+
+        {applicationsLoading ? <p className="profile__state">Loading…</p> : null}
+        {!applicationsLoading && applicationsError ? (
+          <p className="profile__state profile__state--error">{applicationsError}</p>
+        ) : null}
+        {!applicationsLoading && !applicationsError && applications.length === 0 ? (
+          <p className="profile__state">You have not applied to any posts yet.</p>
+        ) : null}
+
+        <ul className="profile__application-list">
+          {applications.map((application) => (
+            <li
+              key={application.id}
+              className={`profile__application-card profile__application-card--${application.status.toLowerCase()}`}
+            >
+              <div className="profile__application-head">
+                <div className="profile__application-main">
+                  <h4 className="profile__application-title">{application.postTitle}</h4>
+                  <p className="profile__application-meta">
+                    <span>{application.postGoal}</span>
+                    <span className="profile__application-dot">·</span>
+                    <span>{application.postStatus}</span>
+                  </p>
+                </div>
+                <span className={`profile__application-status profile__application-status--${application.status.toLowerCase()}`}>
+                  {formatApplicationStatus(application.status)}
+                </span>
+              </div>
+              <p className="profile__application-time">{formatWhen(application.createdAt)}</p>
+
+              {application.contactAvailable ? (
+                <div className="profile__application-contact">
+                  <p className="profile__application-contact-note">Contact will be available in a future version.</p>
+                  <button type="button" className="profile__application-contact-btn" disabled>
+                    Contact (soon)
+                  </button>
+                </div>
               ) : null}
             </li>
           ))}

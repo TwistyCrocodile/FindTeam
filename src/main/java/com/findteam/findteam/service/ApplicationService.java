@@ -113,9 +113,13 @@ public class ApplicationService {
 
 	private ApplicationResponse toApplicationResponse(Application application) {
 		User applicant = application.getApplicant();
+		Post post = application.getPost();
 		ApplicationResponse response = new ApplicationResponse();
 		response.setId(application.getId());
-		response.setPostId(application.getPost().getId());
+		response.setPostId(post.getId());
+		response.setPostTitle(post.getTitle());
+		response.setPostGoal(post.getGoal());
+		response.setPostStatus(post.getStatus());
 		response.setApplicantNickname(applicant.getNickname());
 		response.setApplicantTelegramId(applicant.getTelegramId());
 		response.setStatus(application.getStatus());
