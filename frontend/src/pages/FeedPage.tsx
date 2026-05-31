@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getApplicationsByApplicantAuthAware } from '../api/applications';
 import { getPosts } from '../api/posts';
+import { getFriendlyErrorMessage } from '../app/errors';
 import { getPostGoalLabel, getPostStatusLabel, getPostTypeLabel } from '../app/translations';
 import { PostCard } from '../components/PostCard';
 import { useLanguage } from '../hooks/useLanguage';
@@ -78,7 +79,7 @@ export function FeedPage({ reloadToken, viewerTelegramId, initData, onViewUserPr
       setPage(0);
       setLast(res.last);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t.feed.failedToLoadPosts);
+      setError(getFriendlyErrorMessage(e, t.feed.failedToLoadPosts, t));
       setPosts([]);
       setLast(true);
     } finally {
@@ -101,7 +102,7 @@ export function FeedPage({ reloadToken, viewerTelegramId, initData, onViewUserPr
       setPage(nextPage);
       setLast(res.last);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t.feed.failedToLoadMore);
+      setError(getFriendlyErrorMessage(e, t.feed.failedToLoadMore, t));
     } finally {
       setLoadingMore(false);
     }

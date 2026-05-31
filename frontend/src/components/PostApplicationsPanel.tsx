@@ -5,6 +5,7 @@ import {
   getApplicationsForPostAuthAware,
   rejectApplicationAuthAware,
 } from '../api/applications';
+import { getFriendlyErrorMessage } from '../app/errors';
 import { getApplicationStatusLabel } from '../app/translations';
 import { useLanguage } from '../hooks/useLanguage';
 import { ContactInfoView } from './ContactInfoView';
@@ -35,6 +36,7 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [actionNotice, setActionNotice] = useState<string | null>(null);
   const [contactBusyId, setContactBusyId] = useState<number | null>(null);
   const [unlockedContacts, setUnlockedContacts] = useState<Record<number, ContactInfoResponse>>({});
   const [contactErrorById, setContactErrorById] = useState<Record<number, string>>({});
@@ -46,7 +48,7 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
       const list = await getApplicationsForPostAuthAware(postId, ownerTelegramId, initData);
       setApplications(list);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t.applications.failedToLoadApplications);
+      setError(getFriendlyErrorMessage(e, t.applications.failedToLoadApplications, t));
       setApplications([]);
     } finally {
       setLoading(false);
@@ -59,12 +61,14 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
 
   async function handleAccept(id: number) {
     setActionError(null);
+    setActionNotice(null);
     setBusyId(id);
     try {
       const updated = await acceptApplicationAuthAware(id, ownerTelegramId, initData);
       setApplications((prev) => prev.map((a) => (a.id === id ? updated : a)));
+      setActionNotice(t.applications.applicationAccepted);
     } catch (e) {
-      setActionError(e instanceof Error ? e.message : t.applications.couldNotAccept);
+      setActionError(getFriendlyErrorMessage(e, t.applications.couldNotAccept, t));
     } finally {
       setBusyId(null);
     }
@@ -72,12 +76,14 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
 
   async function handleReject(id: number) {
     setActionError(null);
+    setActionNotice(null);
     setBusyId(id);
     try {
       const updated = await rejectApplicationAuthAware(id, ownerTelegramId, initData);
       setApplications((prev) => prev.map((a) => (a.id === id ? updated : a)));
+      setActionNotice(t.applications.applicationRejected);
     } catch (e) {
-      setActionError(e instanceof Error ? e.message : t.applications.couldNotReject);
+      setActionError(getFriendlyErrorMessage(e, t.applications.couldNotReject, t));
     } finally {
       setBusyId(null);
     }
@@ -97,7 +103,7 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
     } catch (e) {
       setContactErrorById((prev) => ({
         ...prev,
-        [id]: e instanceof Error ? e.message : t.contact.couldNotLoadContact,
+        [id]: getFriendlyErrorMessage(e, t.contact.couldNotLoadContact, t),
       }));
     } finally {
       setContactBusyId(null);
@@ -181,6 +187,7 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
         ))}
       </ul>
 
+      {actionNotice ? <p className="post-applications__state post-applications__state--success">{actionNotice}</p> : null}
       {actionError ? <p className="post-applications__state post-applications__state--error">{actionError}</p> : null}
     </div>
   );

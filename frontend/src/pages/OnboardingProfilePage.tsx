@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { createUserProfile } from '../api/users';
+import { getFriendlyErrorMessage } from '../app/errors';
 import { UserProfileForm } from '../components/UserProfileForm';
 import { useLanguage } from '../hooks/useLanguage';
 import type { UserProfileResponse } from '../types/user';
@@ -35,6 +36,7 @@ export function OnboardingProfilePage({ telegramId, nicknameSuggestion, onCreate
   return (
     <section className="onboarding">
       <h2 className="onboarding__heading">{t.onboarding.finishProfile}</h2>
+      <p className="onboarding__tagline">{t.onboarding.tagline}</p>
       <p className="onboarding__hint">
         {t.onboarding.profileHint}
       </p>
@@ -51,7 +53,7 @@ export function OnboardingProfilePage({ telegramId, nicknameSuggestion, onCreate
             const created = await createUserProfile({ telegramId, ...values });
             onCreated(created);
           } catch (e) {
-            setServerError(e instanceof Error ? e.message : t.common.requestFailed);
+            setServerError(getFriendlyErrorMessage(e, t.common.requestFailed, t));
           } finally {
             setLoading(false);
           }

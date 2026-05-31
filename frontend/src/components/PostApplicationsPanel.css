@@ -33,10 +33,19 @@
   margin: 0 0 8px;
   font-size: 0.85rem;
   color: var(--text-secondary);
+  overflow-wrap: anywhere;
 }
 
 .post-applications__state--error {
   color: var(--danger);
+}
+
+.post-applications__state--success {
+  color: var(--success);
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+  border-radius: 10px;
+  padding: 10px 12px;
 }
 
 .post-applications__list {
@@ -69,6 +78,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -83,6 +93,7 @@
   text-align: left;
   text-decoration: underline;
   text-underline-offset: 2px;
+  overflow-wrap: anywhere;
 }
 
 .post-applications__nickname:hover {
@@ -120,6 +131,7 @@
 
 .post-applications__actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 10px;
 }
@@ -131,6 +143,8 @@
   font-weight: 600;
   font-size: 0.85rem;
   cursor: pointer;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .post-applications__btn:disabled {

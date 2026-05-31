@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { applyToPostAuthAware } from '../api/applications';
 import { closePostAuthAware, deletePostAuthAware, reopenPostAuthAware } from '../api/posts';
+import { getFriendlyErrorMessage } from '../app/errors';
 import { getPostGoalLabel, getPostStatusLabel, getPostTypeLabel } from '../app/translations';
 import { useLanguage } from '../hooks/useLanguage';
 import type { PostResponse } from '../types/post';
@@ -65,7 +66,7 @@ export function PostCard({
       onApplied?.(post.id);
       setApplyNotice(t.applications.applicationSent);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : t.applications.couldNotApply;
+      const msg = getFriendlyErrorMessage(e, t.applications.couldNotApply, t);
       if (msg.toLowerCase().includes('already exists')) {
         setApplied(true);
         onApplied?.(post.id);
@@ -86,7 +87,7 @@ export function PostCard({
       const updated = await closePostAuthAware(post.id, viewerTelegramId, initData);
       onPostUpdated(updated);
     } catch (e) {
-      setActionError(e instanceof Error ? e.message : t.postActions.couldNotClose);
+      setActionError(getFriendlyErrorMessage(e, t.postActions.couldNotClose, t));
     } finally {
       setBusy(false);
     }
@@ -100,7 +101,7 @@ export function PostCard({
       const updated = await reopenPostAuthAware(post.id, viewerTelegramId, initData);
       onPostUpdated(updated);
     } catch (e) {
-      setActionError(e instanceof Error ? e.message : t.postActions.couldNotReopen);
+      setActionError(getFriendlyErrorMessage(e, t.postActions.couldNotReopen, t));
     } finally {
       setBusy(false);
     }
@@ -117,7 +118,7 @@ export function PostCard({
       await deletePostAuthAware(post.id, viewerTelegramId, initData);
       onPostDeleted(post.id);
     } catch (e) {
-      setActionError(e instanceof Error ? e.message : t.postActions.couldNotDelete);
+      setActionError(getFriendlyErrorMessage(e, t.postActions.couldNotDelete, t));
     } finally {
       setBusy(false);
     }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { getFriendlyErrorMessage } from '../app/errors';
 import { BottomNav, type TabId } from '../components/BottomNav';
 import { useLanguage } from '../hooks/useLanguage';
 import { useTelegramEnvironment } from '../hooks/useTelegramEnvironment';
@@ -48,7 +49,7 @@ export function HomePage() {
           return;
         }
 
-        setProfileError(err instanceof Error ? err.message : t.profile.failedToLoadProfile);
+        setProfileError(getFriendlyErrorMessage(e, t.profile.failedToLoadProfile, t));
         setProfileStatus('onboarding');
       }
     }

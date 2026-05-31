@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getPublicUserPosts, getPublicUserProfile } from '../api/users';
+import { getFriendlyErrorMessage } from '../app/errors';
 import { getPostGoalLabel, getPostTypeLabel } from '../app/translations';
 import { useLanguage } from '../hooks/useLanguage';
 import type { PostResponse } from '../types/post';
@@ -39,7 +40,7 @@ export function PublicProfileView({ telegramId, onBack }: Props) {
     } catch (e) {
       setProfile(null);
       setPosts([]);
-      setError(e instanceof Error ? e.message : t.publicProfile.failedToLoadProfile);
+      setError(getFriendlyErrorMessage(e, t.publicProfile.failedToLoadProfile, t));
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,6 @@
 import { FormEvent, useState } from 'react';
 import { createPostAuthAware } from '../api/posts';
+import { getFriendlyErrorMessage } from '../app/errors';
 import { getPostGoalLabel, getPostTypeLabel } from '../app/translations';
 import { useLanguage } from '../hooks/useLanguage';
 import type { CreatePostRequest, PostGoal, PostType } from '../types/post';
@@ -67,7 +68,7 @@ export function CreatePostForm({ telegramId, initData, onCreated }: Props) {
       setEventLink('');
       onCreated();
     } catch (err) {
-      setServerMessage(err instanceof Error ? err.message : t.common.requestFailed);
+      setServerMessage(getFriendlyErrorMessage(err, t.common.requestFailed, t));
     } finally {
       setSubmitting(false);
     }

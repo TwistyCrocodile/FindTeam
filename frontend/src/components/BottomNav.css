@@ -22,6 +22,8 @@
   color: var(--text);
   padding: 10px 12px;
   cursor: pointer;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .bottom-nav__item--active {

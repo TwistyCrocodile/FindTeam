@@ -33,12 +33,14 @@
 .profile__name {
   margin: 0 0 6px;
   font-size: 1.1rem;
+  overflow-wrap: anywhere;
 }
 
 .profile__row {
   margin: 0 0 6px;
   color: var(--text-secondary);
   font-size: 0.95rem;
+  overflow-wrap: anywhere;
 }
 
 .profile__label {
@@ -97,6 +99,14 @@
   color: var(--danger);
 }
 
+.profile__state--success {
+  color: var(--success);
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
 .profile__list {
   list-style: none;
   margin: 0;
@@ -107,8 +117,19 @@
 }
 
 .profile__applications {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  padding: 14px;
   display: flex;
   flex-direction: column;
+}
+
+.profile__posts {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  padding: 14px;
 }
 
 .profile__contact-card {
@@ -125,6 +146,19 @@
   padding: 14px;
 }
 
+.profile__feedback-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  padding: 14px;
+}
+
+.profile__feedback-link {
+  display: inline-block;
+  overflow-wrap: anywhere;
+  font-weight: 700;
+}
+
 .profile__theme-options {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -139,6 +173,8 @@
   padding: 10px 12px;
   font-weight: 800;
   cursor: pointer;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .profile__theme-btn--active {
@@ -174,6 +210,7 @@
   border-radius: 10px;
   padding: 10px 12px;
   font: inherit;
+  min-width: 0;
 }
 
 .profile__contact-save {
@@ -232,10 +269,12 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
 .profile__application-main {
+  flex: 1 1 160px;
   min-width: 0;
 }
 
@@ -312,6 +351,7 @@
   font-weight: 600;
   font-size: 0.85rem;
   cursor: pointer;
+  overflow-wrap: anywhere;
 }
 
 .profile__application-contact-btn:disabled {

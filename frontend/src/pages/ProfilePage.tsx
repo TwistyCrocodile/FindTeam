@@ -2,6 +2,7 @@ import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react
 import { getApplicationContact, getApplicationsByApplicantAuthAware } from '../api/applications';
 import { getCurrentUserPosts, getPosts } from '../api/posts';
 import { getMyContactInfo, updateMyContactInfo, updateUserProfileAuthAware } from '../api/users';
+import { getFriendlyErrorMessage } from '../app/errors';
 import { getApplicationStatusLabel, getPostGoalLabel, getPostStatusLabel } from '../app/translations';
 import { ContactInfoView } from '../components/ContactInfoView';
 import { PostApplicationsPanel } from '../components/PostApplicationsPanel';
@@ -15,6 +16,7 @@ import type { ContactInfoResponse, UserProfileResponse } from '../types/user';
 import './ProfilePage.css';
 
 const PROFILE_PAGE_SIZE = 50;
+const DEVELOPER_CONTACT_URL = 'https://t.me/findteam_support';
 
 function formatWhen(iso: string) {
   try {
@@ -44,6 +46,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
 
   const [editing, setEditing] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
+  const [profileMessage, setProfileMessage] = useState<string | null>(null);
   const [profileSaving, setProfileSaving] = useState(false);
   const [applicationsPostId, setApplicationsPostId] = useState<number | null>(null);
   const [contactInfo, setContactInfo] = useState<ContactInfoResponse>({
@@ -75,7 +78,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
         setPosts(res.content);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : t.profile.failedToLoadProfile);
+      setError(getFriendlyErrorMessage(e, t.profile.failedToLoadProfile, t));
       setPosts([]);
     } finally {
       setLoading(false);
@@ -93,7 +96,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
       const list = await getApplicationsByApplicantAuthAware(telegramId, initData);
       setApplications(list);
     } catch (e) {
-      setApplicationsError(e instanceof Error ? e.message : t.profile.failedToLoadApplications);
+      setApplicationsError(getFriendlyErrorMessage(e, t.profile.failedToLoadApplications, t));
       setApplications([]);
     } finally {
       setApplicationsLoading(false);
@@ -122,7 +125,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
         setContactInfo(info);
         setContactDraft(draft);
       } catch (e) {
-        if (!cancelled) setContactMessage(e instanceof Error ? e.message : t.contact.couldNotLoadContact);
+        if (!cancelled) setContactMessage(getFriendlyErrorMessage(e, t.contact.couldNotLoadContact, t));
       } finally {
         if (!cancelled) setContactLoading(false);
       }
@@ -174,7 +177,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
       });
       setContactMessage(t.contact.contactInfoSaved);
     } catch (e) {
-      setContactMessage(e instanceof Error ? e.message : t.contact.couldNotSaveContact);
+      setContactMessage(getFriendlyErrorMessage(e, t.contact.couldNotSaveContact, t));
     } finally {
       setContactSaving(false);
     }
@@ -194,7 +197,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
     } catch (e) {
       setContactErrorById((prev) => ({
         ...prev,
-        [applicationId]: e instanceof Error ? e.message : t.contact.couldNotLoadContact,
+        [applicationId]: getFriendlyErrorMessage(e, t.contact.couldNotLoadContact, t),
       }));
     } finally {
       setContactBusyId(null);
@@ -248,13 +251,15 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
               serverError={profileError}
               onSubmit={async (values) => {
                 setProfileError(null);
+                setProfileMessage(null);
                 setProfileSaving(true);
                 try {
                   const updated = await updateUserProfileAuthAware(telegramId, values, initData);
                   onProfileUpdated(updated);
+                  setProfileMessage(t.profile.profileUpdated);
                   setEditing(false);
                 } catch (e) {
-                  setProfileError(e instanceof Error ? e.message : t.common.requestFailed);
+                  setProfileError(getFriendlyErrorMessage(e, t.common.requestFailed, t));
                 } finally {
                   setProfileSaving(false);
                 }
@@ -267,6 +272,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
             </div>
           </div>
         ) : null}
+        {profileMessage && !editing ? <p className="profile__state profile__state--success">{profileMessage}</p> : null}
       </div>
 
       <div className="profile__theme-card">
@@ -366,6 +372,13 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
             </div>
           </>
         )}
+      </div>
+
+      <div className="profile__feedback-card">
+        <h3 className="profile__posts-heading">{t.profile.feedbackTitle}</h3>
+        <a className="profile__feedback-link" href={DEVELOPER_CONTACT_URL} target="_blank" rel="noreferrer">
+          {t.profile.feedbackText}
+        </a>
       </div>
 
       <div className="profile__posts">

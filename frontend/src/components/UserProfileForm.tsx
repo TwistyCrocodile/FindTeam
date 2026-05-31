@@ -1,4 +1,5 @@
 import { FormEvent, useMemo, useState } from 'react';
+import { getFriendlyErrorMessage } from '../app/errors';
 import { useLanguage } from '../hooks/useLanguage';
 import type { CreateUserProfileRequest } from '../types/user';
 import './UserProfileForm.css';
@@ -79,7 +80,7 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
         githubUrl: normalizeGithubUrl(githubUrl) || undefined,
       } as Omit<CreateUserProfileRequest, 'telegramId'>);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : t.common.requestFailed;
+      const msg = getFriendlyErrorMessage(err, t.common.requestFailed, t);
       setClientError(msg);
     } finally {
       setSubmitting(false);

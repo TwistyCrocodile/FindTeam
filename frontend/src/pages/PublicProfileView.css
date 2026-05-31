@@ -49,12 +49,14 @@
 .public-profile__name {
   margin: 0 0 10px;
   font-size: 1.25rem;
+  overflow-wrap: anywhere;
 }
 
 .public-profile__row,
 .public-profile__meta {
   margin: 6px 0;
   font-size: 0.9rem;
+  overflow-wrap: anywhere;
 }
 
 .public-profile__label {
@@ -100,12 +102,15 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .public-profile__post-title {
+  flex: 1 1 180px;
   margin: 0;
   font-size: 1rem;
+  overflow-wrap: anywhere;
 }
 
 .public-profile__post-pill {
@@ -135,8 +140,10 @@
 .public-profile__post-link {
   margin: 4px 0;
   font-size: 0.9rem;
+  overflow-wrap: anywhere;
 }
 
 .public-profile__post-description {
   white-space: pre-wrap;
+  word-break: break-word;
 }

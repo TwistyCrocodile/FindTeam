@@ -20,6 +20,7 @@
   border-radius: 8px;
   border: 1px solid var(--border-strong);
   background: var(--surface-elevated);
+  min-width: 0;
 }
 
 .field textarea {
@@ -30,6 +31,7 @@
 .form-msg {
   margin: 0;
   font-size: 0.85rem;
+  overflow-wrap: anywhere;
 }
 
 .form-msg--ok {
