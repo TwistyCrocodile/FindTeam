@@ -9,6 +9,56 @@ The Spring Boot backend supports two database modes:
 - Default mode: H2 in-memory database for quick local development and tests.
 - `postgres` profile: PostgreSQL for local database compatibility testing.
 
+## Run Full Stack With Docker Compose
+
+The local Docker stack runs:
+
+- PostgreSQL on `localhost:5432`
+- Spring Boot backend on `http://localhost:8080`
+- nginx-served frontend on `http://localhost:5173`
+
+Build and start the full stack:
+
+```bash
+docker compose up --build
+```
+
+Run in the background:
+
+```bash
+docker compose up --build -d
+```
+
+Stop the stack:
+
+```bash
+docker compose down
+```
+
+Stop the stack and remove PostgreSQL data:
+
+```bash
+docker compose down -v
+```
+
+The backend container uses the `postgres` Spring profile and connects to PostgreSQL through the Docker service name:
+
+```text
+jdbc:postgresql://postgres:5432/findteam
+```
+
+The frontend container serves the Vite production build through nginx. By default, browser requests to `/api` are proxied by nginx to the backend container:
+
+```text
+http://backend:8080
+```
+
+You can still provide `VITE_API_BASE_URL` at build time if you want the frontend bundle to call a different API base URL:
+
+```bash
+VITE_API_BASE_URL=https://api.example.com docker compose up --build frontend
+```
+
 ### Run Backend With H2
 
 H2 is used when no Spring profile is selected.
