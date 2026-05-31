@@ -32,9 +32,10 @@ type Props = {
   initData?: string | null;
   profile: UserProfileResponse;
   onProfileUpdated: (profile: UserProfileResponse) => void;
+  onViewUserProfile: (telegramId: number) => void;
 };
 
-export function ProfilePage({ telegramId, initData, profile, onProfileUpdated }: Props) {
+export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, onViewUserProfile }: Props) {
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -357,6 +358,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated }:
                   postId={p.id}
                   ownerTelegramId={telegramId}
                   initData={initData}
+                  onViewUserProfile={onViewUserProfile}
                   onClose={() => setApplicationsPostId(null)}
                 />
               ) : null}

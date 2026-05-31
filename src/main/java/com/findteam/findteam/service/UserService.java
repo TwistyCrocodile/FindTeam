@@ -5,6 +5,7 @@ import com.findteam.findteam.dto.CreateUserProfileRequest;
 import com.findteam.findteam.dto.RegisterCurrentUserRequest;
 import com.findteam.findteam.dto.RegisterUserRequest;
 import com.findteam.findteam.dto.UpdateContactInfoRequest;
+import com.findteam.findteam.dto.PublicUserProfileResponse;
 import com.findteam.findteam.dto.UpdateUserProfileRequest;
 import com.findteam.findteam.dto.UserProfileResponse;
 import com.findteam.findteam.exception.NicknameAlreadyTakenException;
@@ -94,6 +95,13 @@ public class UserService {
 				.orElseThrow(() -> new UserNotFoundException(telegramId));
 	}
 
+	@Transactional(readOnly = true)
+	public PublicUserProfileResponse getPublicProfileByTelegramId(Long telegramId) {
+		return userRepository.findByTelegramId(telegramId)
+				.map(this::toPublicUserProfileResponse)
+				.orElseThrow(() -> new UserNotFoundException(telegramId));
+	}
+
 	public ContactInfoResponse getContactInfo(Long telegramId) {
 		return userRepository.findByTelegramId(telegramId)
 				.map(this::toContactInfoResponse)
@@ -114,6 +122,17 @@ public class UserService {
 
 	private UserProfileResponse toUserProfileResponse(User user) {
 		UserProfileResponse response = new UserProfileResponse();
+		response.setTelegramId(user.getTelegramId());
+		response.setNickname(user.getNickname());
+		response.setBio(user.getBio());
+		response.setStack(user.getStack());
+		response.setGithubUrl(user.getGithubUrl());
+		response.setCreatedAt(user.getCreatedAt());
+		return response;
+	}
+
+	private PublicUserProfileResponse toPublicUserProfileResponse(User user) {
+		PublicUserProfileResponse response = new PublicUserProfileResponse();
 		response.setTelegramId(user.getTelegramId());
 		response.setNickname(user.getNickname());
 		response.setBio(user.getBio());

@@ -71,6 +71,23 @@
   gap: 8px;
 }
 
+.post-applications__nickname {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: #2563eb;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.post-applications__nickname:hover {
+  color: #1d4ed8;
+}
+
 .post-applications__status {
   font-size: 0.7rem;
   font-weight: 700;

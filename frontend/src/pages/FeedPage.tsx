@@ -21,9 +21,10 @@ type Props = {
   reloadToken: number;
   viewerTelegramId: number;
   initData?: string | null;
+  onViewUserProfile?: (telegramId: number) => void;
 };
 
-export function FeedPage({ reloadToken, viewerTelegramId, initData }: Props) {
+export function FeedPage({ reloadToken, viewerTelegramId, initData, onViewUserProfile }: Props) {
   const [search, setSearch] = useState('');
 
   const [filterType, setFilterType] = useState<PostType | ''>('');
@@ -181,6 +182,7 @@ export function FeedPage({ reloadToken, viewerTelegramId, initData }: Props) {
               initData={initData}
               hasApplied={appliedPostIds.has(p.id)}
               onApplied={(postId) => setAppliedPostIds((prev) => new Set(prev).add(postId))}
+              onViewUserProfile={onViewUserProfile}
               onPostUpdated={handlePostUpdated}
               onPostDeleted={handlePostDeleted}
             />

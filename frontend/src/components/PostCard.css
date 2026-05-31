@@ -49,6 +49,22 @@
   overflow-wrap: anywhere;
 }
 
+.post-card__author {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: #2563eb;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.post-card__author:hover {
+  color: #1d4ed8;
+}
+
 .post-card__dot {
   opacity: 0.5;
 }

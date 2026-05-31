@@ -1,0 +1,136 @@
+.public-profile {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 24px;
+}
+
+.public-profile__back {
+  align-self: flex-start;
+  border: none;
+  background: #e4e4e7;
+  color: #18181b;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.public-profile__state {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #52525b;
+}
+
+.public-profile__state--error {
+  color: #b91c1c;
+}
+
+.public-profile__card {
+  background: #fff;
+  border: 1px solid #e4e4e7;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.public-profile__avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #dbeafe, #e4e4e7);
+  margin-bottom: 10px;
+}
+
+.public-profile__name {
+  margin: 0 0 10px;
+  font-size: 1.25rem;
+}
+
+.public-profile__row,
+.public-profile__meta {
+  margin: 6px 0;
+  font-size: 0.9rem;
+}
+
+.public-profile__label {
+  font-weight: 600;
+  color: #71717a;
+  margin-right: 4px;
+}
+
+.public-profile__meta {
+  font-size: 0.8rem;
+  color: #a1a1aa;
+  margin-top: 10px;
+}
+
+.public-profile__posts-heading {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+}
+
+.public-profile__posts-hint {
+  margin: 0 0 12px;
+  font-size: 0.8rem;
+  color: #71717a;
+}
+
+.public-profile__posts-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.public-profile__post {
+  background: #fff;
+  border: 1px solid #e4e4e7;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.public-profile__post-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.public-profile__post-title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.public-profile__post-pill {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: #f4f4f5;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.public-profile__post-meta {
+  margin: 6px 0;
+  font-size: 0.85rem;
+  color: #52525b;
+}
+
+.public-profile__dot {
+  margin: 0 4px;
+  opacity: 0.5;
+}
+
+.public-profile__post-stack,
+.public-profile__post-description,
+.public-profile__post-link {
+  margin: 4px 0;
+  font-size: 0.9rem;
+}
+
+.public-profile__post-description {
+  white-space: pre-wrap;
+}

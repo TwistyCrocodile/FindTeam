@@ -16,6 +16,7 @@ type Props = {
   /** Profile owner view: show View Applications. */
   showApplicationsButton?: boolean;
   onViewApplications?: (postId: number) => void;
+  onViewUserProfile?: (authorTelegramId: number) => void;
 };
 
 function formatWhen(iso: string) {
@@ -36,6 +37,7 @@ export function PostCard({
   onApplied,
   showApplicationsButton = false,
   onViewApplications,
+  onViewUserProfile,
 }: Props) {
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -124,7 +126,17 @@ export function PostCard({
         </span>
       </div>
       <p className="post-card__meta">
-        <strong>{post.nickname ?? 'Unknown user'}</strong>
+        {onViewUserProfile && post.telegramId && post.telegramId !== viewerTelegramId ? (
+          <button
+            type="button"
+            className="post-card__author"
+            onClick={() => onViewUserProfile(post.telegramId)}
+          >
+            {post.nickname ?? 'Unknown user'}
+          </button>
+        ) : (
+          <strong>{post.nickname ?? 'Unknown user'}</strong>
+        )}
         <span className="post-card__dot">·</span>
         <span className="post-card__meta-pill">{post.type}</span>
         <span className="post-card__dot">·</span>

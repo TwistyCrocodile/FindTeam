@@ -4,6 +4,7 @@ import { useTelegramEnvironment } from '../hooks/useTelegramEnvironment';
 import { CreatePostPage } from './CreatePostPage';
 import { FeedPage } from './FeedPage';
 import { ProfilePage } from './ProfilePage';
+import { PublicProfileView } from './PublicProfileView';
 import { OnboardingPage } from './OnboardingPage';
 import { getCurrentUserProfile, getUserProfile } from '../api/users';
 import type { UserProfileResponse } from '../types/user';
@@ -22,6 +23,7 @@ export function HomePage() {
   const [profileStatus, setProfileStatus] = useState<'loading' | 'onboarding' | 'ready'>('loading');
   const [profile, setProfile] = useState<UserProfileResponse | null>(null);
   const [profileError, setProfileError] = useState<string | null>(null);
+  const [viewedUserTelegramId, setViewedUserTelegramId] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -85,10 +87,24 @@ export function HomePage() {
     );
   }
 
+  if (viewedUserTelegramId !== null) {
+    return (
+      <PublicProfileView
+        telegramId={viewedUserTelegramId}
+        onBack={() => setViewedUserTelegramId(null)}
+      />
+    );
+  }
+
   return (
     <>
       {currentTab === 'posts' ? (
-        <FeedPage reloadToken={feedReloadToken} viewerTelegramId={telegramId} initData={initData} />
+        <FeedPage
+          reloadToken={feedReloadToken}
+          viewerTelegramId={telegramId}
+          initData={initData}
+          onViewUserProfile={(id) => setViewedUserTelegramId(id)}
+        />
       ) : null}
       {currentTab === 'create' ? (
         <CreatePostPage telegramId={telegramId} initData={initData} onCreated={handleCreated} />
@@ -99,6 +115,7 @@ export function HomePage() {
           initData={initData}
           profile={profile}
           onProfileUpdated={(p) => setProfile(p)}
+          onViewUserProfile={(id) => setViewedUserTelegramId(id)}
         />
       ) : null}
 

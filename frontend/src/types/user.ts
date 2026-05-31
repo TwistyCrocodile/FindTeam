@@ -37,6 +37,16 @@ export interface UserProfileResponse {
   createdAt: string;
 }
 
+/** Public profile only — no contact unlock fields. */
+export interface PublicUserProfileResponse {
+  telegramId: number;
+  nickname: string;
+  bio?: string;
+  stack: string;
+  githubUrl?: string;
+  createdAt: string;
+}
+
 export interface UpdateContactInfoRequest {
   contactTelegramUsername?: string;
   contactGithubUrl?: string;

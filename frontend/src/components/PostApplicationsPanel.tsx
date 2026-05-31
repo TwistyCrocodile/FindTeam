@@ -14,6 +14,7 @@ type Props = {
   postId: number;
   ownerTelegramId: number;
   initData?: string | null;
+  onViewUserProfile: (applicantTelegramId: number) => void;
   onClose: () => void;
 };
 
@@ -31,7 +32,7 @@ function formatStatus(status: ApplicationResponse['status']) {
   return 'Rejected';
 }
 
-export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onClose }: Props) {
+export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onViewUserProfile, onClose }: Props) {
   const [applications, setApplications] = useState<ApplicationResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -125,7 +126,17 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onClo
         {applications.map((a) => (
           <li key={a.id} className={`post-applications__item post-applications__item--${a.status.toLowerCase()}`}>
             <div className="post-applications__item-main">
-              <strong>{a.applicantNickname}</strong>
+              {a.applicantTelegramId ? (
+                <button
+                  type="button"
+                  className="post-applications__nickname"
+                  onClick={() => onViewUserProfile(a.applicantTelegramId)}
+                >
+                  {a.applicantNickname}
+                </button>
+              ) : (
+                <strong>{a.applicantNickname}</strong>
+              )}
               <span className={`post-applications__status post-applications__status--${a.status.toLowerCase()}`}>
                 {formatStatus(a.status)}
               </span>

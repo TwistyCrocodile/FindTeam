@@ -1,12 +1,14 @@
 import type {
   ContactInfoResponse,
   CreateUserProfileRequest,
+  PublicUserProfileResponse,
   RegisterCurrentUserRequest,
   RegisterUserRequest,
   UpdateContactInfoRequest,
   UpdateUserProfileRequest,
   UserProfileResponse,
 } from '../types/user';
+import type { PostResponse } from '../types/post';
 import { apiFetch, apiUrl, parseErrorMessage, telegramInitDataHeaders } from './client';
 
 type ErrorWithStatus = Error & { status?: number };
@@ -15,6 +17,24 @@ function asErrorWithStatus(message: string, status?: number): ErrorWithStatus {
   const err = new Error(message) as ErrorWithStatus;
   err.status = status;
   return err;
+}
+
+export async function getPublicUserProfile(telegramId: number): Promise<PublicUserProfileResponse> {
+  const res = await fetch(apiUrl(`/api/users/${telegramId}/public-profile`));
+  if (!res.ok) {
+    const message = await parseErrorMessage(res);
+    throw asErrorWithStatus(message, res.status);
+  }
+  return (await res.json()) as PublicUserProfileResponse;
+}
+
+export async function getPublicUserPosts(telegramId: number): Promise<PostResponse[]> {
+  const res = await fetch(apiUrl(`/api/users/${telegramId}/public-posts`));
+  if (!res.ok) {
+    const message = await parseErrorMessage(res);
+    throw asErrorWithStatus(message, res.status);
+  }
+  return (await res.json()) as PostResponse[];
 }
 
 export async function getUserProfile(telegramId: number): Promise<UserProfileResponse> {

@@ -3,14 +3,18 @@ package com.findteam.findteam.controller;
 import com.findteam.findteam.dto.ContactInfoResponse;
 import com.findteam.findteam.dto.CreateUserProfileRequest;
 import com.findteam.findteam.dto.RegisterCurrentUserRequest;
+import com.findteam.findteam.dto.PostResponse;
+import com.findteam.findteam.dto.PublicUserProfileResponse;
 import com.findteam.findteam.dto.RegisterUserRequest;
 import com.findteam.findteam.dto.TelegramAuthUser;
 import com.findteam.findteam.dto.UpdateContactInfoRequest;
 import com.findteam.findteam.dto.UpdateUserProfileRequest;
 import com.findteam.findteam.dto.UserProfileResponse;
 import com.findteam.findteam.service.CurrentTelegramUserService;
+import com.findteam.findteam.service.PostService;
 import com.findteam.findteam.service.UserService;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,10 +31,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
 	private final UserService userService;
+	private final PostService postService;
 	private final CurrentTelegramUserService currentTelegramUserService;
 
-	public UserController(UserService userService, CurrentTelegramUserService currentTelegramUserService) {
+	public UserController(
+			UserService userService,
+			PostService postService,
+			CurrentTelegramUserService currentTelegramUserService) {
 		this.userService = userService;
+		this.postService = postService;
 		this.currentTelegramUserService = currentTelegramUserService;
 	}
 
@@ -58,6 +67,16 @@ public class UserController {
 	@GetMapping("/{telegramId}")
 	public ResponseEntity<UserProfileResponse> getByTelegramId(@PathVariable Long telegramId) {
 		return ResponseEntity.ok(userService.getByTelegramId(telegramId));
+	}
+
+	@GetMapping("/{telegramId}/public-profile")
+	public ResponseEntity<PublicUserProfileResponse> getPublicProfile(@PathVariable Long telegramId) {
+		return ResponseEntity.ok(userService.getPublicProfileByTelegramId(telegramId));
+	}
+
+	@GetMapping("/{telegramId}/public-posts")
+	public ResponseEntity<List<PostResponse>> getPublicPosts(@PathVariable Long telegramId) {
+		return ResponseEntity.ok(postService.getPublicPostsByTelegramId(telegramId));
 	}
 
 	@GetMapping("/by-telegram/{telegramId}")

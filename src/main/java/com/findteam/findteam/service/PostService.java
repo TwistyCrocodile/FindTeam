@@ -125,6 +125,22 @@ public class PostService {
 				.toList();
 	}
 
+	/**
+	 * Public profile feed: only {@link PostStatus#ACTIVE} posts, newest first.
+	 * Closed posts are hidden from public view (MVP privacy / relevance).
+	 */
+	@Transactional(readOnly = true)
+	public List<PostResponse> getPublicPostsByTelegramId(Long authorTelegramId) {
+		userRepository
+				.findByTelegramId(authorTelegramId)
+				.orElseThrow(() -> new UserNotFoundException(authorTelegramId));
+		return postRepository
+				.findByAuthor_TelegramIdAndStatusOrderByCreatedAtDesc(authorTelegramId, PostStatus.ACTIVE)
+				.stream()
+				.map(this::toPostResponse)
+				.toList();
+	}
+
 	@Transactional
 	public PostResponse closePost(Long postId, Long requesterTelegramId) {
 		Post post = getPostOrThrow(postId);
