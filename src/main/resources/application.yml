@@ -13,3 +13,6 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+
+telegram:
+  bot-token: ${TELEGRAM_BOT_TOKEN:}

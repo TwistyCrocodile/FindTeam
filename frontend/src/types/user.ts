@@ -14,6 +14,13 @@ export interface RegisterUserRequest {
   githubUrl?: string;
 }
 
+export interface RegisterCurrentUserRequest {
+  nickname: string;
+  bio?: string;
+  stack: string;
+  githubUrl?: string;
+}
+
 export interface UpdateUserProfileRequest {
   nickname: string;
   bio?: string;

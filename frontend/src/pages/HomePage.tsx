@@ -5,7 +5,7 @@ import { CreatePostPage } from './CreatePostPage';
 import { FeedPage } from './FeedPage';
 import { ProfilePage } from './ProfilePage';
 import { OnboardingPage } from './OnboardingPage';
-import { getUserProfile } from '../api/users';
+import { getCurrentUserProfile, getUserProfile } from '../api/users';
 import type { UserProfileResponse } from '../types/user';
 
 const FALLBACK_TELEGRAM_ID = 123456789;
@@ -14,7 +14,7 @@ export function HomePage() {
   const [currentTab, setCurrentTab] = useState<TabId>('posts');
   const [feedReloadToken, setFeedReloadToken] = useState(0);
 
-  const { user } = useTelegramEnvironment();
+  const { user, initData } = useTelegramEnvironment();
 
   const telegramId = useMemo(() => user?.id ?? FALLBACK_TELEGRAM_ID, [user?.id]);
   const nicknameSuggestion = user?.username ?? null;
@@ -31,7 +31,7 @@ export function HomePage() {
       setProfileError(null);
 
       try {
-        const p = await getUserProfile(telegramId);
+        const p = initData ? await getCurrentUserProfile(initData) : await getUserProfile(telegramId);
         if (cancelled) return;
         setProfile(p);
         setProfileStatus('ready');
@@ -53,7 +53,7 @@ export function HomePage() {
     return () => {
       cancelled = true;
     };
-  }, [telegramId]);
+  }, [telegramId, initData]);
 
   function handleCreated() {
     setFeedReloadToken((x) => x + 1);
@@ -68,6 +68,7 @@ export function HomePage() {
     return (
       <OnboardingPage
         telegramId={telegramId}
+        initData={initData}
         nicknameSuggestion={nicknameSuggestion}
         onCreated={(p) => {
           setProfile(p);

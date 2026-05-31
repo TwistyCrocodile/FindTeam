@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
-import { registerUser } from '../api/users';
+import { registerCurrentUser, registerUser } from '../api/users';
 import { UserProfileForm } from '../components/UserProfileForm';
 import type { UserProfileResponse } from '../types/user';
 import './OnboardingProfilePage.css';
 
 type Props = {
   telegramId: number;
+  initData?: string | null;
   nicknameSuggestion?: string | null;
   onCreated: (profile: UserProfileResponse) => void;
 };
@@ -16,7 +17,7 @@ function sanitizeNicknameSuggestion(value: string | null | undefined) {
   return /^[A-Za-z0-9_.]{3,32}$/.test(v) ? v : '';
 }
 
-export function OnboardingPage({ telegramId, nicknameSuggestion, onCreated }: Props) {
+export function OnboardingPage({ telegramId, initData, nicknameSuggestion, onCreated }: Props) {
   const [serverError, setServerError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -46,7 +47,9 @@ export function OnboardingPage({ telegramId, nicknameSuggestion, onCreated }: Pr
           setServerError(null);
           setLoading(true);
           try {
-            const created = await registerUser({ telegramId, ...values });
+            const created = initData
+              ? await registerCurrentUser(initData, values)
+              : await registerUser({ telegramId, ...values });
             onCreated(created);
           } catch (e) {
             setServerError(e instanceof Error ? e.message : 'Request failed');

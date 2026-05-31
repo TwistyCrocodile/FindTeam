@@ -6,7 +6,7 @@ import './TelegramUserStrip.css';
  * In plain browser dev, shows a short hint instead.
  */
 export function TelegramUserStrip() {
-  const { inTelegram, user } = useTelegramEnvironment();
+  const { inTelegram, user, initData } = useTelegramEnvironment();
 
   if (!inTelegram) {
     return (
@@ -21,7 +21,9 @@ export function TelegramUserStrip() {
     return (
       <div className="tg-strip">
         <span className="tg-strip__label">Telegram</span>
-        <span className="tg-strip__hint">User data not in launch params.</span>
+        <span className="tg-strip__hint">
+          {initData ? 'Telegram auth data detected.' : 'User data not in launch params.'}
+        </span>
       </div>
     );
   }
@@ -34,6 +36,9 @@ export function TelegramUserStrip() {
       <span className="tg-strip__label">Signed in as</span>
       <span className="tg-strip__name">
         {display || labelFallback}
+      </span>
+      <span className="tg-strip__hint">
+        {initData ? 'Telegram auth data detected.' : 'Telegram auth data missing.'}
       </span>
     </div>
   );

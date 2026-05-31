@@ -12,20 +12,32 @@ export type TelegramUserSummary = {
   username?: string;
 };
 
+type TelegramWebAppWindow = Window & {
+  Telegram?: {
+    WebApp?: {
+      initData?: string;
+    };
+  };
+};
+
 export function useTelegramEnvironment() {
   const [inTelegram, setInTelegram] = useState(false);
   const [user, setUser] = useState<TelegramUserSummary | null>(null);
+  const [initData, setInitData] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isTMA()) {
       setInTelegram(false);
       setUser(null);
+      setInitData(null);
       return;
     }
 
     try {
       const lp = retrieveLaunchParams();
       const u = lp.tgWebAppData?.user;
+      const rawInitData = (window as TelegramWebAppWindow).Telegram?.WebApp?.initData ?? null;
+      setInitData(rawInitData || null);
       if (u) {
         setInTelegram(true);
         setUser({
@@ -41,8 +53,9 @@ export function useTelegramEnvironment() {
     } catch {
       setInTelegram(false);
       setUser(null);
+      setInitData(null);
     }
   }, []);
 
-  return { inTelegram, user };
+  return { inTelegram, user, initData };
 }

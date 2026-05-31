@@ -1,10 +1,11 @@
 import type {
   CreateUserProfileRequest,
+  RegisterCurrentUserRequest,
   RegisterUserRequest,
   UpdateUserProfileRequest,
   UserProfileResponse,
 } from '../types/user';
-import { apiUrl, parseErrorMessage } from './client';
+import { apiUrl, parseErrorMessage, telegramInitDataHeaders } from './client';
 
 type ErrorWithStatus = Error & { status?: number };
 
@@ -23,10 +24,40 @@ export async function getUserProfile(telegramId: number): Promise<UserProfileRes
   return (await res.json()) as UserProfileResponse;
 }
 
+export async function getCurrentUserProfile(initData: string): Promise<UserProfileResponse> {
+  const res = await fetch(apiUrl('/api/users/me'), {
+    headers: telegramInitDataHeaders(initData),
+  });
+  if (!res.ok) {
+    const message = await parseErrorMessage(res);
+    throw asErrorWithStatus(message, res.status);
+  }
+  return (await res.json()) as UserProfileResponse;
+}
+
 export async function registerUser(payload: RegisterUserRequest): Promise<UserProfileResponse> {
   const res = await fetch(apiUrl('/api/users/register'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const message = await parseErrorMessage(res);
+    throw asErrorWithStatus(message, res.status);
+  }
+  return (await res.json()) as UserProfileResponse;
+}
+
+export async function registerCurrentUser(
+  initData: string,
+  payload: RegisterCurrentUserRequest,
+): Promise<UserProfileResponse> {
+  const res = await fetch(apiUrl('/api/users/me/register'), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...telegramInitDataHeaders(initData),
+    },
     body: JSON.stringify(payload),
   });
   if (!res.ok) {

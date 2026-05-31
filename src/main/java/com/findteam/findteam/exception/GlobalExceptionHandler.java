@@ -89,6 +89,11 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(ex.getMessage()));
 	}
 
+	@ExceptionHandler(InvalidTelegramInitDataException.class)
+	public ResponseEntity<ErrorResponse> handleInvalidTelegramInitData(InvalidTelegramInitDataException ex) {
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error(ex.getMessage()));
+	}
+
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse> handleGeneric(Exception ex) {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

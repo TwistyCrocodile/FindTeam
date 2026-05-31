@@ -14,6 +14,10 @@ export function apiUrl(path: string): string {
   return base ? `${base}${p}` : p;
 }
 
+export function telegramInitDataHeaders(initData?: string | null): HeadersInit {
+  return initData ? { 'X-Telegram-Init-Data': initData } : {};
+}
+
 /** Backend single-field error: { message, timestamp } */
 export interface ErrorResponseBody {
   message: string;

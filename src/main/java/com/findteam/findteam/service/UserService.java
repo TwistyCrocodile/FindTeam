@@ -1,6 +1,7 @@
 package com.findteam.findteam.service;
 
 import com.findteam.findteam.dto.CreateUserProfileRequest;
+import com.findteam.findteam.dto.RegisterCurrentUserRequest;
 import com.findteam.findteam.dto.RegisterUserRequest;
 import com.findteam.findteam.dto.UpdateUserProfileRequest;
 import com.findteam.findteam.dto.UserProfileResponse;
@@ -52,6 +53,17 @@ public class UserService {
 
 		User saved = userRepository.save(user);
 		return toUserProfileResponse(saved);
+	}
+
+	@Transactional
+	public UserProfileResponse registerCurrentUser(Long telegramId, RegisterCurrentUserRequest request) {
+		RegisterUserRequest registerRequest = new RegisterUserRequest();
+		registerRequest.setTelegramId(telegramId);
+		registerRequest.setNickname(request.getNickname());
+		registerRequest.setBio(request.getBio());
+		registerRequest.setStack(request.getStack());
+		registerRequest.setGithubUrl(request.getGithubUrl());
+		return registerUser(registerRequest);
 	}
 
 	@Transactional
