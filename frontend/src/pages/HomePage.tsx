@@ -88,12 +88,15 @@ export function HomePage() {
   return (
     <>
       {currentTab === 'posts' ? (
-        <FeedPage reloadToken={feedReloadToken} viewerTelegramId={telegramId} />
+        <FeedPage reloadToken={feedReloadToken} viewerTelegramId={telegramId} initData={initData} />
       ) : null}
-      {currentTab === 'create' ? <CreatePostPage telegramId={telegramId} onCreated={handleCreated} /> : null}
+      {currentTab === 'create' ? (
+        <CreatePostPage telegramId={telegramId} initData={initData} onCreated={handleCreated} />
+      ) : null}
       {currentTab === 'profile' ? (
         <ProfilePage
           telegramId={telegramId}
+          initData={initData}
           profile={profile}
           onProfileUpdated={(p) => setProfile(p)}
         />

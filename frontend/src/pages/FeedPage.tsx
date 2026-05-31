@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { getApplicationsByApplicant } from '../api/applications';
+import { getApplicationsByApplicantAuthAware } from '../api/applications';
 import { getPosts } from '../api/posts';
 import { PostCard } from '../components/PostCard';
 import type { PostGoal, PostResponse, PostStatus, PostType } from '../types/post';
@@ -20,9 +20,10 @@ function postMatchesQuery(post: PostResponse, q: string) {
 type Props = {
   reloadToken: number;
   viewerTelegramId: number;
+  initData?: string | null;
 };
 
-export function FeedPage({ reloadToken, viewerTelegramId }: Props) {
+export function FeedPage({ reloadToken, viewerTelegramId, initData }: Props) {
   const [search, setSearch] = useState('');
 
   const [filterType, setFilterType] = useState<PostType | ''>('');
@@ -42,7 +43,7 @@ export function FeedPage({ reloadToken, viewerTelegramId }: Props) {
     let cancelled = false;
     async function loadMyApplications() {
       try {
-        const list = await getApplicationsByApplicant(viewerTelegramId);
+        const list = await getApplicationsByApplicantAuthAware(viewerTelegramId, initData);
         if (cancelled) return;
         setAppliedPostIds(new Set(list.map((a) => a.postId)));
       } catch {
@@ -53,7 +54,7 @@ export function FeedPage({ reloadToken, viewerTelegramId }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [viewerTelegramId, reloadToken]);
+  }, [viewerTelegramId, initData, reloadToken]);
 
   const filters = useMemo(
     () => ({
@@ -177,6 +178,7 @@ export function FeedPage({ reloadToken, viewerTelegramId }: Props) {
             <PostCard
               post={p}
               viewerTelegramId={viewerTelegramId}
+              initData={initData}
               hasApplied={appliedPostIds.has(p.id)}
               onApplied={(postId) => setAppliedPostIds((prev) => new Set(prev).add(postId))}
               onPostUpdated={handlePostUpdated}

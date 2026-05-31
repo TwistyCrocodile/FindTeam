@@ -103,8 +103,8 @@ public class ApplicationService {
 	}
 
 	private void assertRequesterIsOwner(Post post, Long requesterTelegramId) {
-		// MVP contract: for now we trust the explicit telegramId passed from the frontend.
-		// In production, verify Telegram initData server-side instead of relying on query params.
+		// Secure endpoints pass a Telegram ID resolved from verified initData.
+		// Legacy endpoints still pass the explicit MVP telegramId for local/dev compatibility.
 		Long authorTelegramId = post.getAuthor().getTelegramId();
 		if (!authorTelegramId.equals(requesterTelegramId)) {
 			throw new PostAccessDeniedException(post.getId(), requesterTelegramId);

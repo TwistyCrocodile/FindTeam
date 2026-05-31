@@ -1,5 +1,6 @@
 package com.findteam.findteam.service;
 
+import com.findteam.findteam.dto.CreateCurrentUserPostRequest;
 import com.findteam.findteam.dto.CreatePostRequest;
 import com.findteam.findteam.dto.PostPageResponse;
 import com.findteam.findteam.dto.PostResponse;
@@ -39,19 +40,48 @@ public class PostService {
 
 	@Transactional
 	public PostResponse createPost(CreatePostRequest request) {
-		User author = userRepository
-				.findByTelegramId(request.getTelegramId())
-				.orElseThrow(() -> new UserNotFoundException(request.getTelegramId()));
+		return createPostForUser(
+				request.getTelegramId(),
+				request.getType(),
+				request.getTitle(),
+				request.getDescription(),
+				request.getStack(),
+				request.getGoal(),
+				request.getEventLink());
+	}
 
+	@Transactional
+	public PostResponse createPost(Long authorTelegramId, CreateCurrentUserPostRequest request) {
+		return createPostForUser(
+				authorTelegramId,
+				request.getType(),
+				request.getTitle(),
+				request.getDescription(),
+				request.getStack(),
+				request.getGoal(),
+				request.getEventLink());
+	}
+
+	private PostResponse createPostForUser(
+			Long authorTelegramId,
+			PostType type,
+			String title,
+			String description,
+			String stack,
+			PostGoal goal,
+			String eventLink) {
+		User author = userRepository
+				.findByTelegramId(authorTelegramId)
+				.orElseThrow(() -> new UserNotFoundException(authorTelegramId));
 		Post post = new Post();
 		post.setAuthor(author);
-		post.setType(request.getType());
-		post.setTitle(request.getTitle());
-		post.setDescription(request.getDescription());
-		post.setStack(request.getStack());
-		post.setGoal(request.getGoal());
+		post.setType(type);
+		post.setTitle(title);
+		post.setDescription(description);
+		post.setStack(stack);
+		post.setGoal(goal);
 		post.setStatus(PostStatus.ACTIVE);
-		post.setEventLink(request.getEventLink());
+		post.setEventLink(eventLink);
 
 		Post saved = postRepository.save(post);
 		return toPostResponse(saved);
@@ -88,6 +118,13 @@ public class PostService {
 				result.isLast());
 	}
 
+	@Transactional(readOnly = true)
+	public List<PostResponse> getPostsByAuthor(Long authorTelegramId) {
+		return postRepository.findByAuthor_TelegramIdOrderByCreatedAtDesc(authorTelegramId).stream()
+				.map(this::toPostResponse)
+				.toList();
+	}
+
 	@Transactional
 	public PostResponse closePost(Long postId, Long requesterTelegramId) {
 		Post post = getPostOrThrow(postId);
@@ -114,8 +151,8 @@ public class PostService {
 	}
 
 	private void assertRequesterIsOwner(Post post, Long requesterTelegramId) {
-		// MVP contract: for now we trust the explicit telegramId passed from the frontend.
-		// In production, verify Telegram initData server-side instead of relying on query params.
+		// Secure endpoints pass a Telegram ID resolved from verified initData.
+		// Legacy endpoints still pass the explicit MVP telegramId for local/dev compatibility.
 		Long authorTelegramId = post.getAuthor().getTelegramId();
 		if (!authorTelegramId.equals(requesterTelegramId)) {
 			throw new PostAccessDeniedException(post.getId(), requesterTelegramId);

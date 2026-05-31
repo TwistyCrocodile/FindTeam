@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { createPost } from '../api/posts';
+import { createPostAuthAware } from '../api/posts';
 import type { CreatePostRequest, PostGoal, PostType } from '../types/post';
 import './CreatePostForm.css';
 
@@ -8,11 +8,12 @@ const POST_GOALS: PostGoal[] = ['HACKATHON', 'PET_PROJECT', 'STARTUP', 'JOB'];
 
 type Props = {
   telegramId: number;
+  initData?: string | null;
   /** After a successful POST, parent refreshes the feed. */
   onCreated: () => void;
 };
 
-export function CreatePostForm({ telegramId, onCreated }: Props) {
+export function CreatePostForm({ telegramId, initData, onCreated }: Props) {
   const [type, setType] = useState<PostType>('SEEKING_TEAM');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -55,7 +56,7 @@ export function CreatePostForm({ telegramId, onCreated }: Props) {
 
     setSubmitting(true);
     try {
-      await createPost(payload);
+      await createPostAuthAware(payload, initData);
       setServerMessage('Post created.');
       setTitle('');
       setDescription('');

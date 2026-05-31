@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
-  acceptApplication,
-  getApplicationsForPost,
-  rejectApplication,
+  acceptApplicationAuthAware,
+  getApplicationsForPostAuthAware,
+  rejectApplicationAuthAware,
 } from '../api/applications';
 import type { ApplicationResponse } from '../types/application';
 import './PostApplicationsPanel.css';
@@ -10,6 +10,7 @@ import './PostApplicationsPanel.css';
 type Props = {
   postId: number;
   ownerTelegramId: number;
+  initData?: string | null;
   onClose: () => void;
 };
 
@@ -27,7 +28,7 @@ function formatStatus(status: ApplicationResponse['status']) {
   return 'Rejected';
 }
 
-export function PostApplicationsPanel({ postId, ownerTelegramId, onClose }: Props) {
+export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onClose }: Props) {
   const [applications, setApplications] = useState<ApplicationResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +39,7 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, onClose }: Prop
     setLoading(true);
     setError(null);
     try {
-      const list = await getApplicationsForPost(postId, ownerTelegramId);
+      const list = await getApplicationsForPostAuthAware(postId, ownerTelegramId, initData);
       setApplications(list);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load applications');
@@ -46,7 +47,7 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, onClose }: Prop
     } finally {
       setLoading(false);
     }
-  }, [postId, ownerTelegramId]);
+  }, [postId, ownerTelegramId, initData]);
 
   useEffect(() => {
     void load();
@@ -56,7 +57,7 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, onClose }: Prop
     setActionError(null);
     setBusyId(id);
     try {
-      const updated = await acceptApplication(id, ownerTelegramId);
+      const updated = await acceptApplicationAuthAware(id, ownerTelegramId, initData);
       setApplications((prev) => prev.map((a) => (a.id === id ? updated : a)));
     } catch (e) {
       setActionError(e instanceof Error ? e.message : 'Could not accept');
@@ -69,7 +70,7 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, onClose }: Prop
     setActionError(null);
     setBusyId(id);
     try {
-      const updated = await rejectApplication(id, ownerTelegramId);
+      const updated = await rejectApplicationAuthAware(id, ownerTelegramId, initData);
       setApplications((prev) => prev.map((a) => (a.id === id ? updated : a)));
     } catch (e) {
       setActionError(e instanceof Error ? e.message : 'Could not reject');

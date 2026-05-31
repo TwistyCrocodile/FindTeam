@@ -39,3 +39,5 @@ export interface CreatePostRequest {
   goal: PostGoal;
   eventLink?: string;
 }
+
+export type CreateCurrentUserPostRequest = Omit<CreatePostRequest, 'telegramId'>;

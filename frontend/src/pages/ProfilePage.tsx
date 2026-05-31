@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { getApplicationsByApplicant } from '../api/applications';
-import { getPosts } from '../api/posts';
+import { getApplicationsByApplicantAuthAware } from '../api/applications';
+import { getCurrentUserPosts, getPosts } from '../api/posts';
 import { updateUserProfile } from '../api/users';
 import { PostApplicationsPanel } from '../components/PostApplicationsPanel';
 import { PostCard } from '../components/PostCard';
@@ -28,11 +28,12 @@ function formatApplicationStatus(status: ApplicationStatus) {
 
 type Props = {
   telegramId: number;
+  initData?: string | null;
   profile: UserProfileResponse;
   onProfileUpdated: (profile: UserProfileResponse) => void;
 };
 
-export function ProfilePage({ telegramId, profile, onProfileUpdated }: Props) {
+export function ProfilePage({ telegramId, initData, profile, onProfileUpdated }: Props) {
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,15 +50,20 @@ export function ProfilePage({ telegramId, profile, onProfileUpdated }: Props) {
     setLoading(true);
     setError(null);
     try {
-      const res = await getPosts({}, 0, PROFILE_PAGE_SIZE);
-      setPosts(res.content);
+      if (initData) {
+        const currentUserPosts = await getCurrentUserPosts(initData);
+        setPosts(currentUserPosts);
+      } else {
+        const res = await getPosts({}, 0, PROFILE_PAGE_SIZE);
+        setPosts(res.content);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load profile');
       setPosts([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [initData]);
 
   useEffect(() => {
     void load();
@@ -67,7 +73,7 @@ export function ProfilePage({ telegramId, profile, onProfileUpdated }: Props) {
     setApplicationsLoading(true);
     setApplicationsError(null);
     try {
-      const list = await getApplicationsByApplicant(telegramId);
+      const list = await getApplicationsByApplicantAuthAware(telegramId, initData);
       setApplications(list);
     } catch (e) {
       setApplicationsError(e instanceof Error ? e.message : 'Failed to load applications');
@@ -75,7 +81,7 @@ export function ProfilePage({ telegramId, profile, onProfileUpdated }: Props) {
     } finally {
       setApplicationsLoading(false);
     }
-  }, [telegramId]);
+  }, [telegramId, initData]);
 
   useEffect(() => {
     void loadApplications();
@@ -182,6 +188,7 @@ export function ProfilePage({ telegramId, profile, onProfileUpdated }: Props) {
               <PostCard
                 post={p}
                 viewerTelegramId={telegramId}
+                initData={initData}
                 showApplicationsButton
                 onViewApplications={(postId) =>
                   setApplicationsPostId((current) => (current === postId ? null : postId))
@@ -196,6 +203,7 @@ export function ProfilePage({ telegramId, profile, onProfileUpdated }: Props) {
                 <PostApplicationsPanel
                   postId={p.id}
                   ownerTelegramId={telegramId}
+                  initData={initData}
                   onClose={() => setApplicationsPostId(null)}
                 />
               ) : null}

@@ -1,13 +1,16 @@
 package com.findteam.findteam.controller;
 
 import com.findteam.findteam.dto.ApplicationResponse;
+import com.findteam.findteam.dto.CreateCurrentUserPostRequest;
 import com.findteam.findteam.dto.CreatePostRequest;
 import com.findteam.findteam.dto.PostPageResponse;
 import com.findteam.findteam.dto.PostResponse;
+import com.findteam.findteam.dto.TelegramAuthUser;
 import com.findteam.findteam.model.PostGoal;
 import com.findteam.findteam.model.PostStatus;
 import com.findteam.findteam.model.PostType;
 import com.findteam.findteam.service.ApplicationService;
+import com.findteam.findteam.service.CurrentTelegramUserService;
 import com.findteam.findteam.service.PostService;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,15 +33,29 @@ public class PostController {
 
 	private final PostService postService;
 	private final ApplicationService applicationService;
+	private final CurrentTelegramUserService currentTelegramUserService;
 
-	public PostController(PostService postService, ApplicationService applicationService) {
+	public PostController(
+			PostService postService,
+			ApplicationService applicationService,
+			CurrentTelegramUserService currentTelegramUserService) {
 		this.postService = postService;
 		this.applicationService = applicationService;
+		this.currentTelegramUserService = currentTelegramUserService;
 	}
 
 	@PostMapping
 	public ResponseEntity<PostResponse> createPost(@Valid @RequestBody CreatePostRequest request) {
 		PostResponse body = postService.createPost(request);
+		return ResponseEntity.status(HttpStatus.CREATED).body(body);
+	}
+
+	@PostMapping("/me")
+	public ResponseEntity<PostResponse> createPostForCurrentUser(
+			@RequestHeader(name = "X-Telegram-Init-Data", required = false) String initData,
+			@Valid @RequestBody CreateCurrentUserPostRequest request) {
+		TelegramAuthUser authUser = currentTelegramUserService.resolve(initData);
+		PostResponse body = postService.createPost(authUser.telegramId(), request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(body);
 	}
 
@@ -51,11 +69,26 @@ public class PostController {
 		return ResponseEntity.ok(postService.getFilteredPosts(type, goal, status, page, size));
 	}
 
+	@GetMapping("/me")
+	public ResponseEntity<List<PostResponse>> getCurrentUserPosts(
+			@RequestHeader(name = "X-Telegram-Init-Data", required = false) String initData) {
+		TelegramAuthUser authUser = currentTelegramUserService.resolve(initData);
+		return ResponseEntity.ok(postService.getPostsByAuthor(authUser.telegramId()));
+	}
+
 	@PatchMapping("/{postId}/close")
 	public ResponseEntity<PostResponse> closePost(
 			@PathVariable Long postId,
 			@RequestParam Long telegramId) {
 		return ResponseEntity.ok(postService.closePost(postId, telegramId));
+	}
+
+	@PatchMapping("/{postId}/close-secure")
+	public ResponseEntity<PostResponse> closePostSecure(
+			@PathVariable Long postId,
+			@RequestHeader(name = "X-Telegram-Init-Data", required = false) String initData) {
+		TelegramAuthUser authUser = currentTelegramUserService.resolve(initData);
+		return ResponseEntity.ok(postService.closePost(postId, authUser.telegramId()));
 	}
 
 	@PatchMapping("/{postId}/reopen")
@@ -65,6 +98,14 @@ public class PostController {
 		return ResponseEntity.ok(postService.reopenPost(postId, telegramId));
 	}
 
+	@PatchMapping("/{postId}/reopen-secure")
+	public ResponseEntity<PostResponse> reopenPostSecure(
+			@PathVariable Long postId,
+			@RequestHeader(name = "X-Telegram-Init-Data", required = false) String initData) {
+		TelegramAuthUser authUser = currentTelegramUserService.resolve(initData);
+		return ResponseEntity.ok(postService.reopenPost(postId, authUser.telegramId()));
+	}
+
 	@DeleteMapping("/{postId}")
 	public ResponseEntity<PostResponse> deletePost(
 			@PathVariable Long postId,
@@ -72,10 +113,26 @@ public class PostController {
 		return ResponseEntity.ok(postService.deletePost(postId, telegramId));
 	}
 
+	@DeleteMapping("/{postId}/secure")
+	public ResponseEntity<PostResponse> deletePostSecure(
+			@PathVariable Long postId,
+			@RequestHeader(name = "X-Telegram-Init-Data", required = false) String initData) {
+		TelegramAuthUser authUser = currentTelegramUserService.resolve(initData);
+		return ResponseEntity.ok(postService.deletePost(postId, authUser.telegramId()));
+	}
+
 	@GetMapping("/{postId}/applications")
 	public ResponseEntity<List<ApplicationResponse>> getApplicationsForPost(
 			@PathVariable Long postId,
 			@RequestParam Long telegramId) {
 		return ResponseEntity.ok(applicationService.getApplicationsForPost(postId, telegramId));
+	}
+
+	@GetMapping("/{postId}/applications/secure")
+	public ResponseEntity<List<ApplicationResponse>> getApplicationsForPostSecure(
+			@PathVariable Long postId,
+			@RequestHeader(name = "X-Telegram-Init-Data", required = false) String initData) {
+		TelegramAuthUser authUser = currentTelegramUserService.resolve(initData);
+		return ResponseEntity.ok(applicationService.getApplicationsForPost(postId, authUser.telegramId()));
 	}
 }

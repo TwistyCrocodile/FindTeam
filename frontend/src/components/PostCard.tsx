@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
-import { applyToPost } from '../api/applications';
-import { closePost, deletePost, reopenPost } from '../api/posts';
+import { applyToPostAuthAware } from '../api/applications';
+import { closePostAuthAware, deletePostAuthAware, reopenPostAuthAware } from '../api/posts';
 import type { PostResponse } from '../types/post';
 import './PostCard.css';
 
 type Props = {
   post: PostResponse;
   viewerTelegramId: number;
+  initData?: string | null;
   onPostUpdated: (p: PostResponse) => void;
   onPostDeleted: (postId: number) => void;
   /** True if the viewer already applied to this post (from feed preload). */
@@ -28,6 +29,7 @@ function formatWhen(iso: string) {
 export function PostCard({
   post,
   viewerTelegramId,
+  initData,
   onPostUpdated,
   onPostDeleted,
   hasApplied = false,
@@ -53,7 +55,7 @@ export function PostCard({
     setApplyNotice(null);
     setBusy(true);
     try {
-      await applyToPost({ postId: post.id, telegramId: viewerTelegramId });
+      await applyToPostAuthAware({ postId: post.id, telegramId: viewerTelegramId }, initData);
       setApplied(true);
       onApplied?.(post.id);
       setApplyNotice('Application sent');
@@ -76,7 +78,7 @@ export function PostCard({
     setApplyNotice(null);
     setBusy(true);
     try {
-      const updated = await closePost(post.id, viewerTelegramId);
+      const updated = await closePostAuthAware(post.id, viewerTelegramId, initData);
       onPostUpdated(updated);
     } catch (e) {
       setActionError(e instanceof Error ? e.message : 'Could not close post');
@@ -90,7 +92,7 @@ export function PostCard({
     setApplyNotice(null);
     setBusy(true);
     try {
-      const updated = await reopenPost(post.id, viewerTelegramId);
+      const updated = await reopenPostAuthAware(post.id, viewerTelegramId, initData);
       onPostUpdated(updated);
     } catch (e) {
       setActionError(e instanceof Error ? e.message : 'Could not reopen post');
@@ -104,7 +106,7 @@ export function PostCard({
     setApplyNotice(null);
     setBusy(true);
     try {
-      await deletePost(post.id, viewerTelegramId);
+      await deletePostAuthAware(post.id, viewerTelegramId, initData);
       onPostDeleted(post.id);
     } catch (e) {
       setActionError(e instanceof Error ? e.message : 'Could not delete post');

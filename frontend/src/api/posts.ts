@@ -1,5 +1,13 @@
-import type { CreatePostRequest, PostGoal, PostPageResponse, PostResponse, PostStatus, PostType } from '../types/post';
-import { apiUrl, parseErrorMessage } from './client';
+import type {
+  CreateCurrentUserPostRequest,
+  CreatePostRequest,
+  PostGoal,
+  PostPageResponse,
+  PostResponse,
+  PostStatus,
+  PostType,
+} from '../types/post';
+import { apiFetch, apiUrl, parseErrorMessage } from './client';
 
 export interface PostFilters {
   type?: PostType;
@@ -28,6 +36,13 @@ export async function getPosts(
   return res.json() as Promise<PostPageResponse>;
 }
 
+/** GET /api/posts/me */
+export async function getCurrentUserPosts(initData: string): Promise<PostResponse[]> {
+  const res = await apiFetch('/api/posts/me', undefined, initData);
+  if (!res.ok) throw new Error(await parseErrorMessage(res));
+  return res.json() as Promise<PostResponse[]>;
+}
+
 /** POST /api/posts */
 export async function createPost(payload: CreatePostRequest): Promise<PostResponse> {
   const res = await fetch(apiUrl('/api/posts'), {
@@ -39,9 +54,30 @@ export async function createPost(payload: CreatePostRequest): Promise<PostRespon
   return res.json() as Promise<PostResponse>;
 }
 
+/** POST /api/posts/me */
+export async function createPostForCurrentUser(
+  payload: CreateCurrentUserPostRequest,
+  initData: string,
+): Promise<PostResponse> {
+  const res = await apiFetch('/api/posts/me', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  }, initData);
+  if (!res.ok) throw new Error(await parseErrorMessage(res));
+  return res.json() as Promise<PostResponse>;
+}
+
 /** PATCH /api/posts/{id}/close */
 export async function closePost(postId: number, telegramId: number): Promise<PostResponse> {
   const res = await fetch(apiUrl(`/api/posts/${postId}/close?telegramId=${telegramId}`), { method: 'PATCH' });
+  if (!res.ok) throw new Error(await parseErrorMessage(res));
+  return res.json() as Promise<PostResponse>;
+}
+
+/** PATCH /api/posts/{id}/close-secure */
+export async function closePostSecure(postId: number, initData: string): Promise<PostResponse> {
+  const res = await apiFetch(`/api/posts/${postId}/close-secure`, { method: 'PATCH' }, initData);
   if (!res.ok) throw new Error(await parseErrorMessage(res));
   return res.json() as Promise<PostResponse>;
 }
@@ -53,9 +89,65 @@ export async function reopenPost(postId: number, telegramId: number): Promise<Po
   return res.json() as Promise<PostResponse>;
 }
 
+/** PATCH /api/posts/{id}/reopen-secure */
+export async function reopenPostSecure(postId: number, initData: string): Promise<PostResponse> {
+  const res = await apiFetch(`/api/posts/${postId}/reopen-secure`, { method: 'PATCH' }, initData);
+  if (!res.ok) throw new Error(await parseErrorMessage(res));
+  return res.json() as Promise<PostResponse>;
+}
+
 /** DELETE /api/posts/{id} */
 export async function deletePost(postId: number, telegramId: number): Promise<PostResponse> {
   const res = await fetch(apiUrl(`/api/posts/${postId}?telegramId=${telegramId}`), { method: 'DELETE' });
   if (!res.ok) throw new Error(await parseErrorMessage(res));
   return res.json() as Promise<PostResponse>;
+}
+
+/** DELETE /api/posts/{id}/secure */
+export async function deletePostSecure(postId: number, initData: string): Promise<PostResponse> {
+  const res = await apiFetch(`/api/posts/${postId}/secure`, { method: 'DELETE' }, initData);
+  if (!res.ok) throw new Error(await parseErrorMessage(res));
+  return res.json() as Promise<PostResponse>;
+}
+
+export async function createPostAuthAware(
+  payload: CreatePostRequest,
+  initData?: string | null,
+): Promise<PostResponse> {
+  if (initData) {
+    const currentUserPayload: CreateCurrentUserPostRequest = {
+      type: payload.type,
+      title: payload.title,
+      description: payload.description,
+      stack: payload.stack,
+      goal: payload.goal,
+      eventLink: payload.eventLink,
+    };
+    return createPostForCurrentUser(currentUserPayload, initData);
+  }
+  return createPost(payload);
+}
+
+export async function closePostAuthAware(
+  postId: number,
+  telegramId: number,
+  initData?: string | null,
+): Promise<PostResponse> {
+  return initData ? closePostSecure(postId, initData) : closePost(postId, telegramId);
+}
+
+export async function reopenPostAuthAware(
+  postId: number,
+  telegramId: number,
+  initData?: string | null,
+): Promise<PostResponse> {
+  return initData ? reopenPostSecure(postId, initData) : reopenPost(postId, telegramId);
+}
+
+export async function deletePostAuthAware(
+  postId: number,
+  telegramId: number,
+  initData?: string | null,
+): Promise<PostResponse> {
+  return initData ? deletePostSecure(postId, initData) : deletePost(postId, telegramId);
 }

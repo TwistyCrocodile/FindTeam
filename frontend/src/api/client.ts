@@ -18,6 +18,21 @@ export function telegramInitDataHeaders(initData?: string | null): HeadersInit {
   return initData ? { 'X-Telegram-Init-Data': initData } : {};
 }
 
+export function authAwareHeaders(headers?: HeadersInit, initData?: string | null): HeadersInit {
+  const result = new Headers(headers);
+  if (initData) {
+    result.set('X-Telegram-Init-Data', initData);
+  }
+  return result;
+}
+
+export function apiFetch(path: string, init?: RequestInit, initData?: string | null): Promise<Response> {
+  return fetch(apiUrl(path), {
+    ...init,
+    headers: authAwareHeaders(init?.headers, initData),
+  });
+}
+
 /** Backend single-field error: { message, timestamp } */
 export interface ErrorResponseBody {
   message: string;

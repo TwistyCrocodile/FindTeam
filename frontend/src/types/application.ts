@@ -19,3 +19,7 @@ export interface CreateApplicationRequest {
   postId: number;
   telegramId: number;
 }
+
+export interface CreateCurrentUserApplicationRequest {
+  postId: number;
+}
