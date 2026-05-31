@@ -1,7 +1,7 @@
 import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { getApplicationContact, getApplicationsByApplicantAuthAware } from '../api/applications';
 import { getCurrentUserPosts, getPosts } from '../api/posts';
-import { getMyContactInfo, updateMyContactInfo, updateUserProfile } from '../api/users';
+import { getMyContactInfo, updateMyContactInfo, updateUserProfileAuthAware } from '../api/users';
 import { ContactInfoView } from '../components/ContactInfoView';
 import { PostApplicationsPanel } from '../components/PostApplicationsPanel';
 import { PostCard } from '../components/PostCard';
@@ -250,7 +250,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated }:
                 setProfileError(null);
                 setProfileSaving(true);
                 try {
-                  const updated = await updateUserProfile(telegramId, values);
+                  const updated = await updateUserProfileAuthAware(telegramId, values, initData);
                   onProfileUpdated(updated);
                   setEditing(false);
                 } catch (e) {

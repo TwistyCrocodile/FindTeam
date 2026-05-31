@@ -98,6 +98,30 @@ export async function updateUserProfile(
   return (await res.json()) as UserProfileResponse;
 }
 
+export async function updateCurrentUserProfile(
+  initData: string,
+  payload: UpdateUserProfileRequest,
+): Promise<UserProfileResponse> {
+  const res = await apiFetch('/api/users/me', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  }, initData);
+  if (!res.ok) {
+    const message = await parseErrorMessage(res);
+    throw asErrorWithStatus(message, res.status);
+  }
+  return (await res.json()) as UserProfileResponse;
+}
+
+export async function updateUserProfileAuthAware(
+  telegramId: number,
+  payload: UpdateUserProfileRequest,
+  initData?: string | null,
+): Promise<UserProfileResponse> {
+  return initData ? updateCurrentUserProfile(initData, payload) : updateUserProfile(telegramId, payload);
+}
+
 export async function getMyContactInfo(initData: string): Promise<ContactInfoResponse> {
   const res = await apiFetch('/api/users/me/contact', undefined, initData);
   if (!res.ok) {

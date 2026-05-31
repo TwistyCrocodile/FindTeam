@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -155,6 +156,64 @@ class SecureTelegramActionsTests {
 		mockMvc.perform(get("/api/applications/{applicationId}/contact-secure", application.getId())
 						.header(INIT_DATA_HEADER, validInitData(unrelated.getTelegramId(), unrelated.getNickname())))
 				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	void secureProfileUpdateUsesVerifiedTelegramIdAndUpdatesFields() throws Exception {
+		User user = saveUser(1111L, "profile_user");
+
+		mockMvc.perform(put("/api/users/me")
+						.header(INIT_DATA_HEADER, validInitData(user.getTelegramId(), user.getNickname()))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{
+								  "nickname": "profile_updated",
+								  "bio": "Updated bio",
+								  "stack": "Spring Boot, React",
+								  "githubUrl": "https://github.com/profile-updated"
+								}
+								"""))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.telegramId", is(1111)))
+				.andExpect(jsonPath("$.nickname", is("profile_updated")))
+				.andExpect(jsonPath("$.bio", is("Updated bio")))
+				.andExpect(jsonPath("$.stack", is("Spring Boot, React")))
+				.andExpect(jsonPath("$.githubUrl", is("https://github.com/profile-updated")));
+	}
+
+	@Test
+	void secureProfileUpdateRejectsInvalidInitData() throws Exception {
+		mockMvc.perform(put("/api/users/me")
+						.header(INIT_DATA_HEADER, "auth_date=1&user={}&hash=bad")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{
+								  "nickname": "invalid_user",
+								  "bio": "Should not update",
+								  "stack": "Java",
+								  "githubUrl": ""
+								}
+								"""))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void secureProfileUpdateStillEnforcesNicknameUniqueness() throws Exception {
+		User user = saveUser(1212L, "original_profile");
+		saveUser(1313L, "taken_profile");
+
+		mockMvc.perform(put("/api/users/me")
+						.header(INIT_DATA_HEADER, validInitData(user.getTelegramId(), user.getNickname()))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{
+								  "nickname": "taken_profile",
+								  "bio": "Conflict",
+								  "stack": "Java",
+								  "githubUrl": ""
+								}
+								"""))
+				.andExpect(status().isConflict());
 	}
 
 	private User saveUser(Long telegramId, String nickname) {

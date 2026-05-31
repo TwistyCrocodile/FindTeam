@@ -87,6 +87,14 @@ public class UserController {
 		return ResponseEntity.ok(userService.updateContactInfo(authUser.telegramId(), request));
 	}
 
+	@PutMapping("/me")
+	public ResponseEntity<UserProfileResponse> updateCurrentUserProfile(
+			@RequestHeader(name = "X-Telegram-Init-Data", required = false) String initData,
+			@Valid @RequestBody UpdateUserProfileRequest request) {
+		TelegramAuthUser authUser = currentTelegramUserService.resolve(initData);
+		return ResponseEntity.ok(userService.updateUserProfile(authUser.telegramId(), request));
+	}
+
 	@PutMapping("/{telegramId}")
 	public ResponseEntity<UserProfileResponse> updateUserProfile(
 			@PathVariable Long telegramId,
