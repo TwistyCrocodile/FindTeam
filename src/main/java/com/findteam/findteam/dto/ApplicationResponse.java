@@ -12,5 +12,6 @@ public class ApplicationResponse {
 	private String applicantNickname;
 	private Long applicantTelegramId;
 	private ApplicationStatus status;
+	private boolean contactAvailable;
 	private LocalDateTime createdAt;
 }

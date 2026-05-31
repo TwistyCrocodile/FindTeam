@@ -6,6 +6,7 @@ export interface ApplicationResponse {
   applicantNickname: string;
   applicantTelegramId: number;
   status: ApplicationStatus;
+  contactAvailable: boolean;
   createdAt: string;
 }
 

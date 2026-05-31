@@ -21,6 +21,12 @@ function formatWhen(iso: string) {
   }
 }
 
+function formatStatus(status: ApplicationResponse['status']) {
+  if (status === 'PENDING') return 'Pending review';
+  if (status === 'ACCEPTED') return 'Accepted';
+  return 'Rejected';
+}
+
 export function PostApplicationsPanel({ postId, ownerTelegramId, onClose }: Props) {
   const [applications, setApplications] = useState<ApplicationResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -89,11 +95,11 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, onClose }: Prop
 
       <ul className="post-applications__list">
         {applications.map((a) => (
-          <li key={a.id} className="post-applications__item">
+          <li key={a.id} className={`post-applications__item post-applications__item--${a.status.toLowerCase()}`}>
             <div className="post-applications__item-main">
               <strong>{a.applicantNickname}</strong>
               <span className={`post-applications__status post-applications__status--${a.status.toLowerCase()}`}>
-                {a.status}
+                {formatStatus(a.status)}
               </span>
             </div>
             <p className="post-applications__time">{formatWhen(a.createdAt)}</p>
@@ -114,6 +120,14 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, onClose }: Prop
                   onClick={() => void handleReject(a.id)}
                 >
                   {busyId === a.id ? '…' : 'Reject'}
+                </button>
+              </div>
+            ) : null}
+            {a.status === 'ACCEPTED' && a.contactAvailable ? (
+              <div className="post-applications__contact">
+                <p className="post-applications__contact-note">Contact will be available in a future version.</p>
+                <button type="button" className="post-applications__btn post-applications__btn--contact" disabled>
+                  Contact (soon)
                 </button>
               </div>
             ) : null}

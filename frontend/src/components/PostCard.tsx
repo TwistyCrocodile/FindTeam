@@ -46,6 +46,7 @@ export function PostCard({
 
   const isOwner = post.telegramId === viewerTelegramId;
   const alreadyApplied = applied || hasApplied;
+  const isClosed = post.status === 'CLOSED';
 
   async function handleApply() {
     setActionError(null);
@@ -146,10 +147,10 @@ export function PostCard({
           <button
             type="button"
             className="btn btn--primary"
-            disabled={busy || alreadyApplied}
+            disabled={busy || alreadyApplied || isClosed}
             onClick={() => void handleApply()}
           >
-            {busy ? 'Sending…' : alreadyApplied ? 'Applied' : 'Apply'}
+            {busy ? 'Sending…' : isClosed ? 'Closed' : alreadyApplied ? 'Applied' : 'Apply'}
           </button>
         ) : null}
         {isOwner ? (

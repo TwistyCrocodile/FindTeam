@@ -3,6 +3,7 @@ package com.findteam.findteam.service;
 import com.findteam.findteam.dto.ApplicationResponse;
 import com.findteam.findteam.exception.ApplicationAlreadyExistsException;
 import com.findteam.findteam.exception.ApplicationNotFoundException;
+import com.findteam.findteam.exception.CannotApplyToClosedPostException;
 import com.findteam.findteam.exception.CannotApplyToOwnPostException;
 import com.findteam.findteam.exception.PostAccessDeniedException;
 import com.findteam.findteam.exception.PostNotFoundException;
@@ -10,6 +11,7 @@ import com.findteam.findteam.exception.UserNotFoundException;
 import com.findteam.findteam.model.Application;
 import com.findteam.findteam.model.ApplicationStatus;
 import com.findteam.findteam.model.Post;
+import com.findteam.findteam.model.PostStatus;
 import com.findteam.findteam.model.User;
 import com.findteam.findteam.repository.ApplicationRepository;
 import com.findteam.findteam.repository.PostRepository;
@@ -40,6 +42,10 @@ public class ApplicationService {
 		User applicant = userRepository
 				.findByTelegramId(applicantTelegramId)
 				.orElseThrow(() -> new UserNotFoundException(applicantTelegramId));
+
+		if (post.getStatus() == PostStatus.CLOSED) {
+			throw new CannotApplyToClosedPostException(postId);
+		}
 
 		if (post.getAuthor().getTelegramId().equals(applicantTelegramId)) {
 			throw new CannotApplyToOwnPostException(postId);
@@ -113,6 +119,7 @@ public class ApplicationService {
 		response.setApplicantNickname(applicant.getNickname());
 		response.setApplicantTelegramId(applicant.getTelegramId());
 		response.setStatus(application.getStatus());
+		response.setContactAvailable(application.getStatus() == ApplicationStatus.ACCEPTED);
 		response.setCreatedAt(application.getCreatedAt());
 		return response;
 	}

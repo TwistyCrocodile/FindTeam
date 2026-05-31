@@ -79,6 +79,11 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error(ex.getMessage()));
 	}
 
+	@ExceptionHandler(CannotApplyToClosedPostException.class)
+	public ResponseEntity<ErrorResponse> handleCannotApplyToClosedPost(CannotApplyToClosedPostException ex) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error(ex.getMessage()));
+	}
+
 	@ExceptionHandler(ApplicationNotFoundException.class)
 	public ResponseEntity<ErrorResponse> handleApplicationNotFound(ApplicationNotFoundException ex) {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error(ex.getMessage()));

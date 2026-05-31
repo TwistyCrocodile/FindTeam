@@ -54,6 +54,16 @@
   border: 1px solid #e4e4e7;
 }
 
+.post-applications__item--accepted {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.post-applications__item--rejected {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
 .post-applications__item-main {
   display: flex;
   align-items: center;
@@ -118,4 +128,22 @@
 .post-applications__btn--reject {
   background: #e4e4e7;
   color: #18181b;
+}
+
+.post-applications__contact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.post-applications__contact-note {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #166534;
+}
+
+.post-applications__btn--contact {
+  background: #e4e4e7;
+  color: #52525b;
 }
