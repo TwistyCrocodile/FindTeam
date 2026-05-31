@@ -1,9 +1,9 @@
 .post-card {
-  background: #fff;
+  background: var(--surface);
   border-radius: 12px;
   padding: 14px 14px 12px;
-  border: 1px solid #e4e4e7;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
 }
 
 .post-card__head {
@@ -29,19 +29,19 @@
 }
 
 .post-card__status--active {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--success-bg);
+  color: var(--success);
 }
 
 .post-card__status--closed {
-  background: #f4f4f5;
-  color: #52525b;
+  background: var(--surface-muted);
+  color: var(--text-secondary);
 }
 
 .post-card__meta {
   margin: 8px 0 6px;
   font-size: 0.85rem;
-  color: #52525b;
+  color: var(--text-secondary);
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -55,14 +55,14 @@
   padding: 0;
   font: inherit;
   font-weight: 700;
-  color: #2563eb;
+  color: var(--primary);
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .post-card__author:hover {
-  color: #1d4ed8;
+  color: var(--primary-hover);
 }
 
 .post-card__dot {
@@ -90,13 +90,13 @@
 
 .post-card__label {
   font-weight: 600;
-  color: #71717a;
+  color: var(--text-muted);
   margin-right: 4px;
 }
 
 .post-card__time {
   font-size: 0.8rem;
-  color: #a1a1aa;
+  color: var(--text-muted);
 }
 
 .post-card__actions {
@@ -121,33 +121,33 @@
 }
 
 .post-card .btn--secondary {
-  background: #e4e4e7;
-  color: #18181b;
+  background: var(--surface-muted);
+  color: var(--text);
 }
 
 .post-card .btn--primary {
-  background: #18181b;
-  color: #fff;
+  background: var(--primary);
+  color: var(--primary-contrast);
 }
 
 .post-card__error {
   margin: 8px 0 0;
   font-size: 0.85rem;
-  color: #b91c1c;
+  color: var(--danger);
 }
 
 .post-card__apply-notice {
   margin: 8px 0 0;
   font-size: 0.85rem;
-  color: #52525b;
-  background: #f4f4f5;
-  border: 1px solid #e4e4e7;
+  color: var(--text-secondary);
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 10px 12px;
 }
 
 .post-card__apply-notice--ok {
-  color: #166534;
-  background: #dcfce7;
-  border-color: #bbf7d0;
+  color: var(--success);
+  background: var(--success-bg);
+  border-color: var(--success-border);
 }

@@ -9,7 +9,7 @@
 
 .onboarding__hint {
   margin: 0 0 14px;
-  color: #52525b;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 

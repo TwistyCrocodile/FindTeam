@@ -6,6 +6,7 @@ import { ContactInfoView } from '../components/ContactInfoView';
 import { PostApplicationsPanel } from '../components/PostApplicationsPanel';
 import { PostCard } from '../components/PostCard';
 import { UserProfileForm } from '../components/UserProfileForm';
+import { useTheme } from '../hooks/useTheme';
 import type { ApplicationResponse, ApplicationStatus } from '../types/application';
 import type { PostResponse } from '../types/post';
 import type { ContactInfoResponse, UserProfileResponse } from '../types/user';
@@ -36,6 +37,7 @@ type Props = {
 };
 
 export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, onViewUserProfile }: Props) {
+  const { theme, setTheme } = useTheme();
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -268,6 +270,26 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
             </div>
           </div>
         ) : null}
+      </div>
+
+      <div className="profile__theme-card">
+        <h3 className="profile__posts-heading">Theme</h3>
+        <div className="profile__theme-options" role="group" aria-label="Theme">
+          <button
+            type="button"
+            className={`profile__theme-btn ${theme === 'dark' ? 'profile__theme-btn--active' : ''}`}
+            onClick={() => setTheme('dark')}
+          >
+            Dark
+          </button>
+          <button
+            type="button"
+            className={`profile__theme-btn ${theme === 'light' ? 'profile__theme-btn--active' : ''}`}
+            onClick={() => setTheme('light')}
+          >
+            Light
+          </button>
+        </div>
       </div>
 
       <div className="profile__contact-card">

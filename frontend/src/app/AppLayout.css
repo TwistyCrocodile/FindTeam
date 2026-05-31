@@ -18,7 +18,7 @@
 .app-subtitle {
   margin: 0 0 10px;
   font-size: 0.9rem;
-  color: #52525b;
+  color: var(--text-secondary);
 }
 
 .app-main {

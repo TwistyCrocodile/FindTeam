@@ -1,3 +1,5 @@
+@import './app/theme.css';
+
 /* Global reset-ish styles for a small mobile-first Mini App */
 *,
 *::before,
@@ -16,8 +18,8 @@ body {
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   font-size: 16px;
   line-height: 1.45;
-  color: #1a1a1a;
-  background: #f4f4f5;
+  color: var(--text);
+  background: var(--bg);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -28,6 +30,19 @@ textarea {
   font: inherit;
 }
 
+input,
+select,
+textarea {
+  color: var(--text);
+  background: var(--surface-elevated);
+  border-color: var(--border-strong);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
 a {
-  color: #2563eb;
+  color: var(--primary);
 }

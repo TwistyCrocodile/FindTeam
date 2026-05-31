@@ -10,14 +10,14 @@
   margin-bottom: 12px;
   font-size: 0.8rem;
   font-weight: 700;
-  color: #3f3f46;
+  color: var(--text-secondary);
 }
 
 .feed__search input {
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid #d4d4d8;
-  background: #fff;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-elevated);
 }
 
 .feed__filters {
@@ -40,7 +40,7 @@
   gap: 4px;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #3f3f46;
+  color: var(--text-secondary);
   flex: 1;
   min-width: 120px;
 }
@@ -48,18 +48,18 @@
 .feed__filter select {
   padding: 8px 10px;
   border-radius: 8px;
-  border: 1px solid #d4d4d8;
-  background: #fff;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-elevated);
 }
 
 .feed__state {
   margin: 0 0 12px;
   font-size: 0.9rem;
-  color: #52525b;
+  color: var(--text-secondary);
 }
 
 .feed__state--error {
-  color: #b91c1c;
+  color: var(--danger);
 }
 
 .feed__list {
@@ -82,8 +82,8 @@
   border-radius: 10px;
   padding: 10px 20px;
   font-weight: 600;
-  background: #18181b;
-  color: #fff;
+  background: var(--primary);
+  color: var(--primary-contrast);
   cursor: pointer;
 }
 

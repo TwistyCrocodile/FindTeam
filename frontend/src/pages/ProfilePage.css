@@ -5,9 +5,9 @@
 }
 
 .profile__card {
-  border: 1px solid #e4e4e7;
+  border: 1px solid var(--border);
   border-radius: 14px;
-  background: #fff;
+  background: var(--surface);
   padding: 14px;
 }
 
@@ -21,7 +21,7 @@
   width: 54px;
   height: 54px;
   border-radius: 999px;
-  background: linear-gradient(135deg, #27272a, #71717a);
+  background: linear-gradient(135deg, var(--primary), var(--surface-muted));
   flex: 0 0 auto;
 }
 
@@ -37,13 +37,13 @@
 
 .profile__row {
   margin: 0 0 6px;
-  color: #3f3f46;
+  color: var(--text-secondary);
   font-size: 0.95rem;
 }
 
 .profile__label {
   font-weight: 800;
-  color: #18181b;
+  color: var(--text);
 }
 
 .profile__posts-heading {
@@ -59,8 +59,9 @@
 }
 
 .profile__edit-btn {
-  border: 1px solid #d4d4d8;
-  background: #fff;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
   padding: 8px 10px;
   border-radius: 10px;
   font-weight: 800;
@@ -78,8 +79,8 @@
 
 .profile__cancel-btn {
   border: none;
-  background: #e4e4e7;
-  color: #18181b;
+  background: var(--surface-muted);
+  color: var(--text);
   padding: 10px 12px;
   border-radius: 10px;
   font-weight: 800;
@@ -89,11 +90,11 @@
 
 .profile__state {
   margin: 0 0 10px;
-  color: #52525b;
+  color: var(--text-secondary);
 }
 
 .profile__state--error {
-  color: #b91c1c;
+  color: var(--danger);
 }
 
 .profile__list {
@@ -111,15 +112,44 @@
 }
 
 .profile__contact-card {
-  border: 1px solid #e4e4e7;
+  border: 1px solid var(--border);
   border-radius: 14px;
-  background: #fff;
+  background: var(--surface);
   padding: 14px;
+}
+
+.profile__theme-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  padding: 14px;
+}
+
+.profile__theme-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.profile__theme-btn {
+  border: 1px solid var(--border-strong);
+  background: var(--surface-muted);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.profile__theme-btn--active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-contrast);
 }
 
 .profile__contact-hint {
   margin: 0 0 12px;
-  color: #52525b;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
@@ -138,7 +168,9 @@
 }
 
 .profile__contact-field input {
-  border: 1px solid #d4d4d8;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-elevated);
+  color: var(--text);
   border-radius: 10px;
   padding: 10px 12px;
   font: inherit;
@@ -148,8 +180,8 @@
   border: none;
   border-radius: 10px;
   padding: 10px 12px;
-  background: #18181b;
-  color: #fff;
+  background: var(--primary);
+  color: var(--primary-contrast);
   font-weight: 800;
   cursor: pointer;
 }
@@ -162,7 +194,7 @@
 .profile__contact-preview {
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #e4e4e7;
+  border-top: 1px solid var(--border);
 }
 
 .profile__contact-preview-title {
@@ -182,18 +214,18 @@
 .profile__application-card {
   padding: 12px;
   border-radius: 12px;
-  border: 1px solid #e4e4e7;
-  background: #fff;
+  border: 1px solid var(--border);
+  background: var(--surface);
 }
 
 .profile__application-card--accepted {
-  border-color: #bbf7d0;
-  background: #f0fdf4;
+  border-color: var(--success-border);
+  background: var(--success-bg);
 }
 
 .profile__application-card--rejected {
-  border-color: #fecaca;
-  background: #fef2f2;
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
 }
 
 .profile__application-head {
@@ -221,7 +253,7 @@
   align-items: center;
   font-size: 0.82rem;
   font-weight: 700;
-  color: #52525b;
+  color: var(--text-secondary);
 }
 
 .profile__application-dot {
@@ -238,24 +270,24 @@
 }
 
 .profile__application-status--pending {
-  background: #fef9c3;
-  color: #854d0e;
+  background: var(--warning-bg);
+  color: var(--warning);
 }
 
 .profile__application-status--accepted {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--success-bg);
+  color: var(--success);
 }
 
 .profile__application-status--rejected {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--danger-bg);
+  color: var(--danger);
 }
 
 .profile__application-time {
   margin: 8px 0 0;
   font-size: 0.8rem;
-  color: #a1a1aa;
+  color: var(--text-muted);
 }
 
 .profile__application-contact {
@@ -268,15 +300,15 @@
 .profile__application-contact-note {
   margin: 0;
   font-size: 0.85rem;
-  color: #166534;
+  color: var(--success);
 }
 
 .profile__application-contact-btn {
   border: none;
   border-radius: 8px;
   padding: 8px 12px;
-  background: #18181b;
-  color: #fff;
+  background: var(--primary);
+  color: var(--primary-contrast);
   font-weight: 600;
   font-size: 0.85rem;
   cursor: pointer;
@@ -288,7 +320,7 @@
 }
 
 .profile__application-contact-note--error {
-  color: #b91c1c;
+  color: var(--danger);
 }
 
 .contact-info {
@@ -307,7 +339,7 @@
 
 .contact-info__row dt {
   font-weight: 800;
-  color: #18181b;
+  color: var(--text);
 }
 
 .contact-info__row dd {
@@ -317,7 +349,7 @@
 
 .contact-info__empty {
   margin: 0;
-  color: #52525b;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 

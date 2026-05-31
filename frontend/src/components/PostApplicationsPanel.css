@@ -2,8 +2,8 @@
   margin-top: 12px;
   padding: 12px;
   border-radius: 12px;
-  border: 1px solid #e4e4e7;
-  background: #fafafa;
+  border: 1px solid var(--border);
+  background: var(--surface-elevated);
 }
 
 .post-applications__head {
@@ -21,7 +21,8 @@
 
 .post-applications__close {
   border: none;
-  background: #e4e4e7;
+  background: var(--surface-muted);
+  color: var(--text);
   padding: 6px 10px;
   border-radius: 8px;
   font-weight: 600;
@@ -31,11 +32,11 @@
 .post-applications__state {
   margin: 0 0 8px;
   font-size: 0.85rem;
-  color: #52525b;
+  color: var(--text-secondary);
 }
 
 .post-applications__state--error {
-  color: #b91c1c;
+  color: var(--danger);
 }
 
 .post-applications__list {
@@ -50,18 +51,18 @@
 .post-applications__item {
   padding: 10px;
   border-radius: 10px;
-  background: #fff;
-  border: 1px solid #e4e4e7;
+  background: var(--surface);
+  border: 1px solid var(--border);
 }
 
 .post-applications__item--accepted {
-  border-color: #bbf7d0;
-  background: #f0fdf4;
+  border-color: var(--success-border);
+  background: var(--success-bg);
 }
 
 .post-applications__item--rejected {
-  border-color: #fecaca;
-  background: #fef2f2;
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
 }
 
 .post-applications__item-main {
@@ -77,7 +78,7 @@
   padding: 0;
   font: inherit;
   font-weight: 700;
-  color: #2563eb;
+  color: var(--primary);
   cursor: pointer;
   text-align: left;
   text-decoration: underline;
@@ -85,7 +86,7 @@
 }
 
 .post-applications__nickname:hover {
-  color: #1d4ed8;
+  color: var(--primary-hover);
 }
 
 .post-applications__status {
@@ -97,24 +98,24 @@
 }
 
 .post-applications__status--pending {
-  background: #fef9c3;
-  color: #854d0e;
+  background: var(--warning-bg);
+  color: var(--warning);
 }
 
 .post-applications__status--accepted {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--success-bg);
+  color: var(--success);
 }
 
 .post-applications__status--rejected {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--danger-bg);
+  color: var(--danger);
 }
 
 .post-applications__time {
   margin: 6px 0 0;
   font-size: 0.8rem;
-  color: #a1a1aa;
+  color: var(--text-muted);
 }
 
 .post-applications__actions {
@@ -138,13 +139,13 @@
 }
 
 .post-applications__btn--accept {
-  background: #18181b;
-  color: #fff;
+  background: var(--primary);
+  color: var(--primary-contrast);
 }
 
 .post-applications__btn--reject {
-  background: #e4e4e7;
-  color: #18181b;
+  background: var(--surface-muted);
+  color: var(--text);
 }
 
 .post-applications__contact {
@@ -157,16 +158,16 @@
 .post-applications__contact-note {
   margin: 0;
   font-size: 0.85rem;
-  color: #166534;
+  color: var(--success);
 }
 
 .post-applications__btn--contact {
-  background: #18181b;
-  color: #fff;
+  background: var(--primary);
+  color: var(--primary-contrast);
 }
 
 .post-applications__contact-note--error {
-  color: #b91c1c;
+  color: var(--danger);
 }
 
 .contact-info {
@@ -185,7 +186,7 @@
 
 .contact-info__row dt {
   font-weight: 800;
-  color: #18181b;
+  color: var(--text);
 }
 
 .contact-info__row dd {
@@ -195,6 +196,6 @@
 
 .contact-info__empty {
   margin: 0;
-  color: #52525b;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }

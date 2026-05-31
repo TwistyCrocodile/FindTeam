@@ -4,28 +4,29 @@
   gap: 2px;
   padding: 8px 10px;
   border-radius: 8px;
-  background: #e4e4e7;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   font-size: 0.8rem;
 }
 
 .tg-strip--dev {
-  background: #fef9c3;
-  border: 1px solid #facc15;
+  background: var(--warning-bg);
+  border-color: var(--warning-border);
 }
 
 .tg-strip--user {
-  background: #dbeafe;
-  border: 1px solid #93c5fd;
+  background: color-mix(in srgb, var(--primary) 18%, var(--surface));
+  border-color: var(--primary);
 }
 
 .tg-strip__label {
   font-weight: 600;
-  color: #3f3f46;
+  color: var(--text);
 }
 
 .tg-strip__hint,
 .tg-strip__name {
-  color: #52525b;
+  color: var(--text-secondary);
 }
 
 .tg-strip__name {
