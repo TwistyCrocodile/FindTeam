@@ -4,7 +4,7 @@ import { useTelegramEnvironment } from '../hooks/useTelegramEnvironment';
 import { CreatePostPage } from './CreatePostPage';
 import { FeedPage } from './FeedPage';
 import { ProfilePage } from './ProfilePage';
-import { OnboardingProfilePage } from './OnboardingProfilePage';
+import { OnboardingPage } from './OnboardingPage';
 import { getUserProfile } from '../api/users';
 import type { UserProfileResponse } from '../types/user';
 
@@ -66,7 +66,7 @@ export function HomePage() {
 
   if (profileStatus === 'onboarding') {
     return (
-      <OnboardingProfilePage
+      <OnboardingPage
         telegramId={telegramId}
         nicknameSuggestion={nicknameSuggestion}
         onCreated={(p) => {

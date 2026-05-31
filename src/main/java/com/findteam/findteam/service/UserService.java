@@ -1,11 +1,12 @@
 package com.findteam.findteam.service;
 
 import com.findteam.findteam.dto.CreateUserProfileRequest;
+import com.findteam.findteam.dto.RegisterUserRequest;
 import com.findteam.findteam.dto.UpdateUserProfileRequest;
 import com.findteam.findteam.dto.UserProfileResponse;
+import com.findteam.findteam.exception.NicknameAlreadyTakenException;
 import com.findteam.findteam.exception.UserAlreadyExistsException;
 import com.findteam.findteam.exception.UserNotFoundException;
-import com.findteam.findteam.exception.NicknameAlreadyTakenException;
 import com.findteam.findteam.model.User;
 import com.findteam.findteam.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,17 @@ public class UserService {
 
 	@Transactional
 	public UserProfileResponse createUserProfile(CreateUserProfileRequest request) {
+		RegisterUserRequest registerRequest = new RegisterUserRequest();
+		registerRequest.setTelegramId(request.getTelegramId());
+		registerRequest.setNickname(request.getNickname());
+		registerRequest.setBio(request.getBio());
+		registerRequest.setStack(request.getStack());
+		registerRequest.setGithubUrl(request.getGithubUrl());
+		return registerUser(registerRequest);
+	}
+
+	@Transactional
+	public UserProfileResponse registerUser(RegisterUserRequest request) {
 		Long telegramId = request.getTelegramId();
 		if (userRepository.findByTelegramId(telegramId).isPresent()) {
 			throw new UserAlreadyExistsException(telegramId);

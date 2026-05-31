@@ -1,4 +1,9 @@
-import type { CreateUserProfileRequest, UpdateUserProfileRequest, UserProfileResponse } from '../types/user';
+import type {
+  CreateUserProfileRequest,
+  RegisterUserRequest,
+  UpdateUserProfileRequest,
+  UserProfileResponse,
+} from '../types/user';
 import { apiUrl, parseErrorMessage } from './client';
 
 type ErrorWithStatus = Error & { status?: number };
@@ -10,7 +15,20 @@ function asErrorWithStatus(message: string, status?: number): ErrorWithStatus {
 }
 
 export async function getUserProfile(telegramId: number): Promise<UserProfileResponse> {
-  const res = await fetch(apiUrl(`/api/users/${telegramId}`));
+  const res = await fetch(apiUrl(`/api/users/by-telegram/${telegramId}`));
+  if (!res.ok) {
+    const message = await parseErrorMessage(res);
+    throw asErrorWithStatus(message, res.status);
+  }
+  return (await res.json()) as UserProfileResponse;
+}
+
+export async function registerUser(payload: RegisterUserRequest): Promise<UserProfileResponse> {
+  const res = await fetch(apiUrl('/api/users/register'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
   if (!res.ok) {
     const message = await parseErrorMessage(res);
     throw asErrorWithStatus(message, res.status);
