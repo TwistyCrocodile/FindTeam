@@ -94,7 +94,8 @@ export const translations = {
       profileNotLoaded: 'Profile not loaded.',
       profileUpdated: 'Profile updated.',
       feedbackTitle: 'Found a bug or have an idea?',
-      feedbackText: 'Contact the developer.',
+      feedbackText: '@pisnotequaltonp',
+      contactReminder: 'Fill in your contact info so other users can reach you after an application is accepted.',
     },
     applications: {
       apply: 'Apply',
@@ -280,7 +281,8 @@ export const translations = {
       profileNotLoaded: 'Профиль не загружен.',
       profileUpdated: 'Профиль обновлён.',
       feedbackTitle: 'Нашли ошибку или есть идея?',
-      feedbackText: 'Свяжитесь с разработчиком.',
+      feedbackText: '@pisnotequaltonp',
+      contactReminder: 'Заполните контактные данные, чтобы другие пользователи могли связаться с вами после принятия отклика.',
     },
     applications: {
       apply: 'Откликнуться',

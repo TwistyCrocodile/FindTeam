@@ -16,7 +16,7 @@ import type { ContactInfoResponse, UserProfileResponse } from '../types/user';
 import './ProfilePage.css';
 
 const PROFILE_PAGE_SIZE = 50;
-const DEVELOPER_CONTACT_URL = 'https://t.me/findteam_support';
+const DEVELOPER_CONTACT_URL = 'https://t.me/pisnotequaltonp';
 
 function formatWhen(iso: string) {
   try {
@@ -155,6 +155,16 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
       githubUrl: profile.githubUrl ?? '',
     }),
     [profile],
+  );
+
+  const hasContactInfo = useMemo(
+    () =>
+      Boolean(
+        contactInfo.contactTelegramUsername?.trim()
+        || contactInfo.contactGithubUrl?.trim()
+        || contactInfo.contactEmail?.trim(),
+      ),
+    [contactInfo],
   );
 
   async function handleContactSubmit(e: FormEvent<HTMLFormElement>) {
@@ -314,6 +324,12 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
           </button>
         </div>
       </div>
+
+      {!contactLoading && !hasContactInfo ? (
+        <div className="profile__contact-reminder">
+          {t.profile.contactReminder}
+        </div>
+      ) : null}
 
       <div className="profile__contact-card">
         <h3 className="profile__posts-heading">{t.contact.contactInfo}</h3>
