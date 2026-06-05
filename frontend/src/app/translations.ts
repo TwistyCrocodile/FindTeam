@@ -356,7 +356,7 @@ export const translations = {
     },
     postActions: {
       closePost: 'Закрыть пост',
-      reopenPost: 'Открыть снова',
+      reopenPost: 'Открыть пост',
       deletePost: 'Удалить пост',
       couldNotClose: 'Не удалось закрыть пост',
       couldNotReopen: 'Не удалось открыть пост',

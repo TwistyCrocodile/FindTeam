@@ -194,12 +194,15 @@ export function PostCard({
                 {t.applications.viewApplications}
               </button>
             ) : null}
-            <button type="button" className="btn btn--secondary" disabled={busy} onClick={() => void handleClose()}>
-              {t.postActions.closePost}
-            </button>
-            <button type="button" className="btn btn--secondary" disabled={busy} onClick={() => void handleReopen()}>
-              {t.postActions.reopenPost}
-            </button>
+            {!isClosed ? (
+              <button type="button" className="btn btn--secondary" disabled={busy} onClick={() => void handleClose()}>
+                {t.postActions.closePost}
+              </button>
+            ) : (
+              <button type="button" className="btn btn--secondary" disabled={busy} onClick={() => void handleReopen()}>
+                {t.postActions.reopenPost}
+              </button>
+            )}
             <button type="button" className="btn btn--secondary" disabled={busy} onClick={() => void handleDelete()}>
               {t.postActions.deletePost}
             </button>
