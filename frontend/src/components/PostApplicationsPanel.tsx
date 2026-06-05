@@ -6,7 +6,7 @@ import {
   rejectApplicationAuthAware,
 } from '../api/applications';
 import { getFriendlyErrorMessage } from '../app/errors';
-import { getApplicationStatusLabel } from '../app/translations';
+import { getApplicationStatusLabel, getUserStatusLabel } from '../app/translations';
 import { useLanguage } from '../hooks/useLanguage';
 import { ContactInfoView } from './ContactInfoView';
 import type { ApplicationResponse } from '../types/application';
@@ -144,6 +144,7 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
                 {getApplicationStatusLabel(t, a.status)}
               </span>
             </div>
+            <p className="post-applications__applicant-status">{getUserStatusLabel(t, a.applicantStatus)}</p>
             <p className="post-applications__time">{formatWhen(a.createdAt)}</p>
             {a.status === 'PENDING' ? (
               <div className="post-applications__actions">

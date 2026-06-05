@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getPublicUserPosts, getPublicUserProfile } from '../api/users';
 import { getFriendlyErrorMessage } from '../app/errors';
-import { getPostGoalLabel, getPostTypeLabel } from '../app/translations';
+import { getPostGoalLabel, getPostTypeLabel, getUserStatusLabel } from '../app/translations';
 import { useLanguage } from '../hooks/useLanguage';
 import type { PostResponse } from '../types/post';
 import type { PublicUserProfileResponse } from '../types/user';
@@ -74,6 +74,9 @@ export function PublicProfileView({ telegramId, onBack }: Props) {
             </p>
             <p className="public-profile__row">
               <span className="public-profile__label">{t.profile.stack}</span> {profile.stack}
+            </p>
+            <p className="public-profile__row">
+              <span className="public-profile__label">{t.status.label}</span> {getUserStatusLabel(t, profile.status)}
             </p>
             <p className="public-profile__row">
               <span className="public-profile__label">{t.profile.github}</span>{' '}

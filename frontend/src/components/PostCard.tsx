@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { applyToPostAuthAware } from '../api/applications';
 import { closePostAuthAware, deletePostAuthAware, reopenPostAuthAware } from '../api/posts';
 import { getFriendlyErrorMessage } from '../app/errors';
-import { getPostGoalLabel, getPostStatusLabel, getPostTypeLabel } from '../app/translations';
+import { getPostGoalLabel, getPostStatusLabel, getPostTypeLabel, getUserStatusLabel } from '../app/translations';
 import { useLanguage } from '../hooks/useLanguage';
 import type { PostResponse } from '../types/post';
 import './PostCard.css';
@@ -144,6 +144,8 @@ export function PostCard({
         ) : (
           <strong>{post.nickname ?? t.common.unknownUser}</strong>
         )}
+        <span className="post-card__dot">·</span>
+        <span className="post-card__meta-pill">{getUserStatusLabel(t, post.authorStatus)}</span>
         <span className="post-card__dot">·</span>
         <span className="post-card__meta-pill">{getPostTypeLabel(t, post.type)}</span>
         <span className="post-card__dot">·</span>

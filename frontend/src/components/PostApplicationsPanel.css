@@ -123,6 +123,14 @@
   color: var(--danger);
 }
 
+.post-applications__applicant-status {
+  margin: 6px 0 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
 .post-applications__time {
   margin: 6px 0 0;
   font-size: 0.8rem;

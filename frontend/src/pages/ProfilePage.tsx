@@ -3,7 +3,7 @@ import { getApplicationContact, getApplicationsByApplicantAuthAware } from '../a
 import { getCurrentUserPosts, getPosts } from '../api/posts';
 import { getMyContactInfo, updateMyContactInfo, updateUserProfileAuthAware } from '../api/users';
 import { getFriendlyErrorMessage } from '../app/errors';
-import { getApplicationStatusLabel, getPostGoalLabel, getPostStatusLabel } from '../app/translations';
+import { getApplicationStatusLabel, getPostGoalLabel, getPostStatusLabel, getUserStatusLabel } from '../app/translations';
 import { ContactInfoView } from '../components/ContactInfoView';
 import { PostApplicationsPanel } from '../components/PostApplicationsPanel';
 import { PostCard } from '../components/PostCard';
@@ -153,6 +153,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
       bio: profile.bio ?? '',
       stack: profile.stack,
       githubUrl: profile.githubUrl ?? '',
+      status: profile.status ?? 'OPEN_TO_OFFERS',
     }),
     [profile],
   );
@@ -236,6 +237,9 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
                 </p>
                 <p className="profile__row">
                   <span className="profile__label">{t.profile.stack}</span> {profile.stack}
+                </p>
+                <p className="profile__row">
+                  <span className="profile__label">{t.status.label}</span> {getUserStatusLabel(t, profile.status)}
                 </p>
                 <p className="profile__row">
                   <span className="profile__label">{t.profile.github}</span>{' '}
@@ -494,4 +498,3 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
     </section>
   );
 }
-

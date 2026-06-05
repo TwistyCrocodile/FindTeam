@@ -2,6 +2,8 @@ package com.findteam.findteam.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -41,6 +43,10 @@ public class User {
 
 	private String githubUrl;
 
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false, length = 32)
+	private UserStatus status = UserStatus.OPEN_TO_OFFERS;
+
 	private String contactTelegramUsername;
 
 	private String contactGithubUrl;
@@ -52,6 +58,9 @@ public class User {
 
 	@PrePersist
 	protected void onCreate() {
+		if (status == null) {
+			status = UserStatus.OPEN_TO_OFFERS;
+		}
 		createdAt = LocalDateTime.now();
 	}
 }

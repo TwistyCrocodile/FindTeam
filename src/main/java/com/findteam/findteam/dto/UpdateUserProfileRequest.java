@@ -1,5 +1,6 @@
 package com.findteam.findteam.dto;
 
+import com.findteam.findteam.model.UserStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -28,5 +29,6 @@ public class UpdateUserProfileRequest {
 			regexp = "^(https?://\\S+|)$",
 			message = "githubUrl must be a valid URL")
 	private String githubUrl;
-}
 
+	private UserStatus status;
+}

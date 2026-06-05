@@ -12,6 +12,7 @@ import com.findteam.findteam.exception.NicknameAlreadyTakenException;
 import com.findteam.findteam.exception.UserAlreadyExistsException;
 import com.findteam.findteam.exception.UserNotFoundException;
 import com.findteam.findteam.model.User;
+import com.findteam.findteam.model.UserStatus;
 import com.findteam.findteam.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,7 @@ public class UserService {
 		registerRequest.setBio(request.getBio());
 		registerRequest.setStack(request.getStack());
 		registerRequest.setGithubUrl(request.getGithubUrl());
+		registerRequest.setStatus(request.getStatus());
 		return registerUser(registerRequest);
 	}
 
@@ -53,6 +55,7 @@ public class UserService {
 		user.setBio(request.getBio());
 		user.setStack(request.getStack());
 		user.setGithubUrl(request.getGithubUrl());
+		user.setStatus(resolveStatus(request.getStatus()));
 
 		User saved = userRepository.save(user);
 		return toUserProfileResponse(saved);
@@ -66,6 +69,7 @@ public class UserService {
 		registerRequest.setBio(request.getBio());
 		registerRequest.setStack(request.getStack());
 		registerRequest.setGithubUrl(request.getGithubUrl());
+		registerRequest.setStatus(request.getStatus());
 		return registerUser(registerRequest);
 	}
 
@@ -84,6 +88,7 @@ public class UserService {
 		user.setBio(request.getBio());
 		user.setStack(request.getStack());
 		user.setGithubUrl(request.getGithubUrl());
+		user.setStatus(request.getStatus() == null ? resolveStatus(user.getStatus()) : request.getStatus());
 
 		User saved = userRepository.save(user);
 		return toUserProfileResponse(saved);
@@ -127,6 +132,7 @@ public class UserService {
 		response.setBio(user.getBio());
 		response.setStack(user.getStack());
 		response.setGithubUrl(user.getGithubUrl());
+		response.setStatus(resolveStatus(user.getStatus()));
 		response.setCreatedAt(user.getCreatedAt());
 		return response;
 	}
@@ -138,8 +144,13 @@ public class UserService {
 		response.setBio(user.getBio());
 		response.setStack(user.getStack());
 		response.setGithubUrl(user.getGithubUrl());
+		response.setStatus(resolveStatus(user.getStatus()));
 		response.setCreatedAt(user.getCreatedAt());
 		return response;
+	}
+
+	private UserStatus resolveStatus(UserStatus status) {
+		return status == null ? UserStatus.OPEN_TO_OFFERS : status;
 	}
 
 	private ContactInfoResponse toContactInfoResponse(User user) {

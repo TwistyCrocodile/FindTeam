@@ -1,5 +1,6 @@
 package com.findteam.findteam.dto;
 
+import com.findteam.findteam.model.UserStatus;
 import java.time.LocalDateTime;
 import lombok.Data;
 
@@ -11,6 +12,6 @@ public class UserProfileResponse {
 	private String bio;
 	private String stack;
 	private String githubUrl;
+	private UserStatus status;
 	private LocalDateTime createdAt;
 }
-

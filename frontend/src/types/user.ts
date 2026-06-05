@@ -1,9 +1,12 @@
+export type UserStatus = 'LOOKING_FOR_TEAM' | 'LOOKING_FOR_PROJECT' | 'OPEN_TO_OFFERS' | 'BUSY';
+
 export interface CreateUserProfileRequest {
   telegramId: number;
   nickname: string;
   bio?: string;
   stack: string;
   githubUrl?: string;
+  status?: UserStatus;
 }
 
 export interface RegisterUserRequest {
@@ -12,6 +15,7 @@ export interface RegisterUserRequest {
   bio?: string;
   stack: string;
   githubUrl?: string;
+  status?: UserStatus;
 }
 
 export interface RegisterCurrentUserRequest {
@@ -19,6 +23,7 @@ export interface RegisterCurrentUserRequest {
   bio?: string;
   stack: string;
   githubUrl?: string;
+  status?: UserStatus;
 }
 
 export interface UpdateUserProfileRequest {
@@ -26,6 +31,7 @@ export interface UpdateUserProfileRequest {
   bio?: string;
   stack: string;
   githubUrl?: string;
+  status?: UserStatus;
 }
 
 export interface UserProfileResponse {
@@ -34,6 +40,7 @@ export interface UserProfileResponse {
   bio?: string;
   stack: string;
   githubUrl?: string;
+  status: UserStatus;
   createdAt: string;
 }
 
@@ -44,6 +51,7 @@ export interface PublicUserProfileResponse {
   bio?: string;
   stack: string;
   githubUrl?: string;
+  status: UserStatus;
   createdAt: string;
 }
 
@@ -58,4 +66,3 @@ export interface ContactInfoResponse {
   contactGithubUrl?: string | null;
   contactEmail?: string | null;
 }
-

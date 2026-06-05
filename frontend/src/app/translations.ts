@@ -1,5 +1,6 @@
 import type { ApplicationStatus } from '../types/application';
 import type { PostGoal, PostStatus, PostType } from '../types/post';
+import type { UserStatus } from '../types/user';
 
 export type Language = 'en' | 'ru';
 
@@ -97,6 +98,13 @@ export const translations = {
       feedbackText: '@pisnotequaltonp',
       contactReminder: 'Fill in your contact info so other users can reach you after an application is accepted.',
     },
+    status: {
+      label: 'Status',
+      lookingForTeam: '🟢 Looking for a team',
+      lookingForProject: '🟢 Looking for a project',
+      openToOffers: '🟡 Open to opportunities',
+      busy: '🔴 Busy right now',
+    },
     applications: {
       apply: 'Apply',
       applied: 'Applied',
@@ -170,6 +178,12 @@ export const translations = {
       telegramAuthMissing: 'Telegram auth data missing.',
     },
     enums: {
+      userStatus: {
+        LOOKING_FOR_TEAM: '🟢 Looking for a team',
+        LOOKING_FOR_PROJECT: '🟢 Looking for a project',
+        OPEN_TO_OFFERS: '🟡 Open to opportunities',
+        BUSY: '🔴 Busy right now',
+      },
       postType: {
         SEEKING_TEAM: 'Looking for team',
         SEEKING_MEMBER: 'Looking for member',
@@ -284,6 +298,13 @@ export const translations = {
       feedbackText: '@pisnotequaltonp',
       contactReminder: 'Заполните контактные данные, чтобы другие пользователи могли связаться с вами после принятия отклика.',
     },
+    status: {
+      label: 'Статус',
+      lookingForTeam: '🟢 Ищу команду',
+      lookingForProject: '🟢 Ищу проект',
+      openToOffers: '🟡 Открыт к предложениям',
+      busy: '🔴 Сейчас занят',
+    },
     applications: {
       apply: 'Откликнуться',
       applied: 'Отклик отправлен',
@@ -357,6 +378,12 @@ export const translations = {
       telegramAuthMissing: 'Данные Telegram авторизации отсутствуют.',
     },
     enums: {
+      userStatus: {
+        LOOKING_FOR_TEAM: '🟢 Ищу команду',
+        LOOKING_FOR_PROJECT: '🟢 Ищу проект',
+        OPEN_TO_OFFERS: '🟡 Открыт к предложениям',
+        BUSY: '🔴 Сейчас занят',
+      },
       postType: {
         SEEKING_TEAM: 'Ищу команду',
         SEEKING_MEMBER: 'Ищу участника',
@@ -396,4 +423,8 @@ export function getPostStatusLabel(t: Translation, value: PostStatus): string {
 
 export function getApplicationStatusLabel(t: Translation, value: ApplicationStatus): string {
   return t.enums.applicationStatus[value];
+}
+
+export function getUserStatusLabel(t: Translation, value?: UserStatus | null): string {
+  return t.enums.userStatus[value ?? 'OPEN_TO_OFFERS'];
 }

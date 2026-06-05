@@ -15,6 +15,7 @@ import com.findteam.findteam.model.ApplicationStatus;
 import com.findteam.findteam.model.Post;
 import com.findteam.findteam.model.PostStatus;
 import com.findteam.findteam.model.User;
+import com.findteam.findteam.model.UserStatus;
 import com.findteam.findteam.repository.ApplicationRepository;
 import com.findteam.findteam.repository.PostRepository;
 import com.findteam.findteam.repository.UserRepository;
@@ -142,10 +143,15 @@ public class ApplicationService {
 		response.setPostStatus(post.getStatus());
 		response.setApplicantNickname(applicant.getNickname());
 		response.setApplicantTelegramId(applicant.getTelegramId());
+		response.setApplicantStatus(resolveUserStatus(applicant));
 		response.setStatus(application.getStatus());
 		response.setContactAvailable(application.getStatus() == ApplicationStatus.ACCEPTED);
 		response.setCreatedAt(application.getCreatedAt());
 		return response;
+	}
+
+	private UserStatus resolveUserStatus(User user) {
+		return user.getStatus() == null ? UserStatus.OPEN_TO_OFFERS : user.getStatus();
 	}
 
 	private ContactInfoResponse toContactInfoResponse(User user) {

@@ -13,6 +13,7 @@ import com.findteam.findteam.model.PostGoal;
 import com.findteam.findteam.model.PostStatus;
 import com.findteam.findteam.model.PostType;
 import com.findteam.findteam.model.User;
+import com.findteam.findteam.model.UserStatus;
 import com.findteam.findteam.repository.PostRepository;
 import com.findteam.findteam.repository.UserRepository;
 import com.findteam.findteam.specification.PostSpecification;
@@ -185,6 +186,7 @@ public class PostService {
 		response.setId(post.getId());
 		response.setTelegramId(author.getTelegramId());
 		response.setNickname(author.getNickname());
+		response.setAuthorStatus(resolveAuthorStatus(author));
 		response.setType(post.getType());
 		response.setTitle(post.getTitle());
 		response.setDescription(post.getDescription());
@@ -194,5 +196,9 @@ public class PostService {
 		response.setEventLink(post.getEventLink());
 		response.setCreatedAt(post.getCreatedAt());
 		return response;
+	}
+
+	private UserStatus resolveAuthorStatus(User author) {
+		return author.getStatus() == null ? UserStatus.OPEN_TO_OFFERS : author.getStatus();
 	}
 }

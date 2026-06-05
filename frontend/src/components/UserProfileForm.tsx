@@ -1,14 +1,18 @@
 import { FormEvent, useMemo, useState } from 'react';
 import { getFriendlyErrorMessage } from '../app/errors';
+import { getUserStatusLabel } from '../app/translations';
 import { useLanguage } from '../hooks/useLanguage';
-import type { CreateUserProfileRequest } from '../types/user';
+import type { CreateUserProfileRequest, UserStatus } from '../types/user';
 import './UserProfileForm.css';
+
+const USER_STATUS_OPTIONS: UserStatus[] = ['LOOKING_FOR_TEAM', 'LOOKING_FOR_PROJECT', 'OPEN_TO_OFFERS', 'BUSY'];
 
 type ProfileValues = {
   nickname: string;
   bio: string;
   stack: string;
   githubUrl: string;
+  status: UserStatus;
 };
 
 type Props = {
@@ -41,6 +45,7 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
   const [bio, setBio] = useState(initialValues.bio);
   const [stack, setStack] = useState(initialValues.stack);
   const [githubUrl, setGithubUrl] = useState(initialValues.githubUrl);
+  const [status, setStatus] = useState<UserStatus>(initialValues.status);
 
   const [clientError, setClientError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -78,6 +83,7 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
         bio: bio.trim() || undefined,
         stack: stack.trim(),
         githubUrl: normalizeGithubUrl(githubUrl) || undefined,
+        status,
       } as Omit<CreateUserProfileRequest, 'telegramId'>);
     } catch (err) {
       const msg = getFriendlyErrorMessage(err, t.common.requestFailed, t);
@@ -105,6 +111,17 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
       </label>
 
       <label className="field">
+        <span>{t.status.label}</span>
+        <select value={status} onChange={(e) => setStatus(e.target.value as UserStatus)}>
+          {USER_STATUS_OPTIONS.map((option) => (
+            <option key={option} value={option}>
+              {getUserStatusLabel(t, option)}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="field">
         <span>{t.profile.githubOptional}</span>
         <input value={githubUrl} onChange={(e) => setGithubUrl(e.target.value)} placeholder="https://github.com/..." maxLength={255} />
       </label>
@@ -118,4 +135,3 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
     </form>
   );
 }
-

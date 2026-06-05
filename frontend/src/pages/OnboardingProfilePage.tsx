@@ -29,6 +29,7 @@ export function OnboardingProfilePage({ telegramId, nicknameSuggestion, onCreate
       bio: '',
       stack: '',
       githubUrl: '',
+      status: 'OPEN_TO_OFFERS' as const,
     }),
     [nicknameSuggestion],
   );
@@ -62,4 +63,3 @@ export function OnboardingProfilePage({ telegramId, nicknameSuggestion, onCreate
     </section>
   );
 }
-

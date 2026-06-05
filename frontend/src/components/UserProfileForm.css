@@ -14,12 +14,14 @@
 }
 
 .field input,
-.field textarea {
+.field textarea,
+.field select {
   font-weight: 400;
   padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid var(--border-strong);
   background: var(--surface-elevated);
+  color: var(--text);
   min-width: 0;
 }
 
@@ -51,4 +53,3 @@
 .btn--primary:disabled {
   opacity: 0.6;
 }
-

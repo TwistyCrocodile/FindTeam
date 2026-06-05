@@ -3,6 +3,7 @@ package com.findteam.findteam.dto;
 import com.findteam.findteam.model.ApplicationStatus;
 import com.findteam.findteam.model.PostGoal;
 import com.findteam.findteam.model.PostStatus;
+import com.findteam.findteam.model.UserStatus;
 import java.time.LocalDateTime;
 import lombok.Data;
 
@@ -16,6 +17,7 @@ public class ApplicationResponse {
 	private PostStatus postStatus;
 	private String applicantNickname;
 	private Long applicantTelegramId;
+	private UserStatus applicantStatus;
 	private ApplicationStatus status;
 	private boolean contactAvailable;
 	private LocalDateTime createdAt;
