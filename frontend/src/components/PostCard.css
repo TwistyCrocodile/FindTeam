@@ -4,6 +4,9 @@
   padding: 14px 14px 12px;
   border: 1px solid var(--border);
   box-shadow: var(--shadow-soft);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .post-card__head {
@@ -12,6 +15,7 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px;
+  min-width: 0;
 }
 
 .post-card__title {
@@ -109,6 +113,7 @@
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 12px;
+  min-width: 0;
 }
 
 .post-card .btn {
@@ -119,6 +124,7 @@
   font-weight: 600;
   font-size: 0.85rem;
   min-width: 0;
+  max-width: 100%;
   overflow-wrap: anywhere;
 }
 

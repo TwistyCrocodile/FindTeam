@@ -7,6 +7,9 @@
   background: var(--surface-muted);
   border: 1px solid var(--border);
   font-size: 0.8rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .tg-strip--dev {

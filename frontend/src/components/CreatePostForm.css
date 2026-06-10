@@ -3,6 +3,8 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 14px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .create-post__heading {
@@ -21,6 +23,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-width: 0;
 }
 
 .field {
@@ -35,6 +38,7 @@
 .field input,
 .field select,
 .field textarea {
+  width: 100%;
   font-weight: 400;
   padding: 8px 10px;
   border-radius: 8px;

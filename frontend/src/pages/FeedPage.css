@@ -1,3 +1,9 @@
+.feed {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
 .feed__heading {
   margin: 0 0 10px;
   font-size: 1.1rem;
@@ -11,9 +17,11 @@
   font-size: 0.8rem;
   font-weight: 700;
   color: var(--text-secondary);
+  min-width: 0;
 }
 
 .feed__search input {
+  width: 100%;
   padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid var(--border-strong);
@@ -25,6 +33,7 @@
   flex-direction: column;
   gap: 10px;
   margin-bottom: 14px;
+  min-width: 0;
 }
 
 @media (min-width: 400px) {
@@ -43,9 +52,11 @@
   color: var(--text-secondary);
   flex: 1;
   min-width: 120px;
+  max-width: 100%;
 }
 
 .feed__filter select {
+  width: 100%;
   padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid var(--border-strong);
@@ -70,6 +81,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-width: 0;
 }
 
 .feed__more {
@@ -92,4 +104,3 @@
   opacity: 0.55;
   cursor: not-allowed;
 }
-

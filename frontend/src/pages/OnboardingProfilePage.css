@@ -1,5 +1,8 @@
 .onboarding {
   padding-bottom: 20px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .onboarding__heading {
@@ -19,4 +22,3 @@
   color: var(--text-secondary);
   font-size: 0.9rem;
 }
-
