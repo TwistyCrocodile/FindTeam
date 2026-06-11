@@ -15,19 +15,6 @@ export interface PostFilters {
   status?: PostStatus;
 }
 
-async function parseOptionalPostResponse(res: Response): Promise<PostResponse | undefined> {
-  if (res.status === 204) {
-    return undefined;
-  }
-
-  const text = await res.text();
-  if (!text.trim()) {
-    return undefined;
-  }
-
-  return JSON.parse(text) as PostResponse;
-}
-
 /**
  * GET /api/posts — paginated, optional filters.
  */
@@ -110,17 +97,15 @@ export async function reopenPostSecure(postId: number, initData: string): Promis
 }
 
 /** DELETE /api/posts/{id} */
-export async function deletePost(postId: number, telegramId: number): Promise<PostResponse | undefined> {
+export async function deletePost(postId: number, telegramId: number): Promise<void> {
   const res = await fetch(apiUrl(`/api/posts/${postId}?telegramId=${telegramId}`), { method: 'DELETE' });
   if (!res.ok) throw new Error(await parseErrorMessage(res));
-  return parseOptionalPostResponse(res);
 }
 
 /** DELETE /api/posts/{id}/secure */
-export async function deletePostSecure(postId: number, initData: string): Promise<PostResponse | undefined> {
+export async function deletePostSecure(postId: number, initData: string): Promise<void> {
   const res = await apiFetch(`/api/posts/${postId}/secure`, { method: 'DELETE' }, initData);
   if (!res.ok) throw new Error(await parseErrorMessage(res));
-  return parseOptionalPostResponse(res);
 }
 
 export async function createPostAuthAware(
@@ -161,6 +146,6 @@ export async function deletePostAuthAware(
   postId: number,
   telegramId: number,
   initData?: string | null,
-): Promise<PostResponse | undefined> {
+): Promise<void> {
   return initData ? deletePostSecure(postId, initData) : deletePost(postId, telegramId);
 }
