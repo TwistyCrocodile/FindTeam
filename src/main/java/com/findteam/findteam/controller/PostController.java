@@ -107,18 +107,20 @@ public class PostController {
 	}
 
 	@DeleteMapping("/{postId}")
-	public ResponseEntity<PostResponse> deletePost(
+	public ResponseEntity<Void> deletePost(
 			@PathVariable Long postId,
 			@RequestParam Long telegramId) {
-		return ResponseEntity.ok(postService.deletePost(postId, telegramId));
+		postService.deletePost(postId, telegramId);
+		return ResponseEntity.noContent().build();
 	}
 
 	@DeleteMapping("/{postId}/secure")
-	public ResponseEntity<PostResponse> deletePostSecure(
+	public ResponseEntity<Void> deletePostSecure(
 			@PathVariable Long postId,
 			@RequestHeader(name = "X-Telegram-Init-Data", required = false) String initData) {
 		TelegramAuthUser authUser = currentTelegramUserService.resolve(initData);
-		return ResponseEntity.ok(postService.deletePost(postId, authUser.telegramId()));
+		postService.deletePost(postId, authUser.telegramId());
+		return ResponseEntity.noContent().build();
 	}
 
 	@GetMapping("/{postId}/applications")
