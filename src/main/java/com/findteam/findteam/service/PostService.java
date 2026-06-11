@@ -14,6 +14,7 @@ import com.findteam.findteam.model.PostStatus;
 import com.findteam.findteam.model.PostType;
 import com.findteam.findteam.model.User;
 import com.findteam.findteam.model.UserStatus;
+import com.findteam.findteam.repository.ApplicationRepository;
 import com.findteam.findteam.repository.PostRepository;
 import com.findteam.findteam.repository.UserRepository;
 import com.findteam.findteam.specification.PostSpecification;
@@ -33,10 +34,15 @@ public class PostService {
 
 	private final UserRepository userRepository;
 	private final PostRepository postRepository;
+	private final ApplicationRepository applicationRepository;
 
-	public PostService(UserRepository userRepository, PostRepository postRepository) {
+	public PostService(
+			UserRepository userRepository,
+			PostRepository postRepository,
+			ApplicationRepository applicationRepository) {
 		this.userRepository = userRepository;
 		this.postRepository = postRepository;
+		this.applicationRepository = applicationRepository;
 	}
 
 	@Transactional
@@ -163,6 +169,7 @@ public class PostService {
 		Post post = getPostOrThrow(postId);
 		assertRequesterIsOwner(post, requesterTelegramId);
 		PostResponse response = toPostResponse(post);
+		applicationRepository.deleteByPost_Id(postId);
 		postRepository.delete(post);
 		return response;
 	}

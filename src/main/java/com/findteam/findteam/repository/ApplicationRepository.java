@@ -12,4 +12,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 	List<Application> findByApplicant_TelegramIdOrderByCreatedAtDesc(Long telegramId);
 
 	Optional<Application> findByPost_IdAndApplicant_TelegramId(Long postId, Long applicantTelegramId);
+
+	long deleteByPost_Id(Long postId);
 }
