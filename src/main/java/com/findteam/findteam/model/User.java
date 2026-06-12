@@ -37,8 +37,10 @@ public class User {
 	@Column(name = "username", nullable = false, unique = true, length = 32)
 	private String nickname;
 
+	@Column(columnDefinition = "TEXT")
 	private String bio;
 
+	@Column(columnDefinition = "TEXT")
 	private String stack;
 
 	private String githubUrl;

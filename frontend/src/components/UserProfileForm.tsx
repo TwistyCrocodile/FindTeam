@@ -6,6 +6,8 @@ import type { CreateUserProfileRequest, UserStatus } from '../types/user';
 import './UserProfileForm.css';
 
 const USER_STATUS_OPTIONS: UserStatus[] = ['LOOKING_FOR_TEAM', 'LOOKING_FOR_PROJECT', 'OPEN_TO_OFFERS', 'BUSY'];
+const BIO_MAX_LENGTH = 1000;
+const STACK_MAX_LENGTH = 500;
 
 type ProfileValues = {
   nickname: string;
@@ -57,7 +59,8 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
     if (!n) return t.profile.nicknameRequired;
     if (!nicknamePattern.test(n)) return t.profile.nicknameInvalid;
     if (!stack.trim()) return t.createPost.stackRequired;
-    if (bio.length > 500) return t.profile.bioTooLong;
+    if (bio.length > BIO_MAX_LENGTH) return t.profile.bioTooLong;
+    if (stack.length > STACK_MAX_LENGTH) return t.profile.stackTooLong;
     const githubErr = validateGithubUrl(githubUrl, {
       httpUrl: t.profile.githubHttpUrl,
       validUrl: t.profile.githubValidUrl,
@@ -102,12 +105,14 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
 
       <label className="field">
         <span>{t.profile.bioOptional}</span>
-        <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={3} maxLength={500} />
+        <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={3} maxLength={BIO_MAX_LENGTH} />
+        <span className="field__helper">{bio.length} / {BIO_MAX_LENGTH}</span>
       </label>
 
       <label className="field">
         <span>{t.profile.stack}</span>
-        <input value={stack} onChange={(e) => setStack(e.target.value)} placeholder="React, Spring Boot..." maxLength={255} />
+        <input value={stack} onChange={(e) => setStack(e.target.value)} placeholder="React, Spring Boot..." maxLength={STACK_MAX_LENGTH} />
+        <span className="field__helper">{stack.length} / {STACK_MAX_LENGTH}</span>
       </label>
 
       <label className="field">

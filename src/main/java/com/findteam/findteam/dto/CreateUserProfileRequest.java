@@ -24,12 +24,12 @@ public class CreateUserProfileRequest {
 	private String nickname;
 
 	/** Optional short description. */
-	@Size(max = 500, message = "bio must be at most 500 characters")
+	@Size(max = 1000, message = "bio must be at most 1000 characters")
 	private String bio;
 
 	/** Tech stack / skills summary. */
 	@NotBlank(message = "stack must not be blank")
-	@Size(max = 255, message = "stack must be at most 255 characters")
+	@Size(max = 500, message = "stack must be at most 500 characters")
 	private String stack;
 
 	/**
