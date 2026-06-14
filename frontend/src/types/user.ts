@@ -57,12 +57,10 @@ export interface PublicUserProfileResponse {
 
 export interface UpdateContactInfoRequest {
   contactTelegramUsername?: string;
-  contactGithubUrl?: string;
   contactEmail?: string;
 }
 
 export interface ContactInfoResponse {
   contactTelegramUsername?: string | null;
-  contactGithubUrl?: string | null;
   contactEmail?: string | null;
 }

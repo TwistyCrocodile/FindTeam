@@ -119,7 +119,6 @@ public class UserService {
 				.orElseThrow(() -> new UserNotFoundException(telegramId));
 
 		user.setContactTelegramUsername(normalizeTelegramUsername(request.getContactTelegramUsername()));
-		user.setContactGithubUrl(normalizeBlank(request.getContactGithubUrl()));
 		user.setContactEmail(normalizeBlank(request.getContactEmail()));
 
 		return toContactInfoResponse(userRepository.save(user));
@@ -156,7 +155,6 @@ public class UserService {
 	private ContactInfoResponse toContactInfoResponse(User user) {
 		ContactInfoResponse response = new ContactInfoResponse();
 		response.setContactTelegramUsername(user.getContactTelegramUsername());
-		response.setContactGithubUrl(user.getContactGithubUrl());
 		response.setContactEmail(user.getContactEmail());
 		return response;
 	}

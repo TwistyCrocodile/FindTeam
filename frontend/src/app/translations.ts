@@ -131,7 +131,6 @@ export const translations = {
       contactInfo: 'Contact info',
       contactHint: 'Contact info is shared only after an application is accepted and only with the accepted application pair.',
       telegramUsername: 'Telegram username',
-      githubUrl: 'GitHub URL',
       email: 'Email',
       saveContactInfo: 'Save contact info',
       saving: 'Saving...',
@@ -194,6 +193,7 @@ export const translations = {
         PET_PROJECT: 'Pet Project',
         STARTUP: 'Startup',
         JOB: 'Job',
+        OLYMPIAD: '🏆 Olympiad',
       },
       postStatus: {
         ACTIVE: 'Active',
@@ -332,7 +332,6 @@ export const translations = {
       contactInfo: 'Контактная информация',
       contactHint: 'Контакты открываются только после принятия заявки и только для этой пары пользователей.',
       telegramUsername: 'Telegram username',
-      githubUrl: 'GitHub URL',
       email: 'Email',
       saveContactInfo: 'Сохранить контакты',
       saving: 'Сохранение...',
@@ -395,6 +394,7 @@ export const translations = {
         PET_PROJECT: 'Пет-проект',
         STARTUP: 'Стартап',
         JOB: 'Работа',
+        OLYMPIAD: '🏆 Олимпиада',
       },
       postStatus: {
         ACTIVE: 'Активен',

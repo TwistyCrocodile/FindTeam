@@ -5,5 +5,6 @@ public enum PostGoal {
 	HACKATHON,
 	PET_PROJECT,
 	STARTUP,
-	JOB
+	JOB,
+	OLYMPIAD
 }

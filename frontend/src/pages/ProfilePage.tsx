@@ -51,12 +51,10 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
   const [applicationsPostId, setApplicationsPostId] = useState<number | null>(null);
   const [contactInfo, setContactInfo] = useState<ContactInfoResponse>({
     contactTelegramUsername: '',
-    contactGithubUrl: '',
     contactEmail: '',
   });
   const [contactDraft, setContactDraft] = useState({
     contactTelegramUsername: '',
-    contactGithubUrl: '',
     contactEmail: '',
   });
   const [contactLoading, setContactLoading] = useState(false);
@@ -119,7 +117,6 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
         if (cancelled) return;
         const draft = {
           contactTelegramUsername: info.contactTelegramUsername ?? '',
-          contactGithubUrl: info.contactGithubUrl ?? '',
           contactEmail: info.contactEmail ?? '',
         };
         setContactInfo(info);
@@ -162,7 +159,6 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
     () =>
       Boolean(
         contactInfo.contactTelegramUsername?.trim()
-        || contactInfo.contactGithubUrl?.trim()
         || contactInfo.contactEmail?.trim(),
       ),
     [contactInfo],
@@ -177,13 +173,11 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
     try {
       const updated = await updateMyContactInfo(initData, {
         contactTelegramUsername: contactDraft.contactTelegramUsername.trim().replace(/^@/, ''),
-        contactGithubUrl: contactDraft.contactGithubUrl.trim(),
         contactEmail: contactDraft.contactEmail.trim(),
       });
       setContactInfo(updated);
       setContactDraft({
         contactTelegramUsername: updated.contactTelegramUsername ?? '',
-        contactGithubUrl: updated.contactGithubUrl ?? '',
         contactEmail: updated.contactEmail ?? '',
       });
       setContactMessage(t.contact.contactInfoSaved);
@@ -356,15 +350,6 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
                   }
                   placeholder="username"
                   maxLength={32}
-                />
-              </label>
-              <label className="profile__contact-field">
-                <span>{t.contact.githubUrl}</span>
-                <input
-                  value={contactDraft.contactGithubUrl}
-                  onChange={(e) => setContactDraft((prev) => ({ ...prev, contactGithubUrl: e.target.value }))}
-                  placeholder="https://github.com/username"
-                  maxLength={255}
                 />
               </label>
               <label className="profile__contact-field">

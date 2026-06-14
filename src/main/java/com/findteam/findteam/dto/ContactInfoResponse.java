@@ -7,8 +7,5 @@ public class ContactInfoResponse {
 
 	private String contactTelegramUsername;
 
-	private String contactGithubUrl;
-
 	private String contactEmail;
 }
-

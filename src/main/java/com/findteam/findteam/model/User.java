@@ -51,8 +51,6 @@ public class User {
 
 	private String contactTelegramUsername;
 
-	private String contactGithubUrl;
-
 	private String contactEmail;
 
 	@Column(nullable = false, updatable = false)

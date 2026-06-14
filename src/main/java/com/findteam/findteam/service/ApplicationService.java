@@ -157,7 +157,6 @@ public class ApplicationService {
 	private ContactInfoResponse toContactInfoResponse(User user) {
 		ContactInfoResponse response = new ContactInfoResponse();
 		response.setContactTelegramUsername(user.getContactTelegramUsername());
-		response.setContactGithubUrl(user.getContactGithubUrl());
 		response.setContactEmail(user.getContactEmail());
 		return response;
 	}

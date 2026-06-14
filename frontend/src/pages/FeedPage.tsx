@@ -153,6 +153,7 @@ export function FeedPage({ reloadToken, viewerTelegramId, initData, onViewUserPr
             <option value="PET_PROJECT">{getPostGoalLabel(t, 'PET_PROJECT')}</option>
             <option value="STARTUP">{getPostGoalLabel(t, 'STARTUP')}</option>
             <option value="JOB">{getPostGoalLabel(t, 'JOB')}</option>
+            <option value="OLYMPIAD">{getPostGoalLabel(t, 'OLYMPIAD')}</option>
           </select>
         </label>
         <label className="feed__filter">
@@ -204,4 +205,3 @@ export function FeedPage({ reloadToken, viewerTelegramId, initData, onViewUserPr
     </section>
   );
 }
-

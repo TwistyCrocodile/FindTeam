@@ -14,14 +14,7 @@ public class UpdateContactInfoRequest {
 			message = "contactTelegramUsername must be 5..32 characters and contain only letters, numbers, underscore")
 	private String contactTelegramUsername;
 
-	@Size(max = 255, message = "contactGithubUrl must be at most 255 characters")
-	@Pattern(
-			regexp = "^(https?://\\S+|)$",
-			message = "contactGithubUrl must be a valid URL")
-	private String contactGithubUrl;
-
 	@Size(max = 255, message = "contactEmail must be at most 255 characters")
 	@Email(message = "contactEmail must be a valid email")
 	private String contactEmail;
 }
-

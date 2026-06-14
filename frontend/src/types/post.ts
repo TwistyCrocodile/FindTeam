@@ -3,7 +3,7 @@ import type { UserStatus } from './user';
 /** Mirrors backend enums (Jackson serializes as these string names). */
 export type PostType = 'SEEKING_TEAM' | 'SEEKING_MEMBER';
 
-export type PostGoal = 'HACKATHON' | 'PET_PROJECT' | 'STARTUP' | 'JOB';
+export type PostGoal = 'HACKATHON' | 'PET_PROJECT' | 'STARTUP' | 'JOB' | 'OLYMPIAD';
 
 export type PostStatus = 'ACTIVE' | 'CLOSED';
 

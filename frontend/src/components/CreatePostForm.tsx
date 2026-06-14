@@ -7,7 +7,7 @@ import type { CreatePostRequest, PostGoal, PostType } from '../types/post';
 import './CreatePostForm.css';
 
 const POST_TYPES: PostType[] = ['SEEKING_TEAM', 'SEEKING_MEMBER'];
-const POST_GOALS: PostGoal[] = ['HACKATHON', 'PET_PROJECT', 'STARTUP', 'JOB'];
+const POST_GOALS: PostGoal[] = ['HACKATHON', 'PET_PROJECT', 'STARTUP', 'JOB', 'OLYMPIAD'];
 
 type Props = {
   telegramId: number;

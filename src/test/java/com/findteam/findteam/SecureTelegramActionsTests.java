@@ -116,7 +116,6 @@ class SecureTelegramActionsTests {
 	void acceptedApplicationUnlocksOtherUsersContactInfo() throws Exception {
 		User owner = saveUser(6006L, "contact_owner");
 		owner.setContactEmail("owner@example.com");
-		owner.setContactGithubUrl("https://github.com/owner");
 		userRepository.save(owner);
 		User applicant = saveUser(7007L, "contact_applicant");
 		applicant.setContactTelegramUsername("applicant_user");
@@ -127,10 +126,10 @@ class SecureTelegramActionsTests {
 		applicationRepository.save(application);
 
 		mockMvc.perform(get("/api/applications/{applicationId}/contact-secure", application.getId())
-						.header(INIT_DATA_HEADER, validInitData(applicant.getTelegramId(), applicant.getNickname())))
+				.header(INIT_DATA_HEADER, validInitData(applicant.getTelegramId(), applicant.getNickname())))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.contactEmail", is("owner@example.com")))
-				.andExpect(jsonPath("$.contactGithubUrl", is("https://github.com/owner")));
+				.andExpect(jsonPath("$.contactGithubUrl").doesNotExist());
 
 		mockMvc.perform(get("/api/applications/{applicationId}/contact-secure", application.getId())
 						.header(INIT_DATA_HEADER, validInitData(owner.getTelegramId(), owner.getNickname())))
@@ -288,4 +287,3 @@ class SecureTelegramActionsTests {
 		return URLEncoder.encode(value, StandardCharsets.UTF_8);
 	}
 }
-
