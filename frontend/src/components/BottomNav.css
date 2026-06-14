@@ -19,20 +19,7 @@
 }
 
 .bottom-nav__item {
-  border: 1px solid var(--border-strong);
-  border-radius: 12px;
-  background: var(--surface);
-  font-weight: 700;
-  color: var(--text);
-  padding: 10px 12px;
-  cursor: pointer;
-  min-width: 0;
-  max-width: 100%;
-  overflow-wrap: anywhere;
-}
-
-.bottom-nav__item--active {
-  border-color: var(--primary);
-  background: var(--primary);
-  color: var(--primary-contrast);
+  min-height: 46px;
+  padding-inline: 8px;
+  font-size: 0.88rem;
 }

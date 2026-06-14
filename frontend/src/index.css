@@ -43,6 +43,12 @@ textarea {
   max-width: 100%;
 }
 
+button {
+  border: 0;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
 input::placeholder,
 textarea::placeholder {
   color: var(--text-muted);
@@ -50,4 +56,232 @@ textarea::placeholder {
 
 a {
   color: var(--primary);
+}
+
+.field,
+.profile__contact-field,
+.feed__search,
+.feed__filter {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  min-width: 0;
+}
+
+.field input,
+.field textarea,
+.field select,
+.profile__contact-field input,
+.feed__search input,
+.feed__filter select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--control-radius);
+  background: var(--surface-elevated);
+  color: var(--text);
+  font-weight: 500;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  padding: 11px 13px;
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.field input,
+.field select,
+.profile__contact-field input,
+.feed__search input,
+.feed__filter select {
+  min-height: var(--control-height);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+
+.field input:focus-visible,
+.field textarea:focus-visible,
+.field select:focus-visible,
+.profile__contact-field input:focus-visible,
+.feed__search input:focus-visible,
+.feed__filter select:focus-visible {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--control-focus);
+}
+
+.field__helper {
+  align-self: flex-end;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.form-msg {
+  margin: 0;
+  font-size: 0.86rem;
+  overflow-wrap: anywhere;
+}
+
+.form-msg--ok {
+  color: var(--success);
+}
+
+.form-msg--error {
+  color: var(--danger);
+}
+
+.btn,
+button.profile__edit-btn,
+button.profile__cancel-btn,
+button.profile__theme-btn,
+button.profile__contact-save,
+button.profile__application-contact-btn,
+button.post-applications__close,
+button.post-applications__btn,
+button.btn-load-more,
+button.public-profile__back,
+button.bottom-nav__item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--control-height);
+  min-width: 0;
+  max-width: 100%;
+  border: 1px solid transparent;
+  border-radius: var(--control-radius);
+  padding: 0 var(--control-padding-x);
+  font-size: 0.92rem;
+  font-weight: 750;
+  line-height: 1.15;
+  text-align: center;
+  text-decoration: none;
+  color: var(--text);
+  background: var(--surface-muted);
+  cursor: pointer;
+  user-select: none;
+  overflow-wrap: anywhere;
+  transition:
+    transform 120ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease;
+}
+
+.btn--primary,
+button.profile__contact-save,
+button.profile__application-contact-btn,
+button.post-applications__btn--accept,
+button.post-applications__btn--contact,
+button.btn-load-more {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-contrast);
+}
+
+.btn--secondary,
+button.profile__edit-btn,
+button.profile__cancel-btn,
+button.post-applications__close,
+button.post-applications__btn--reject,
+button.public-profile__back {
+  background: var(--surface-muted);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+button.profile__theme-btn,
+button.bottom-nav__item {
+  background: var(--surface);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+button.profile__theme-btn--active,
+button.bottom-nav__item--active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-contrast);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover:not(:disabled),
+  button.profile__edit-btn:hover:not(:disabled),
+  button.profile__cancel-btn:hover:not(:disabled),
+  button.profile__theme-btn:hover:not(:disabled),
+  button.profile__contact-save:hover:not(:disabled),
+  button.profile__application-contact-btn:hover:not(:disabled),
+  button.post-applications__close:hover:not(:disabled),
+  button.post-applications__btn:hover:not(:disabled),
+  button.btn-load-more:hover:not(:disabled),
+  button.public-profile__back:hover:not(:disabled),
+  button.bottom-nav__item:hover:not(:disabled) {
+    border-color: var(--primary);
+  }
+
+  .btn--primary:hover:not(:disabled),
+  button.profile__contact-save:hover:not(:disabled),
+  button.profile__application-contact-btn:hover:not(:disabled),
+  button.post-applications__btn--accept:hover:not(:disabled),
+  button.post-applications__btn--contact:hover:not(:disabled),
+  button.btn-load-more:hover:not(:disabled),
+  button.profile__theme-btn--active:hover:not(:disabled),
+  button.bottom-nav__item--active:hover:not(:disabled) {
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+  }
+}
+
+.btn:active:not(:disabled),
+button.profile__edit-btn:active:not(:disabled),
+button.profile__cancel-btn:active:not(:disabled),
+button.profile__theme-btn:active:not(:disabled),
+button.profile__contact-save:active:not(:disabled),
+button.profile__application-contact-btn:active:not(:disabled),
+button.post-applications__close:active:not(:disabled),
+button.post-applications__btn:active:not(:disabled),
+button.btn-load-more:active:not(:disabled),
+button.public-profile__back:active:not(:disabled),
+button.bottom-nav__item:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn:focus-visible,
+button.profile__edit-btn:focus-visible,
+button.profile__cancel-btn:focus-visible,
+button.profile__theme-btn:focus-visible,
+button.profile__contact-save:focus-visible,
+button.profile__application-contact-btn:focus-visible,
+button.post-applications__close:focus-visible,
+button.post-applications__btn:focus-visible,
+button.btn-load-more:focus-visible,
+button.public-profile__back:focus-visible,
+button.bottom-nav__item:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--control-focus);
+}
+
+.btn:disabled,
+button.profile__edit-btn:disabled,
+button.profile__cancel-btn:disabled,
+button.profile__theme-btn:disabled,
+button.profile__contact-save:disabled,
+button.profile__application-contact-btn:disabled,
+button.post-applications__close:disabled,
+button.post-applications__btn:disabled,
+button.btn-load-more:disabled,
+button.public-profile__back:disabled,
+button.bottom-nav__item:disabled {
+  opacity: 0.52;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }

@@ -24,13 +24,9 @@
 }
 
 .post-applications__close {
-  border: none;
-  background: var(--surface-muted);
-  color: var(--text);
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
+  min-height: 36px;
+  padding-inline: 12px;
+  font-size: 0.85rem;
 }
 
 .post-applications__state {
@@ -155,29 +151,7 @@
 }
 
 .post-applications__btn {
-  border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-weight: 600;
   font-size: 0.85rem;
-  cursor: pointer;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.post-applications__btn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.post-applications__btn--accept {
-  background: var(--primary);
-  color: var(--primary-contrast);
-}
-
-.post-applications__btn--reject {
-  background: var(--surface-muted);
-  color: var(--text);
 }
 
 .post-applications__contact {
@@ -191,11 +165,6 @@
   margin: 0;
   font-size: 0.85rem;
   color: var(--success);
-}
-
-.post-applications__btn--contact {
-  background: var(--primary);
-  color: var(--primary-contrast);
 }
 
 .post-applications__contact-note--error {

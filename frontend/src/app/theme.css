@@ -24,6 +24,10 @@
   --warning-border: #854d0e;
   --shadow-soft: 0 1px 2px rgb(0 0 0 / 30%);
   --bottom-nav-bg: rgb(9 9 11 / 92%);
+  --control-height: 44px;
+  --control-radius: 14px;
+  --control-padding-x: 16px;
+  --control-focus: rgb(96 165 250 / 34%);
 }
 
 :root[data-theme='light'] {
@@ -52,6 +56,7 @@
   --warning-border: #facc15;
   --shadow-soft: 0 1px 2px rgb(0 0 0 / 4%);
   --bottom-nav-bg: rgb(255 255 255 / 92%);
+  --control-focus: rgb(37 99 235 / 18%);
 }
 
 :root[data-theme='dark'] {

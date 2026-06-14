@@ -1,8 +1,8 @@
 .create-post {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px;
+  border-radius: 16px;
+  padding: 16px;
   width: 100%;
   max-width: 100%;
 }
@@ -22,56 +22,6 @@
 .create-post__form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   min-width: 0;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.field input,
-.field select,
-.field textarea {
-  width: 100%;
-  font-weight: 400;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border-strong);
-  background: var(--surface-elevated);
-  min-width: 0;
-}
-
-.field textarea {
-  resize: vertical;
-  min-height: 88px;
-}
-
-.form-msg {
-  margin: 0;
-  font-size: 0.85rem;
-  overflow-wrap: anywhere;
-}
-
-.form-msg--ok {
-  color: var(--success);
-}
-
-.form-msg--error {
-  color: var(--danger);
-}
-
-.btn--primary {
-  background: var(--primary);
-  color: var(--primary-contrast);
-  margin-top: 4px;
-}
-
-.btn--primary:disabled {
-  opacity: 0.6;
 }

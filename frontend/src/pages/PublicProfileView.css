@@ -10,13 +10,6 @@
 
 .public-profile__back {
   align-self: flex-start;
-  border: none;
-  background: var(--surface-muted);
-  color: var(--text);
-  font-weight: 600;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
 }
 
 .public-profile__heading {

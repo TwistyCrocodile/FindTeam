@@ -116,30 +116,7 @@
 }
 
 .post-card .btn {
-  border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-weight: 600;
   font-size: 0.85rem;
-  min-width: 0;
-  max-width: 100%;
-  overflow-wrap: anywhere;
-}
-
-.post-card .btn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.post-card .btn--secondary {
-  background: var(--surface-muted);
-  color: var(--text);
-}
-
-.post-card .btn--primary {
-  background: var(--primary);
-  color: var(--primary-contrast);
 }
 
 .post-card__error {

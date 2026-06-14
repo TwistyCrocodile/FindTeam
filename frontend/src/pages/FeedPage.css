@@ -10,22 +10,8 @@
 }
 
 .feed__search {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
   margin-bottom: 12px;
   font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  min-width: 0;
-}
-
-.feed__search input {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border-strong);
-  background: var(--surface-elevated);
 }
 
 .feed__filters {
@@ -44,23 +30,10 @@
 }
 
 .feed__filter {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
   font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-secondary);
   flex: 1;
   min-width: 120px;
   max-width: 100%;
-}
-
-.feed__filter select {
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border-strong);
-  background: var(--surface-elevated);
 }
 
 .feed__state {
@@ -91,16 +64,5 @@
 }
 
 .btn-load-more {
-  border: none;
-  border-radius: 10px;
-  padding: 10px 20px;
-  font-weight: 600;
-  background: var(--primary);
-  color: var(--primary-contrast);
-  cursor: pointer;
-}
-
-.btn-load-more:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
+  min-width: 160px;
 }
