@@ -193,7 +193,7 @@ export const translations = {
         PET_PROJECT: 'Pet Project',
         STARTUP: 'Startup',
         JOB: 'Job',
-        OLYMPIAD: '🏆 Olympiad',
+        OLYMPIAD: 'Olympiad',
       },
       postStatus: {
         ACTIVE: 'Active',
@@ -394,7 +394,7 @@ export const translations = {
         PET_PROJECT: 'Пет-проект',
         STARTUP: 'Стартап',
         JOB: 'Работа',
-        OLYMPIAD: '🏆 Олимпиада',
+        OLYMPIAD: 'Олимпиада',
       },
       postStatus: {
         ACTIVE: 'Активен',
