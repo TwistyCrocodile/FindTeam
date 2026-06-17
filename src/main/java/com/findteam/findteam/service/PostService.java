@@ -10,6 +10,7 @@ import com.findteam.findteam.exception.PostNotFoundException;
 import com.findteam.findteam.exception.UserNotFoundException;
 import com.findteam.findteam.model.Post;
 import com.findteam.findteam.model.PostGoal;
+import com.findteam.findteam.model.PostLanguage;
 import com.findteam.findteam.model.PostStatus;
 import com.findteam.findteam.model.PostType;
 import com.findteam.findteam.model.User;
@@ -85,6 +86,7 @@ public class PostService {
 		post.setType(type);
 		post.setTitle(title);
 		post.setDescription(description);
+		post.setLanguage(detectLanguage(title, description));
 		post.setStack(stack);
 		post.setGoal(goal);
 		post.setStatus(PostStatus.ACTIVE);
@@ -99,7 +101,13 @@ public class PostService {
 	 * {@code page} is zero-based. {@code size} is capped at 50 to limit load.
 	 */
 	@Transactional(readOnly = true)
-	public PostPageResponse getFilteredPosts(PostType type, PostGoal goal, PostStatus status, int page, int size) {
+	public PostPageResponse getFilteredPosts(
+			PostType type,
+			PostGoal goal,
+			PostLanguage language,
+			PostStatus status,
+			int page,
+			int size) {
 		if (page < 0) {
 			throw new InvalidPaginationException("page must be greater than or equal to 0");
 		}
@@ -110,6 +118,7 @@ public class PostService {
 
 		Specification<Post> spec = Specification.where(PostSpecification.hasType(type))
 				.and(PostSpecification.hasGoal(goal))
+				.and(PostSpecification.hasLanguage(language))
 				.and(PostSpecification.hasStatus(status));
 
 		Pageable pageable = PageRequest.of(page, effectiveSize, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -197,6 +206,7 @@ public class PostService {
 		response.setType(post.getType());
 		response.setTitle(post.getTitle());
 		response.setDescription(post.getDescription());
+		response.setLanguage(post.getLanguage());
 		response.setStack(post.getStack());
 		response.setGoal(post.getGoal());
 		response.setStatus(post.getStatus());
@@ -207,5 +217,18 @@ public class PostService {
 
 	private UserStatus resolveAuthorStatus(User author) {
 		return author.getStatus() == null ? UserStatus.OPEN_TO_OFFERS : author.getStatus();
+	}
+
+	private PostLanguage detectLanguage(String title, String description) {
+		String text = ((title == null ? "" : title) + " " + (description == null ? "" : description));
+		long cyrillicLetters = text.codePoints()
+				.filter(Character::isLetter)
+				.filter(codePoint -> Character.UnicodeScript.of(codePoint) == Character.UnicodeScript.CYRILLIC)
+				.count();
+		long latinLetters = text.codePoints()
+				.filter(Character::isLetter)
+				.filter(codePoint -> Character.UnicodeScript.of(codePoint) == Character.UnicodeScript.LATIN)
+				.count();
+		return cyrillicLetters > latinLetters ? PostLanguage.RU : PostLanguage.EN;
 	}
 }

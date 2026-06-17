@@ -2,6 +2,7 @@ import type {
   CreateCurrentUserPostRequest,
   CreatePostRequest,
   PostGoal,
+  PostLanguage,
   PostPageResponse,
   PostResponse,
   PostStatus,
@@ -12,6 +13,7 @@ import { apiFetch, apiUrl, parseErrorMessage } from './client';
 export interface PostFilters {
   type?: PostType;
   goal?: PostGoal;
+  language?: PostLanguage;
   status?: PostStatus;
 }
 
@@ -26,6 +28,7 @@ export async function getPosts(
   const params = new URLSearchParams();
   if (filters.type) params.set('type', filters.type);
   if (filters.goal) params.set('goal', filters.goal);
+  if (filters.language) params.set('language', filters.language);
   if (filters.status) params.set('status', filters.status);
   params.set('page', String(page));
   params.set('size', String(size));

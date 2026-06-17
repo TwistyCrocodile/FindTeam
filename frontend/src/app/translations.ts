@@ -1,5 +1,5 @@
 import type { ApplicationStatus } from '../types/application';
-import type { PostGoal, PostStatus, PostType } from '../types/post';
+import type { PostGoal, PostLanguage, PostStatus, PostType } from '../types/post';
 import type { UserStatus } from '../types/user';
 
 export type Language = 'en' | 'ru';
@@ -42,6 +42,7 @@ export const translations = {
       type: 'Type',
       goal: 'Goal',
       status: 'Status',
+      language: 'Language',
       loadingPosts: 'Loading posts...',
       loadMore: 'Load more',
       loadingMore: 'Loading...',
@@ -199,6 +200,10 @@ export const translations = {
         ACTIVE: 'Active',
         CLOSED: 'Closed',
       },
+      postLanguage: {
+        RU: 'Russian',
+        EN: 'English',
+      },
       applicationStatus: {
         PENDING: 'Pending review',
         ACCEPTED: 'Accepted',
@@ -243,6 +248,7 @@ export const translations = {
       type: 'Тип',
       goal: 'Цель',
       status: 'Статус',
+      language: 'Язык',
       loadingPosts: 'Загрузка постов...',
       loadMore: 'Загрузить ещё',
       loadingMore: 'Загрузка...',
@@ -400,6 +406,10 @@ export const translations = {
         ACTIVE: 'Активен',
         CLOSED: 'Закрыт',
       },
+      postLanguage: {
+        RU: 'Русский',
+        EN: 'Английский',
+      },
       applicationStatus: {
         PENDING: 'На рассмотрении',
         ACCEPTED: 'Принята',
@@ -421,6 +431,10 @@ export function getPostGoalLabel(t: Translation, value: PostGoal): string {
 
 export function getPostStatusLabel(t: Translation, value: PostStatus): string {
   return t.enums.postStatus[value];
+}
+
+export function getPostLanguageLabel(t: Translation, value: PostLanguage): string {
+  return t.enums.postLanguage[value];
 }
 
 export function getApplicationStatusLabel(t: Translation, value: ApplicationStatus): string {

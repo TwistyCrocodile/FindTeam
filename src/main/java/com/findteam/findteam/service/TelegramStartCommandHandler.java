@@ -11,11 +11,7 @@ import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 
 @Service
 public class TelegramStartCommandHandler {
@@ -23,8 +19,6 @@ public class TelegramStartCommandHandler {
     private static final String START_COMMAND = "/start";
     private static final String LANGUAGE_RU = "LANGUAGE_RU";
     private static final String LANGUAGE_EN = "LANGUAGE_EN";
-    private static final String START_PARAM_RU = "lang_ru";
-    private static final String START_PARAM_EN = "lang_en";
     private static final String LANGUAGE_SELECTION_MESSAGE = "Choose language / Выберите язык";
     private static final String LANGUAGE_SELECTED_RU_MESSAGE = "Language selected: Russian / Язык выбран: русский";
     private static final String LANGUAGE_SELECTED_EN_MESSAGE = "Language selected: English / Язык выбран: английский";
@@ -76,14 +70,9 @@ public class TelegramStartCommandHandler {
             """;
 
     private final UserService userService;
-    private final String miniAppUrl;
 
-    public TelegramStartCommandHandler(
-            UserService userService,
-            @Value("${telegram.mini-app-url:}") String miniAppUrl
-    ) {
+    public TelegramStartCommandHandler(UserService userService) {
         this.userService = userService;
-        this.miniAppUrl = miniAppUrl;
     }
 
     public void handle(Update update, TelegramBot bot) {
@@ -126,13 +115,11 @@ public class TelegramStartCommandHandler {
         LanguageSelection selection = switch (callbackQuery.data()) {
             case LANGUAGE_RU -> new LanguageSelection(
                     PreferredLanguage.RU,
-                    START_PARAM_RU,
                     LANGUAGE_SELECTED_RU_MESSAGE,
                     START_MESSAGE_RU
             );
             case LANGUAGE_EN -> new LanguageSelection(
                     PreferredLanguage.EN,
-                    START_PARAM_EN,
                     LANGUAGE_SELECTED_EN_MESSAGE,
                     START_MESSAGE_EN
             );
@@ -155,42 +142,7 @@ public class TelegramStartCommandHandler {
 
         if (editResponse.isOk()) {
             userService.savePreferredLanguage(callbackQuery.from().id(), selection.preferredLanguage());
-            bot.execute(buildWelcomeMessage(message.chat().id(), selection));
-        }
-    }
-
-    private SendMessage buildWelcomeMessage(Long chatId, LanguageSelection selection) {
-        SendMessage sendMessage = new SendMessage(chatId, selection.welcomeMessage());
-        String launchUrl = buildMiniAppLaunchUrl(selection.startParameter());
-        if (launchUrl == null) {
-            return sendMessage;
-        }
-
-        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup(
-                new InlineKeyboardButton("Open FindTeam").url(launchUrl)
-        );
-        return sendMessage.replyMarkup(keyboard);
-    }
-
-    private String buildMiniAppLaunchUrl(String startParameter) {
-        if (miniAppUrl == null || miniAppUrl.isBlank()) {
-            return null;
-        }
-
-        try {
-            URI uri = new URI(miniAppUrl.trim());
-            String url = uri.toString();
-            String fragment = "";
-            int fragmentStart = url.indexOf('#');
-            if (fragmentStart >= 0) {
-                fragment = url.substring(fragmentStart);
-                url = url.substring(0, fragmentStart);
-            }
-            String query = uri.getQuery();
-            String separator = query == null || query.isBlank() ? "?" : "&";
-            return url + separator + "startapp=" + startParameter + fragment;
-        } catch (URISyntaxException ex) {
-            return null;
+            bot.execute(new SendMessage(message.chat().id(), selection.welcomeMessage()));
         }
     }
 
@@ -202,7 +154,6 @@ public class TelegramStartCommandHandler {
 
     private record LanguageSelection(
             PreferredLanguage preferredLanguage,
-            String startParameter,
             String selectedMessage,
             String welcomeMessage
     ) {

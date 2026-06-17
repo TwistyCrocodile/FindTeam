@@ -128,9 +128,12 @@ export function PostCard({
     <article className="post-card">
       <div className="post-card__head">
         <h2 className="post-card__title">{post.title}</h2>
-        <span className={`post-card__status post-card__status--${post.status.toLowerCase()}`}>
-          {getPostStatusLabel(t, post.status)}
-        </span>
+        <div className="post-card__badges">
+          {post.language ? <span className="post-card__language">{post.language}</span> : null}
+          <span className={`post-card__status post-card__status--${post.status.toLowerCase()}`}>
+            {getPostStatusLabel(t, post.status)}
+          </span>
+        </div>
       </div>
       <p className="post-card__meta">
         {onViewUserProfile && post.telegramId && post.telegramId !== viewerTelegramId ? (

@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getApplicationsByApplicantAuthAware } from '../api/applications';
 import { getPosts } from '../api/posts';
 import { getFriendlyErrorMessage } from '../app/errors';
-import { getPostGoalLabel, getPostStatusLabel, getPostTypeLabel } from '../app/translations';
+import { getPostGoalLabel, getPostLanguageLabel, getPostStatusLabel, getPostTypeLabel } from '../app/translations';
 import { PostCard } from '../components/PostCard';
 import { useLanguage } from '../hooks/useLanguage';
-import type { PostGoal, PostResponse, PostStatus, PostType } from '../types/post';
+import type { PostGoal, PostLanguage, PostResponse, PostStatus, PostType } from '../types/post';
 import './FeedPage.css';
 
 const PAGE_SIZE = 10;
@@ -33,6 +33,7 @@ export function FeedPage({ reloadToken, viewerTelegramId, initData, onViewUserPr
 
   const [filterType, setFilterType] = useState<PostType | ''>('');
   const [filterGoal, setFilterGoal] = useState<PostGoal | ''>('');
+  const [filterLanguage, setFilterLanguage] = useState<PostLanguage | ''>('');
   // Product direction: default to ACTIVE-first when user hasn't explicitly changed it.
   const [filterStatus, setFilterStatus] = useState<PostStatus | ''>('ACTIVE');
 
@@ -65,9 +66,10 @@ export function FeedPage({ reloadToken, viewerTelegramId, initData, onViewUserPr
     () => ({
       type: filterType || undefined,
       goal: filterGoal || undefined,
+      language: filterLanguage || undefined,
       status: filterStatus || undefined,
     }),
-    [filterType, filterGoal, filterStatus],
+    [filterType, filterGoal, filterLanguage, filterStatus],
   );
 
   const refreshFirstPage = useCallback(async () => {
@@ -162,6 +164,14 @@ export function FeedPage({ reloadToken, viewerTelegramId, initData, onViewUserPr
             <option value="">{t.common.all}</option>
             <option value="ACTIVE">{getPostStatusLabel(t, 'ACTIVE')}</option>
             <option value="CLOSED">{getPostStatusLabel(t, 'CLOSED')}</option>
+          </select>
+        </label>
+        <label className="feed__filter">
+          <span>{t.feed.language}</span>
+          <select value={filterLanguage} onChange={(e) => setFilterLanguage(e.target.value as PostLanguage | '')}>
+            <option value="">{t.common.all}</option>
+            <option value="RU">{getPostLanguageLabel(t, 'RU')}</option>
+            <option value="EN">{getPostLanguageLabel(t, 'EN')}</option>
           </select>
         </label>
       </div>

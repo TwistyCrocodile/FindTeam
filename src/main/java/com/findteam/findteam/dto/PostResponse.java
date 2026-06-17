@@ -1,6 +1,7 @@
 package com.findteam.findteam.dto;
 
 import com.findteam.findteam.model.PostGoal;
+import com.findteam.findteam.model.PostLanguage;
 import com.findteam.findteam.model.PostStatus;
 import com.findteam.findteam.model.PostType;
 import com.findteam.findteam.model.UserStatus;
@@ -17,6 +18,7 @@ public class PostResponse {
 	private PostType type;
 	private String title;
 	private String description;
+	private PostLanguage language;
 	private String stack;
 	private PostGoal goal;
 	private PostStatus status;

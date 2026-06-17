@@ -7,6 +7,8 @@ export type PostGoal = 'HACKATHON' | 'PET_PROJECT' | 'STARTUP' | 'JOB' | 'OLYMPI
 
 export type PostStatus = 'ACTIVE' | 'CLOSED';
 
+export type PostLanguage = 'RU' | 'EN';
+
 export interface PostResponse {
   id: number;
   telegramId: number;
@@ -15,6 +17,7 @@ export interface PostResponse {
   type: PostType;
   title: string;
   description: string;
+  language?: PostLanguage | null;
   stack: string;
   goal: PostGoal;
   status: PostStatus;

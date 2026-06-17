@@ -42,6 +42,10 @@ public class Post {
 	@Column(nullable = false, length = 1000)
 	private String description;
 
+	@Enumerated(EnumType.STRING)
+	@Column(length = 2)
+	private PostLanguage language;
+
 	@Column(nullable = false, length = 255)
 	private String stack;
 
