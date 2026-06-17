@@ -11,6 +11,7 @@ import com.findteam.findteam.dto.UserProfileResponse;
 import com.findteam.findteam.exception.NicknameAlreadyTakenException;
 import com.findteam.findteam.exception.UserAlreadyExistsException;
 import com.findteam.findteam.exception.UserNotFoundException;
+import com.findteam.findteam.model.PreferredLanguage;
 import com.findteam.findteam.model.User;
 import com.findteam.findteam.model.UserStatus;
 import com.findteam.findteam.repository.UserRepository;
@@ -35,6 +36,7 @@ public class UserService {
 		registerRequest.setStack(request.getStack());
 		registerRequest.setGithubUrl(request.getGithubUrl());
 		registerRequest.setStatus(request.getStatus());
+		registerRequest.setPreferredLanguage(request.getPreferredLanguage());
 		return registerUser(registerRequest);
 	}
 
@@ -56,6 +58,7 @@ public class UserService {
 		user.setStack(request.getStack());
 		user.setGithubUrl(request.getGithubUrl());
 		user.setStatus(resolveStatus(request.getStatus()));
+		user.setPreferredLanguage(request.getPreferredLanguage());
 
 		User saved = userRepository.save(user);
 		return toUserProfileResponse(saved);
@@ -70,7 +73,16 @@ public class UserService {
 		registerRequest.setStack(request.getStack());
 		registerRequest.setGithubUrl(request.getGithubUrl());
 		registerRequest.setStatus(request.getStatus());
+		registerRequest.setPreferredLanguage(request.getPreferredLanguage());
 		return registerUser(registerRequest);
+	}
+
+	@Transactional
+	public void savePreferredLanguage(Long telegramId, PreferredLanguage preferredLanguage) {
+		userRepository.findByTelegramId(telegramId).ifPresent(user -> {
+			user.setPreferredLanguage(preferredLanguage);
+			userRepository.save(user);
+		});
 	}
 
 	@Transactional
@@ -127,6 +139,7 @@ public class UserService {
 	private UserProfileResponse toUserProfileResponse(User user) {
 		UserProfileResponse response = new UserProfileResponse();
 		response.setTelegramId(user.getTelegramId());
+		response.setPreferredLanguage(user.getPreferredLanguage());
 		response.setNickname(user.getNickname());
 		response.setBio(user.getBio());
 		response.setStack(user.getStack());
@@ -139,6 +152,7 @@ public class UserService {
 	private PublicUserProfileResponse toPublicUserProfileResponse(User user) {
 		PublicUserProfileResponse response = new PublicUserProfileResponse();
 		response.setTelegramId(user.getTelegramId());
+		response.setPreferredLanguage(user.getPreferredLanguage());
 		response.setNickname(user.getNickname());
 		response.setBio(user.getBio());
 		response.setStack(user.getStack());

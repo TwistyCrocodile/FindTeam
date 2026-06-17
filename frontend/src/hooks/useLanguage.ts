@@ -1,9 +1,21 @@
 import { retrieveLaunchParams } from '@tma.js/sdk-react';
 import { useCallback, useEffect, useState } from 'react';
 import { type Language, translations } from '../app/translations';
+import type { PreferredLanguage } from '../types/user';
 
 const LANGUAGE_STORAGE_KEY = 'findteam.language';
 const LANGUAGE_CHANGED_EVENT = 'findteam-language-changed';
+let preferredLanguageInitialized = false;
+
+type TelegramWebAppWindow = Window & {
+  Telegram?: {
+    WebApp?: {
+      initDataUnsafe?: {
+        start_param?: string;
+      };
+    };
+  };
+};
 
 function isLanguage(value: string | null | undefined): value is Language {
   return value === 'en' || value === 'ru';
@@ -34,12 +46,88 @@ function readTelegramLanguage(): Language | null {
   }
 }
 
-function resolveInitialLanguage(): Language {
-  return readStoredLanguage() ?? readTelegramLanguage() ?? 'en';
+function preferredLanguageToLanguage(preferredLanguage: PreferredLanguage | null | undefined): Language | null {
+  if (preferredLanguage === 'RU') {
+    return 'ru';
+  }
+  if (preferredLanguage === 'EN') {
+    return 'en';
+  }
+  return null;
+}
+
+function normalizeStartParameter(value: string | null | undefined): PreferredLanguage | null {
+  const normalized = value?.trim().toLowerCase();
+  if (normalized === 'lang_ru' || normalized === 'ru') {
+    return 'RU';
+  }
+  if (normalized === 'lang_en' || normalized === 'en') {
+    return 'EN';
+  }
+  return null;
+}
+
+export function readPreferredLanguageFromStartParameter(): PreferredLanguage | null {
+  try {
+    const fromLaunchParams = normalizeStartParameter(retrieveLaunchParams().tgWebAppStartParam);
+    if (fromLaunchParams) {
+      return fromLaunchParams;
+    }
+  } catch {
+    // SDK can throw outside Telegram; fall back to classic WebApp and URL parameters.
+  }
+
+  const fromWebApp = normalizeStartParameter(
+    (window as TelegramWebAppWindow).Telegram?.WebApp?.initDataUnsafe?.start_param,
+  );
+  if (fromWebApp) {
+    return fromWebApp;
+  }
+
+  try {
+    const params = new URLSearchParams(window.location.search);
+    return (
+      normalizeStartParameter(params.get('tgWebAppStartParam')) ??
+      normalizeStartParameter(params.get('startapp')) ??
+      normalizeStartParameter(params.get('lang'))
+    );
+  } catch {
+    return null;
+  }
+}
+
+function resolveInitialLanguage(options?: { includeStartParameter?: boolean }): Language {
+  const startParameterLanguage = options?.includeStartParameter
+    ? preferredLanguageToLanguage(readPreferredLanguageFromStartParameter())
+    : null;
+  return startParameterLanguage ?? readStoredLanguage() ?? readTelegramLanguage() ?? 'en';
 }
 
 function notifyLanguageChanged() {
   window.dispatchEvent(new Event(LANGUAGE_CHANGED_EVENT));
+}
+
+function normalizePreferredLanguage(preferredLanguage: PreferredLanguage | null | undefined): Language | null {
+  return preferredLanguageToLanguage(preferredLanguage);
+}
+
+export function initializeLanguageFromPreferredLanguage(preferredLanguage: PreferredLanguage | null | undefined) {
+  if (preferredLanguageInitialized) {
+    return;
+  }
+
+  const nextLanguage = normalizePreferredLanguage(preferredLanguage);
+  if (!nextLanguage) {
+    return;
+  }
+
+  preferredLanguageInitialized = true;
+  try {
+    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, nextLanguage);
+  } catch {
+    // Storage can be unavailable in restricted WebViews; notify active hooks anyway.
+  }
+  notifyLanguageChanged();
 }
 
 export function useLanguage() {
@@ -47,7 +135,7 @@ export function useLanguage() {
     if (typeof window === 'undefined') {
       return 'en';
     }
-    return resolveInitialLanguage();
+    return resolveInitialLanguage({ includeStartParameter: true });
   });
 
   useEffect(() => {

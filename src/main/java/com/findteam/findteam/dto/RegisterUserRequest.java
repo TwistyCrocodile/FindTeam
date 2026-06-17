@@ -1,5 +1,6 @@
 package com.findteam.findteam.dto;
 
+import com.findteam.findteam.model.PreferredLanguage;
 import com.findteam.findteam.model.UserStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -43,4 +44,6 @@ public class RegisterUserRequest {
 	private String githubUrl;
 
 	private UserStatus status;
+
+	private PreferredLanguage preferredLanguage;
 }

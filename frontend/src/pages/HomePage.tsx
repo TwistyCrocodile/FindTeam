@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { getFriendlyErrorMessage } from '../app/errors';
 import { BottomNav, type TabId } from '../components/BottomNav';
-import { useLanguage } from '../hooks/useLanguage';
+import { initializeLanguageFromPreferredLanguage, useLanguage } from '../hooks/useLanguage';
 import { useTelegramEnvironment } from '../hooks/useTelegramEnvironment';
 import { CreatePostPage } from './CreatePostPage';
 import { FeedPage } from './FeedPage';
@@ -38,6 +38,7 @@ export function HomePage() {
       try {
         const p = initData ? await getCurrentUserProfile(initData) : await getUserProfile(telegramId);
         if (cancelled) return;
+        initializeLanguageFromPreferredLanguage(p.preferredLanguage);
         setProfile(p);
         setProfileStatus('ready');
       } catch (e) {

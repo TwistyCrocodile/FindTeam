@@ -1,4 +1,5 @@
 export type UserStatus = 'LOOKING_FOR_TEAM' | 'LOOKING_FOR_PROJECT' | 'OPEN_TO_OFFERS' | 'BUSY';
+export type PreferredLanguage = 'RU' | 'EN';
 
 export interface CreateUserProfileRequest {
   telegramId: number;
@@ -7,6 +8,7 @@ export interface CreateUserProfileRequest {
   stack: string;
   githubUrl?: string;
   status?: UserStatus;
+  preferredLanguage?: PreferredLanguage | null;
 }
 
 export interface RegisterUserRequest {
@@ -16,6 +18,7 @@ export interface RegisterUserRequest {
   stack: string;
   githubUrl?: string;
   status?: UserStatus;
+  preferredLanguage?: PreferredLanguage | null;
 }
 
 export interface RegisterCurrentUserRequest {
@@ -24,6 +27,7 @@ export interface RegisterCurrentUserRequest {
   stack: string;
   githubUrl?: string;
   status?: UserStatus;
+  preferredLanguage?: PreferredLanguage | null;
 }
 
 export interface UpdateUserProfileRequest {
@@ -36,6 +40,7 @@ export interface UpdateUserProfileRequest {
 
 export interface UserProfileResponse {
   telegramId: number;
+  preferredLanguage?: PreferredLanguage | null;
   nickname: string;
   bio?: string;
   stack: string;
@@ -47,6 +52,7 @@ export interface UserProfileResponse {
 /** Public profile only — no contact unlock fields. */
 export interface PublicUserProfileResponse {
   telegramId: number;
+  preferredLanguage?: PreferredLanguage | null;
   nickname: string;
   bio?: string;
   stack: string;

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { registerCurrentUser, registerUser } from '../api/users';
 import { getFriendlyErrorMessage } from '../app/errors';
 import { UserProfileForm } from '../components/UserProfileForm';
-import { useLanguage } from '../hooks/useLanguage';
+import { readPreferredLanguageFromStartParameter, useLanguage } from '../hooks/useLanguage';
 import type { UserProfileResponse } from '../types/user';
 import './OnboardingProfilePage.css';
 
@@ -21,6 +21,7 @@ function sanitizeNicknameSuggestion(value: string | null | undefined) {
 
 export function OnboardingPage({ telegramId, initData, nicknameSuggestion, onCreated }: Props) {
   const { t } = useLanguage();
+  const preferredLanguage = useMemo(() => readPreferredLanguageFromStartParameter(), []);
   const [serverError, setServerError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -53,8 +54,8 @@ export function OnboardingPage({ telegramId, initData, nicknameSuggestion, onCre
           setLoading(true);
           try {
             const created = initData
-              ? await registerCurrentUser(initData, values)
-              : await registerUser({ telegramId, ...values });
+              ? await registerCurrentUser(initData, { ...values, preferredLanguage })
+              : await registerUser({ telegramId, ...values, preferredLanguage });
             onCreated(created);
           } catch (e) {
             setServerError(getFriendlyErrorMessage(e, t.common.requestFailed, t));

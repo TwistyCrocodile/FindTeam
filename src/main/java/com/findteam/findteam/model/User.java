@@ -37,6 +37,10 @@ public class User {
 	@Column(name = "username", nullable = false, unique = true, length = 32)
 	private String nickname;
 
+	@Enumerated(EnumType.STRING)
+	@Column(length = 2)
+	private PreferredLanguage preferredLanguage;
+
 	@Column(columnDefinition = "TEXT")
 	private String bio;
 
