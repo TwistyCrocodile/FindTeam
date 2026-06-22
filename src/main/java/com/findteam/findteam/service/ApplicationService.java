@@ -22,6 +22,8 @@ import com.findteam.findteam.repository.UserRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
 public class ApplicationService {
@@ -29,14 +31,17 @@ public class ApplicationService {
 	private final ApplicationRepository applicationRepository;
 	private final PostRepository postRepository;
 	private final UserRepository userRepository;
+	private final TelegramNotificationService telegramNotificationService;
 
 	public ApplicationService(
 			ApplicationRepository applicationRepository,
 			PostRepository postRepository,
-			UserRepository userRepository) {
+			UserRepository userRepository,
+			TelegramNotificationService telegramNotificationService) {
 		this.applicationRepository = applicationRepository;
 		this.postRepository = postRepository;
 		this.userRepository = userRepository;
+		this.telegramNotificationService = telegramNotificationService;
 	}
 
 	@Transactional
@@ -64,7 +69,41 @@ public class ApplicationService {
 		application.setStatus(ApplicationStatus.PENDING);
 
 		Application saved = applicationRepository.save(application);
+		notifyAuthorAfterCommit(saved);
 		return toApplicationResponse(saved);
+	}
+
+	private void notifyAuthorAfterCommit(Application application) {
+		Post post = application.getPost();
+		User author = post.getAuthor();
+		User applicant = application.getApplicant();
+		Long authorTelegramId = author.getTelegramId();
+		Long applicantTelegramId = applicant.getTelegramId();
+		Long postId = post.getId();
+		String postTitle = post.getTitle();
+		String applicantNickname = applicant.getNickname();
+		String applicantTelegramUsername = applicant.getContactTelegramUsername();
+		String applicantStack = applicant.getStack();
+		Runnable notification = () -> telegramNotificationService.notifyNewApplication(
+				authorTelegramId,
+				applicantTelegramId,
+				postId,
+				postTitle,
+				applicantNickname,
+				applicantTelegramUsername,
+				applicantStack);
+
+		if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+			notification.run();
+			return;
+		}
+
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+			@Override
+			public void afterCommit() {
+				notification.run();
+			}
+		});
 	}
 
 	@Transactional(readOnly = true)
