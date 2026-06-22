@@ -24,10 +24,19 @@ type Props = {
   reloadToken: number;
   viewerTelegramId: number;
   initData?: string | null;
+  viewerHasContactInfo: boolean;
+  onAddContacts: () => void;
   onViewUserProfile?: (telegramId: number) => void;
 };
 
-export function FeedPage({ reloadToken, viewerTelegramId, initData, onViewUserProfile }: Props) {
+export function FeedPage({
+  reloadToken,
+  viewerTelegramId,
+  initData,
+  viewerHasContactInfo,
+  onAddContacts,
+  onViewUserProfile,
+}: Props) {
   const { t } = useLanguage();
   const [search, setSearch] = useState('');
 
@@ -196,6 +205,8 @@ export function FeedPage({ reloadToken, viewerTelegramId, initData, onViewUserPr
               viewerTelegramId={viewerTelegramId}
               initData={initData}
               hasApplied={appliedPostIds.has(p.id)}
+              viewerHasContactInfo={viewerHasContactInfo}
+              onAddContacts={onAddContacts}
               onApplied={(postId) => setAppliedPostIds((prev) => new Set(prev).add(postId))}
               onViewUserProfile={onViewUserProfile}
               onPostUpdated={handlePostUpdated}

@@ -8,8 +8,9 @@ import { FeedPage } from './FeedPage';
 import { ProfilePage } from './ProfilePage';
 import { PublicProfileView } from './PublicProfileView';
 import { OnboardingPage } from './OnboardingPage';
-import { getCurrentUserProfile, getUserProfile } from '../api/users';
-import type { UserProfileResponse } from '../types/user';
+import { getCurrentUserProfile, getMyContactInfo, getUserProfile } from '../api/users';
+import { hasAnyContact } from '../utils/contactInfo';
+import type { ContactInfoResponse, UserProfileResponse } from '../types/user';
 
 const FALLBACK_TELEGRAM_ID = 123456789;
 
@@ -25,8 +26,10 @@ export function HomePage() {
 
   const [profileStatus, setProfileStatus] = useState<'loading' | 'onboarding' | 'ready'>('loading');
   const [profile, setProfile] = useState<UserProfileResponse | null>(null);
+  const [contactInfo, setContactInfo] = useState<ContactInfoResponse | null>(null);
   const [profileError, setProfileError] = useState<string | null>(null);
   const [viewedUserTelegramId, setViewedUserTelegramId] = useState<number | null>(null);
+  const [contactFocusToken, setContactFocusToken] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -61,9 +64,36 @@ export function HomePage() {
     };
   }, [telegramId, initData, t.profile.failedToLoadProfile]);
 
+  useEffect(() => {
+    if (!initData || profileStatus !== 'ready') {
+      setContactInfo(null);
+      return;
+    }
+
+    let cancelled = false;
+    async function loadContactInfo() {
+      try {
+        const info = await getMyContactInfo(initData as string);
+        if (!cancelled) setContactInfo(info);
+      } catch {
+        if (!cancelled) setContactInfo(null);
+      }
+    }
+
+    void loadContactInfo();
+    return () => {
+      cancelled = true;
+    };
+  }, [initData, profileStatus]);
+
   function handleCreated() {
     setFeedReloadToken((x) => x + 1);
     setCurrentTab('posts');
+  }
+
+  function handleAddContacts() {
+    setCurrentTab('profile');
+    setContactFocusToken((x) => x + 1);
   }
 
   if (profileStatus === 'loading') {
@@ -107,6 +137,8 @@ export function HomePage() {
           reloadToken={feedReloadToken}
           viewerTelegramId={telegramId}
           initData={initData}
+          viewerHasContactInfo={hasAnyContact(profile, contactInfo)}
+          onAddContacts={handleAddContacts}
           onViewUserProfile={(id) => setViewedUserTelegramId(id)}
         />
       ) : null}
@@ -119,6 +151,9 @@ export function HomePage() {
           initData={initData}
           profile={profile}
           onProfileUpdated={(p) => setProfile(p)}
+          contactInfoSnapshot={contactInfo}
+          onContactInfoUpdated={setContactInfo}
+          contactFocusToken={contactFocusToken}
           onViewUserProfile={(id) => setViewedUserTelegramId(id)}
         />
       ) : null}

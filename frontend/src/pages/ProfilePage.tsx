@@ -1,4 +1,4 @@
-import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getApplicationContact, getApplicationsByApplicantAuthAware } from '../api/applications';
 import { getCurrentUserPosts, getPosts } from '../api/posts';
 import { getMyContactInfo, updateMyContactInfo, updateUserProfileAuthAware } from '../api/users';
@@ -13,6 +13,7 @@ import { useTheme } from '../hooks/useTheme';
 import type { ApplicationResponse } from '../types/application';
 import type { PostResponse } from '../types/post';
 import type { ContactInfoResponse, UserProfileResponse } from '../types/user';
+import { hasAnyContact } from '../utils/contactInfo';
 import './ProfilePage.css';
 
 const PROFILE_PAGE_SIZE = 50;
@@ -31,10 +32,22 @@ type Props = {
   initData?: string | null;
   profile: UserProfileResponse;
   onProfileUpdated: (profile: UserProfileResponse) => void;
+  contactInfoSnapshot?: ContactInfoResponse | null;
+  onContactInfoUpdated?: (contactInfo: ContactInfoResponse) => void;
+  contactFocusToken?: number;
   onViewUserProfile: (telegramId: number) => void;
 };
 
-export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, onViewUserProfile }: Props) {
+export function ProfilePage({
+  telegramId,
+  initData,
+  profile,
+  onProfileUpdated,
+  contactInfoSnapshot,
+  onContactInfoUpdated,
+  contactFocusToken = 0,
+  onViewUserProfile,
+}: Props) {
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
   const [posts, setPosts] = useState<PostResponse[]>([]);
@@ -63,6 +76,8 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
   const [unlockedContacts, setUnlockedContacts] = useState<Record<number, ContactInfoResponse>>({});
   const [contactBusyId, setContactBusyId] = useState<number | null>(null);
   const [contactErrorById, setContactErrorById] = useState<Record<number, string>>({});
+  const contactCardRef = useRef<HTMLDivElement | null>(null);
+  const telegramContactInputRef = useRef<HTMLInputElement | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -121,6 +136,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
         };
         setContactInfo(info);
         setContactDraft(draft);
+        onContactInfoUpdated?.(info);
       } catch (e) {
         if (!cancelled) setContactMessage(getFriendlyErrorMessage(e, t.contact.couldNotLoadContact, t));
       } finally {
@@ -132,7 +148,21 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
     return () => {
       cancelled = true;
     };
-  }, [initData, t.contact.couldNotLoadContact]);
+  }, [initData, onContactInfoUpdated, t.contact.couldNotLoadContact]);
+
+  useEffect(() => {
+    if (!contactInfoSnapshot) return;
+    setContactInfo(contactInfoSnapshot);
+    setContactDraft({
+      contactTelegramUsername: contactInfoSnapshot.contactTelegramUsername ?? '',
+      contactEmail: contactInfoSnapshot.contactEmail ?? '',
+    });
+  }, [contactInfoSnapshot]);
+
+  useEffect(() => {
+    if (contactFocusToken === 0) return;
+    focusContactFields();
+  }, [contactFocusToken]);
 
   const myPosts = useMemo(() => posts.filter((p) => p.telegramId === telegramId), [posts, telegramId]);
 
@@ -155,14 +185,12 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
     [profile],
   );
 
-  const hasContactInfo = useMemo(
-    () =>
-      Boolean(
-        contactInfo.contactTelegramUsername?.trim()
-        || contactInfo.contactEmail?.trim(),
-      ),
-    [contactInfo],
-  );
+  const hasContactInfo = useMemo(() => hasAnyContact(profile, contactInfo), [profile, contactInfo]);
+
+  function focusContactFields() {
+    contactCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.setTimeout(() => telegramContactInputRef.current?.focus(), 250);
+  }
 
   async function handleContactSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -176,6 +204,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
         contactEmail: contactDraft.contactEmail.trim(),
       });
       setContactInfo(updated);
+      onContactInfoUpdated?.(updated);
       setContactDraft({
         contactTelegramUsername: updated.contactTelegramUsername ?? '',
         contactEmail: updated.contactEmail ?? '',
@@ -325,11 +354,17 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
 
       {!contactLoading && !hasContactInfo ? (
         <div className="profile__contact-reminder">
-          {t.profile.contactReminder}
+          <div className="profile__contact-reminder-copy">
+            <h3>{t.profile.contactReminderTitle}</h3>
+            <p>{t.profile.contactReminderBody}</p>
+          </div>
+          <button type="button" className="profile__contact-reminder-btn" onClick={focusContactFields}>
+            {t.profile.addContacts}
+          </button>
         </div>
       ) : null}
 
-      <div className="profile__contact-card">
+      <div className="profile__contact-card" ref={contactCardRef}>
         <h3 className="profile__posts-heading">{t.contact.contactInfo}</h3>
         <p className="profile__contact-hint">
           {t.contact.contactHint}
@@ -344,6 +379,7 @@ export function ProfilePage({ telegramId, initData, profile, onProfileUpdated, o
               <label className="profile__contact-field">
                 <span>{t.contact.telegramUsername}</span>
                 <input
+                  ref={telegramContactInputRef}
                   value={contactDraft.contactTelegramUsername}
                   onChange={(e) =>
                     setContactDraft((prev) => ({ ...prev, contactTelegramUsername: e.target.value }))

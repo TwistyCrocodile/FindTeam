@@ -148,11 +148,34 @@
   background: var(--warning-bg);
   color: var(--warning);
   padding: 12px 14px;
-  font-size: 0.92rem;
-  font-weight: 700;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
   overflow-wrap: anywhere;
   width: 100%;
   max-width: 100%;
+}
+
+.profile__contact-reminder-copy {
+  min-width: 0;
+}
+
+.profile__contact-reminder-copy h3 {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+}
+
+.profile__contact-reminder-copy p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.profile__contact-reminder-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  font-size: 0.85rem;
 }
 
 .profile__theme-card {
@@ -361,4 +384,14 @@
   margin: 0;
   color: var(--text-secondary);
   font-size: 0.9rem;
+}
+
+@media (max-width: 420px) {
+  .profile__contact-reminder {
+    flex-direction: column;
+  }
+
+  .profile__contact-reminder-btn {
+    width: 100%;
+  }
 }

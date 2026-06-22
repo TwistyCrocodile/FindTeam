@@ -158,3 +158,45 @@
   background: var(--success-bg);
   border-color: var(--success-border);
 }
+
+.post-card__dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgb(0 0 0 / 56%);
+}
+
+.post-card__dialog {
+  width: min(100%, 360px);
+  border: 1px solid var(--border-strong);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 35%);
+  padding: 16px;
+}
+
+.post-card__dialog-title {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.post-card__dialog-copy {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.post-card__dialog-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-top: 14px;
+}

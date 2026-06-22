@@ -15,6 +15,8 @@ type Props = {
   onPostDeleted: (postId: number) => void;
   /** True if the viewer already applied to this post (from feed preload). */
   hasApplied?: boolean;
+  viewerHasContactInfo?: boolean;
+  onAddContacts?: () => void;
   onApplied?: (postId: number) => void;
   /** Profile owner view: show View Applications. */
   showApplicationsButton?: boolean;
@@ -37,6 +39,8 @@ export function PostCard({
   onPostUpdated,
   onPostDeleted,
   hasApplied = false,
+  viewerHasContactInfo = true,
+  onAddContacts,
   onApplied,
   showApplicationsButton = false,
   onViewApplications,
@@ -47,6 +51,7 @@ export function PostCard({
   const [actionError, setActionError] = useState<string | null>(null);
   const [applyNotice, setApplyNotice] = useState<string | null>(null);
   const [applied, setApplied] = useState(hasApplied);
+  const [showMissingContactDialog, setShowMissingContactDialog] = useState(false);
 
   useEffect(() => {
     setApplied(hasApplied);
@@ -56,7 +61,7 @@ export function PostCard({
   const alreadyApplied = applied || hasApplied;
   const isClosed = post.status === 'CLOSED';
 
-  async function handleApply() {
+  async function submitApplication() {
     setActionError(null);
     setApplyNotice(null);
     setBusy(true);
@@ -77,6 +82,14 @@ export function PostCard({
     } finally {
       setBusy(false);
     }
+  }
+
+  async function handleApply() {
+    if (!viewerHasContactInfo) {
+      setShowMissingContactDialog(true);
+      return;
+    }
+    await submitApplication();
   }
 
   async function handleClose() {
@@ -214,6 +227,44 @@ export function PostCard({
       </div>
       {applyNotice ? <p className="post-card__apply-notice post-card__apply-notice--ok">{applyNotice}</p> : null}
       {actionError ? <p className="post-card__error">{actionError}</p> : null}
+      {showMissingContactDialog ? (
+        <div className="post-card__dialog-backdrop" role="presentation">
+          <div
+            className="post-card__dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`missing-contact-title-${post.id}`}
+          >
+            <h3 id={`missing-contact-title-${post.id}`} className="post-card__dialog-title">
+              {t.applications.missingContactTitle}
+            </h3>
+            <p className="post-card__dialog-copy">{t.applications.missingContactBody}</p>
+            <div className="post-card__dialog-actions">
+              <button
+                type="button"
+                className="btn btn--primary"
+                onClick={() => {
+                  setShowMissingContactDialog(false);
+                  onAddContacts?.();
+                }}
+              >
+                {t.applications.addContacts}
+              </button>
+              <button
+                type="button"
+                className="btn btn--secondary"
+                disabled={busy}
+                onClick={() => {
+                  setShowMissingContactDialog(false);
+                  void submitApplication();
+                }}
+              >
+                {t.applications.continueAnyway}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </article>
   );
 }

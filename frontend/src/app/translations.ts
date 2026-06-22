@@ -98,7 +98,9 @@ export const translations = {
       profileUpdated: 'Profile updated.',
       feedbackTitle: 'Found a bug or have an idea?',
       feedbackText: '@pisnotequaltonp',
-      contactReminder: 'Fill in your contact info so other users can reach you after an application is accepted.',
+      contactReminderTitle: "⚠️ Your profile has no contact information.",
+      contactReminderBody: 'Other users may not be able to reach you.',
+      addContacts: 'Add contacts',
     },
     status: {
       label: 'Status',
@@ -127,6 +129,10 @@ export const translations = {
       couldNotReject: 'Could not reject',
       applicationAccepted: 'Application accepted',
       applicationRejected: 'Application rejected',
+      missingContactTitle: "⚠️ You haven't added any contact information.",
+      missingContactBody: 'If your application is accepted, the post author may not be able to contact you.',
+      addContacts: '➕ Add contacts',
+      continueAnyway: 'Continue anyway',
     },
     contact: {
       contactInfo: 'Contact info',
@@ -304,7 +310,9 @@ export const translations = {
       profileUpdated: 'Профиль обновлён.',
       feedbackTitle: 'Нашли ошибку или есть идея?',
       feedbackText: '@pisnotequaltonp',
-      contactReminder: 'Заполните контактные данные, чтобы другие пользователи могли связаться с вами после принятия отклика.',
+      contactReminderTitle: '⚠️ В вашем профиле нет контактной информации.',
+      contactReminderBody: 'Другие пользователи могут не смочь связаться с вами.',
+      addContacts: 'Добавить контакты',
     },
     status: {
       label: 'Статус',
@@ -333,6 +341,10 @@ export const translations = {
       couldNotReject: 'Не удалось отклонить',
       applicationAccepted: 'Заявка принята',
       applicationRejected: 'Заявка отклонена',
+      missingContactTitle: '⚠️ Вы не добавили контактную информацию.',
+      missingContactBody: 'Если вашу заявку примут, автор поста может не смочь связаться с вами.',
+      addContacts: '➕ Добавить контакты',
+      continueAnyway: 'Всё равно продолжить',
     },
     contact: {
       contactInfo: 'Контактная информация',
