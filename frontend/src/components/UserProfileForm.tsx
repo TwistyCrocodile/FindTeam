@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { getFriendlyErrorMessage } from '../app/errors';
 import { getUserStatusLabel } from '../app/translations';
 import { useLanguage } from '../hooks/useLanguage';
@@ -51,8 +51,25 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
 
   const [clientError, setClientError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const stackTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const nicknamePattern = useMemo(() => /^[A-Za-z0-9_.]{3,32}$/, []);
+
+  useLayoutEffect(() => {
+    resizeStackTextarea();
+  }, [stack]);
+
+  function resizeStackTextarea() {
+    const textarea = stackTextareaRef.current;
+    if (!textarea) return;
+
+    textarea.style.height = 'auto';
+    const maxHeight = Number.parseFloat(window.getComputedStyle(textarea).maxHeight);
+    const nextHeight = Number.isFinite(maxHeight)
+      ? Math.min(textarea.scrollHeight, maxHeight)
+      : textarea.scrollHeight;
+    textarea.style.height = `${nextHeight}px`;
+  }
 
   function validate(): string | null {
     const n = nickname.trim();
@@ -111,7 +128,15 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
 
       <label className="field">
         <span>{t.profile.stack}</span>
-        <input value={stack} onChange={(e) => setStack(e.target.value)} placeholder="React, Spring Boot..." maxLength={STACK_MAX_LENGTH} />
+        <textarea
+          ref={stackTextareaRef}
+          className="profile-form__stack-textarea"
+          value={stack}
+          onChange={(e) => setStack(e.target.value)}
+          placeholder={'React\nSpring Boot\nDocker'}
+          rows={3}
+          maxLength={STACK_MAX_LENGTH}
+        />
         <span className="field__helper">{stack.length} / {STACK_MAX_LENGTH}</span>
       </label>
 

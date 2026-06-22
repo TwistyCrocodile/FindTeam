@@ -58,6 +58,11 @@
   overflow-wrap: anywhere;
 }
 
+.public-profile__row--stack {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .public-profile__label {
   font-weight: 600;
   color: var(--text-muted);
@@ -145,6 +150,11 @@
   margin: 4px 0;
   font-size: 0.9rem;
   overflow-wrap: anywhere;
+}
+
+.public-profile__post-stack {
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .public-profile__post-description {

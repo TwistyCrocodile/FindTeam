@@ -258,7 +258,7 @@ export function ProfilePage({
                 <p className="profile__row">
                   <span className="profile__label">{t.profile.bio}</span> {profile.bio || '—'}
                 </p>
-                <p className="profile__row">
+                <p className="profile__row profile__row--stack">
                   <span className="profile__label">{t.profile.stack}</span> {profile.stack}
                 </p>
                 <p className="profile__row">

@@ -72,7 +72,7 @@ export function PublicProfileView({ telegramId, onBack }: Props) {
             <p className="public-profile__row">
               <span className="public-profile__label">{t.profile.bio}</span> {profile.bio || '—'}
             </p>
-            <p className="public-profile__row">
+            <p className="public-profile__row public-profile__row--stack">
               <span className="public-profile__label">{t.profile.stack}</span> {profile.stack}
             </p>
             <p className="public-profile__row">

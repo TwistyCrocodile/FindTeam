@@ -50,6 +50,11 @@
   overflow-wrap: anywhere;
 }
 
+.profile__row--stack {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .profile__label {
   font-weight: 800;
   color: var(--text);
