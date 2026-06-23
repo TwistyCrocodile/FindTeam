@@ -8,7 +8,7 @@ import {
 import { getFriendlyErrorMessage } from '../app/errors';
 import { getApplicationStatusLabel, getUserStatusLabel } from '../app/translations';
 import { useLanguage } from '../hooks/useLanguage';
-import { ContactInfoView } from './ContactInfoView';
+import { ContactInfoView, hasContactInfo as hasUnlockedContactInfo } from './ContactInfoView';
 import type { ApplicationResponse } from '../types/application';
 import type { ContactInfoResponse } from '../types/user';
 import './PostApplicationsPanel.css';
@@ -168,6 +168,14 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
             ) : null}
             {a.status === 'ACCEPTED' && a.contactAvailable ? (
               <div className="post-applications__contact">
+                <div className="post-applications__contact-copy">
+                  <h5>{t.contact.acceptedApplicantTitle}</h5>
+                  <p>
+                    {unlockedContacts[a.id] && !hasUnlockedContactInfo(unlockedContacts[a.id])
+                      ? t.contact.acceptedApplicantNoContact
+                      : t.contact.acceptedApplicantIntro}
+                  </p>
+                </div>
                 <button
                   type="button"
                   className="post-applications__btn post-applications__btn--contact"
@@ -181,7 +189,9 @@ export function PostApplicationsPanel({ postId, ownerTelegramId, initData, onVie
                     {contactErrorById[a.id]}
                   </p>
                 ) : null}
-                {unlockedContacts[a.id] ? <ContactInfoView contact={unlockedContacts[a.id]} /> : null}
+                {unlockedContacts[a.id] && hasUnlockedContactInfo(unlockedContacts[a.id]) ? (
+                  <ContactInfoView contact={unlockedContacts[a.id]} />
+                ) : null}
               </div>
             ) : null}
           </li>

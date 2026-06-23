@@ -159,6 +159,27 @@
   flex-direction: column;
   gap: 8px;
   margin-top: 10px;
+  padding: 10px;
+  border: 1px solid var(--success-border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.post-applications__contact-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.post-applications__contact-copy h5 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.post-applications__contact-copy p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
 }
 
 .post-applications__contact-note {

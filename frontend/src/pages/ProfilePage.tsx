@@ -4,7 +4,7 @@ import { getCurrentUserPosts, getPosts } from '../api/posts';
 import { getMyContactInfo, updateMyContactInfo, updateUserProfileAuthAware } from '../api/users';
 import { getFriendlyErrorMessage } from '../app/errors';
 import { getApplicationStatusLabel, getPostGoalLabel, getPostStatusLabel, getUserStatusLabel } from '../app/translations';
-import { ContactInfoView } from '../components/ContactInfoView';
+import { ContactInfoView, hasContactInfo as hasUnlockedContactInfo } from '../components/ContactInfoView';
 import { PostApplicationsPanel } from '../components/PostApplicationsPanel';
 import { PostCard } from '../components/PostCard';
 import { UserProfileForm } from '../components/UserProfileForm';
@@ -494,6 +494,14 @@ export function ProfilePage({
 
               {application.contactAvailable ? (
                 <div className="profile__application-contact">
+                  <div className="profile__application-contact-copy">
+                    <h5>{t.contact.acceptedApplicationTitle}</h5>
+                    <p>
+                      {unlockedContacts[application.id] && !hasUnlockedContactInfo(unlockedContacts[application.id])
+                        ? t.contact.acceptedApplicationNoContact
+                        : t.contact.acceptedApplicationIntro}
+                    </p>
+                  </div>
                   <button
                     type="button"
                     className="profile__application-contact-btn"
@@ -507,7 +515,7 @@ export function ProfilePage({
                       {contactErrorById[application.id]}
                     </p>
                   ) : null}
-                  {unlockedContacts[application.id] ? (
+                  {unlockedContacts[application.id] && hasUnlockedContactInfo(unlockedContacts[application.id]) ? (
                     <ContactInfoView contact={unlockedContacts[application.id]} />
                   ) : null}
                 </div>

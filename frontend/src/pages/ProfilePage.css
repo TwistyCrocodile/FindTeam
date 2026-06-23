@@ -344,6 +344,27 @@
   flex-direction: column;
   gap: 8px;
   margin-top: 10px;
+  padding: 10px;
+  border: 1px solid var(--success-border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.profile__application-contact-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile__application-contact-copy h5 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.profile__application-contact-copy p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
 }
 
 .profile__application-contact-note {

@@ -152,6 +152,13 @@ export const translations = {
       couldNotLoadContact: 'Could not load contact info',
       couldNotSaveContact: 'Could not save contact info',
       userNoContactInfo: 'User has not added contact info yet.',
+      acceptedApplicationTitle: '✅ Application accepted',
+      acceptedApplicationIntro: 'You can now contact the project author:',
+      acceptedApplicationNoContact:
+        'The author accepted your application, but has not added contact details yet. You can still view their profile.',
+      acceptedApplicantTitle: '✅ Accepted applicant',
+      acceptedApplicantIntro: 'Contact details are unlocked:',
+      acceptedApplicantNoContact: 'Contact details are unlocked, but this applicant has not added contact details yet.',
     },
     publicProfile: {
       publicProfile: 'Public profile',
@@ -364,6 +371,13 @@ export const translations = {
       couldNotLoadContact: 'Не удалось загрузить контакт',
       couldNotSaveContact: 'Не удалось сохранить контакты',
       userNoContactInfo: 'Пользователь ещё не добавил контакты.',
+      acceptedApplicationTitle: '✅ Заявка принята',
+      acceptedApplicationIntro: 'Теперь вы можете связаться с автором проекта:',
+      acceptedApplicationNoContact:
+        'Автор принял вашу заявку, но ещё не добавил контактные данные. Вы всё ещё можете посмотреть его профиль.',
+      acceptedApplicantTitle: '✅ Принятый кандидат',
+      acceptedApplicantIntro: 'Контактные данные открыты:',
+      acceptedApplicantNoContact: 'Контактные данные открыты, но кандидат ещё не добавил контакты.',
     },
     publicProfile: {
       publicProfile: 'Публичный профиль',
