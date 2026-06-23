@@ -14,6 +14,7 @@ import com.findteam.findteam.model.Application;
 import com.findteam.findteam.model.ApplicationStatus;
 import com.findteam.findteam.model.Post;
 import com.findteam.findteam.model.PostStatus;
+import com.findteam.findteam.model.PreferredLanguage;
 import com.findteam.findteam.model.User;
 import com.findteam.findteam.model.UserStatus;
 import com.findteam.findteam.repository.ApplicationRepository;
@@ -78,6 +79,7 @@ public class ApplicationService {
 		User author = post.getAuthor();
 		User applicant = application.getApplicant();
 		Long authorTelegramId = author.getTelegramId();
+		PreferredLanguage recipientLanguage = author.getPreferredLanguage();
 		Long applicantTelegramId = applicant.getTelegramId();
 		Long postId = post.getId();
 		String postTitle = post.getTitle();
@@ -86,6 +88,7 @@ public class ApplicationService {
 		String applicantStack = applicant.getStack();
 		Runnable notification = () -> telegramNotificationService.notifyNewApplication(
 				authorTelegramId,
+				recipientLanguage,
 				applicantTelegramId,
 				postId,
 				postTitle,

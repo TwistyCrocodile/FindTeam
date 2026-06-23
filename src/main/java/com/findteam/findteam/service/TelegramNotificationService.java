@@ -1,5 +1,6 @@
 package com.findteam.findteam.service;
 
+import com.findteam.findteam.model.PreferredLanguage;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
@@ -14,13 +15,18 @@ public class TelegramNotificationService {
 	private static final Logger log = LoggerFactory.getLogger(TelegramNotificationService.class);
 
 	private final ObjectProvider<TelegramBot> telegramBotProvider;
+	private final TelegramNotificationMessages telegramNotificationMessages;
 
-	public TelegramNotificationService(ObjectProvider<TelegramBot> telegramBotProvider) {
+	public TelegramNotificationService(
+			ObjectProvider<TelegramBot> telegramBotProvider,
+			TelegramNotificationMessages telegramNotificationMessages) {
 		this.telegramBotProvider = telegramBotProvider;
+		this.telegramNotificationMessages = telegramNotificationMessages;
 	}
 
 	public void notifyNewApplication(
 			Long authorTelegramId,
+			PreferredLanguage recipientLanguage,
 			Long applicantTelegramId,
 			Long postId,
 			String postTitle,
@@ -37,7 +43,12 @@ public class TelegramNotificationService {
 			return;
 		}
 
-		String message = buildNewApplicationMessage(postTitle, applicantNickname, applicantTelegramUsername, applicantStack);
+		String applicantName = resolveApplicantName(applicantNickname, applicantTelegramUsername);
+		String message = telegramNotificationMessages.buildNewApplicationMessage(
+				recipientLanguage,
+				postTitle,
+				applicantName,
+				applicantStack);
 		sendMessage(telegramBot, authorTelegramId, applicantTelegramId, postId, message, "new application");
 	}
 
@@ -80,41 +91,6 @@ public class TelegramNotificationService {
 		}
 	}
 
-	private String buildNewApplicationMessage(
-			String postTitle,
-			String applicantNickname,
-			String applicantTelegramUsername,
-			String applicantStack) {
-		StringBuilder message = new StringBuilder();
-		message.append("""
-				🎉 New application!
-
-				Your post:
-
-				🏆 """);
-		message.append(safeText(postTitle));
-		message.append("""
-
-				received a new application.
-
-				👤 Applicant
-				""");
-		message.append(resolveApplicantName(applicantNickname, applicantTelegramUsername));
-
-		if (hasText(applicantStack)) {
-			message.append("""
-
-					💻 Stack
-					""");
-			message.append(applicantStack.trim());
-		}
-
-		message.append("""
-
-				Open FindTeam to review the application.""");
-		return message.toString();
-	}
-
 	private String resolveApplicantName(String nickname, String telegramUsername) {
 		if (hasText(nickname)) {
 			return nickname.trim();
@@ -123,11 +99,7 @@ public class TelegramNotificationService {
 			String normalized = telegramUsername.trim();
 			return normalized.startsWith("@") ? normalized : "@" + normalized;
 		}
-		return "Unknown user";
-	}
-
-	private String safeText(String value) {
-		return hasText(value) ? value.trim() : "";
+		return "";
 	}
 
 	private boolean hasText(String value) {
