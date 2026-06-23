@@ -96,15 +96,19 @@ public class ApplicationService {
 				applicantTelegramUsername,
 				applicantStack);
 
+		runAfterCommit(notification);
+	}
+
+	private void runAfterCommit(Runnable action) {
 		if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-			notification.run();
+			action.run();
 			return;
 		}
 
 		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
 			@Override
 			public void afterCommit() {
-				notification.run();
+				action.run();
 			}
 		});
 	}
@@ -131,7 +135,9 @@ public class ApplicationService {
 		Application application = getApplicationOrThrow(applicationId);
 		assertRequesterIsOwner(application.getPost(), requesterTelegramId);
 		application.setStatus(ApplicationStatus.ACCEPTED);
-		return toApplicationResponse(applicationRepository.save(application));
+		Application saved = applicationRepository.save(application);
+		notifyApplicantAfterCommit(saved, ApplicationStatus.ACCEPTED);
+		return toApplicationResponse(saved);
 	}
 
 	@Transactional
@@ -139,7 +145,46 @@ public class ApplicationService {
 		Application application = getApplicationOrThrow(applicationId);
 		assertRequesterIsOwner(application.getPost(), requesterTelegramId);
 		application.setStatus(ApplicationStatus.REJECTED);
-		return toApplicationResponse(applicationRepository.save(application));
+		Application saved = applicationRepository.save(application);
+		notifyApplicantAfterCommit(saved, ApplicationStatus.REJECTED);
+		return toApplicationResponse(saved);
+	}
+
+	private void notifyApplicantAfterCommit(Application application, ApplicationStatus status) {
+		Post post = application.getPost();
+		User author = post.getAuthor();
+		User applicant = application.getApplicant();
+		Long authorTelegramId = author.getTelegramId();
+		PreferredLanguage recipientLanguage = applicant.getPreferredLanguage();
+		Long applicantTelegramId = applicant.getTelegramId();
+		Long postId = post.getId();
+		Long applicationId = application.getId();
+		String postTitle = post.getTitle();
+		String authorNickname = author.getNickname();
+		String authorTelegramUsername = author.getContactTelegramUsername();
+		Runnable notification = () -> {
+			if (status == ApplicationStatus.ACCEPTED) {
+				telegramNotificationService.notifyApplicationAccepted(
+						authorTelegramId,
+						recipientLanguage,
+						applicantTelegramId,
+						postId,
+						applicationId,
+						postTitle,
+						authorNickname,
+						authorTelegramUsername);
+				return;
+			}
+			telegramNotificationService.notifyApplicationRejected(
+					authorTelegramId,
+					recipientLanguage,
+					applicantTelegramId,
+					postId,
+					applicationId,
+					postTitle);
+		};
+
+		runAfterCommit(notification);
 	}
 
 	@Transactional(readOnly = true)
