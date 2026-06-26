@@ -33,6 +33,18 @@ export function apiFetch(path: string, init?: RequestInit, initData?: string | n
   });
 }
 
+export class ApiRequestError extends Error {
+  status: number;
+  url: string;
+
+  constructor(message: string, status: number, url: string) {
+    super(message);
+    this.name = 'ApiRequestError';
+    this.status = status;
+    this.url = url;
+  }
+}
+
 /** Backend single-field error: { message, timestamp } */
 export interface ErrorResponseBody {
   message: string;
@@ -62,4 +74,8 @@ export async function parseErrorMessage(res: Response): Promise<string> {
     /* ignore */
   }
   return res.statusText || `HTTP ${res.status}`;
+}
+
+export function apiError(message: string, res: Response): ApiRequestError {
+  return new ApiRequestError(`HTTP ${res.status}: ${message}`, res.status, res.url);
 }

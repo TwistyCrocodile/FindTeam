@@ -192,7 +192,7 @@ public class PostService {
 		Post post = getPostOrThrow(postId);
 		assertRequesterIsOwner(post, requesterTelegramId);
 		PostResponse response = toPostResponse(post);
-		applicationRepository.deleteByPost_Id(postId);
+		applicationRepository.deleteByPostId(postId);
 		postRepository.delete(post);
 		return response;
 	}

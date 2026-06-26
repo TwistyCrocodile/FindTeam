@@ -152,6 +152,12 @@ export function PostCard({
       await deletePostAuthAware(post.id, viewerTelegramId, initData);
       onPostDeleted(post.id);
     } catch (e) {
+      console.error('[FindTeam] Delete post failed', {
+        postId: post.id,
+        viewerTelegramId,
+        hasInitData: Boolean(initData),
+        error: e,
+      });
       setActionError(getFriendlyErrorMessage(e, t.postActions.couldNotDelete, t));
     } finally {
       setBusy(false);

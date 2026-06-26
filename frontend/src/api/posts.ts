@@ -8,7 +8,7 @@ import type {
   PostStatus,
   PostType,
 } from '../types/post';
-import { apiFetch, apiUrl, parseErrorMessage } from './client';
+import { apiError, apiFetch, apiUrl, parseErrorMessage } from './client';
 
 export interface PostFilters {
   type?: PostType;
@@ -103,13 +103,13 @@ export async function reopenPostSecure(postId: number, initData: string): Promis
 export async function deletePost(postId: number, telegramId: number): Promise<void> {
   const params = new URLSearchParams({ telegramId: String(telegramId) });
   const res = await fetch(apiUrl(`/api/posts/${postId}?${params.toString()}`), { method: 'DELETE' });
-  if (!res.ok) throw new Error(await parseErrorMessage(res));
+  if (!res.ok) throw apiError(await parseErrorMessage(res), res);
 }
 
 /** DELETE /api/posts/{id}/secure */
 export async function deletePostSecure(postId: number, initData: string): Promise<void> {
   const res = await apiFetch(`/api/posts/${postId}/secure`, { method: 'DELETE' }, initData);
-  if (!res.ok) throw new Error(await parseErrorMessage(res));
+  if (!res.ok) throw apiError(await parseErrorMessage(res), res);
 }
 
 /** PUT /api/posts/{id} */
