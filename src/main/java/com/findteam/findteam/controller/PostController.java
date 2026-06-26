@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -108,6 +109,19 @@ public class PostController {
 		return ResponseEntity.ok(postService.reopenPost(postId, authUser.telegramId()));
 	}
 
+	@PutMapping("/{postId}")
+	public ResponseEntity<PostResponse> updatePost(
+			@PathVariable Long postId,
+			@RequestHeader(name = "X-Telegram-Init-Data", required = false) String initData,
+			@RequestParam(required = false) Long telegramId,
+			@Valid @RequestBody CreateCurrentUserPostRequest request) {
+		if ((initData == null || initData.isBlank()) && telegramId == null) {
+			return ResponseEntity.badRequest().build();
+		}
+		Long requesterTelegramId = resolveRequesterTelegramId(initData, telegramId);
+		return ResponseEntity.ok(postService.updatePost(postId, requesterTelegramId, request));
+	}
+
 	@DeleteMapping("/{postId}")
 	public ResponseEntity<Void> deletePost(
 			@PathVariable Long postId,
@@ -138,5 +152,12 @@ public class PostController {
 			@RequestHeader(name = "X-Telegram-Init-Data", required = false) String initData) {
 		TelegramAuthUser authUser = currentTelegramUserService.resolve(initData);
 		return ResponseEntity.ok(applicationService.getApplicationsForPost(postId, authUser.telegramId()));
+	}
+
+	private Long resolveRequesterTelegramId(String initData, Long telegramId) {
+		if (initData != null && !initData.isBlank()) {
+			return currentTelegramUserService.resolve(initData).telegramId();
+		}
+		return telegramId;
 	}
 }

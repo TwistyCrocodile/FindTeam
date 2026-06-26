@@ -1,9 +1,9 @@
-import { FormEvent, useState } from 'react';
-import { createPostAuthAware } from '../api/posts';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { createPostAuthAware, updatePostAuthAware } from '../api/posts';
 import { getFriendlyErrorMessage } from '../app/errors';
 import { getPostGoalLabel, getPostTypeLabel } from '../app/translations';
 import { useLanguage } from '../hooks/useLanguage';
-import type { CreatePostRequest, PostGoal, PostType } from '../types/post';
+import type { CreateCurrentUserPostRequest, CreatePostRequest, PostGoal, PostResponse, PostType } from '../types/post';
 import './CreatePostForm.css';
 
 const POST_TYPES: PostType[] = ['SEEKING_TEAM', 'SEEKING_MEMBER'];
@@ -12,22 +12,56 @@ const POST_GOALS: PostGoal[] = ['HACKATHON', 'PET_PROJECT', 'STARTUP', 'JOB', 'O
 type Props = {
   telegramId: number;
   initData?: string | null;
-  /** After a successful POST, parent refreshes the feed. */
-  onCreated: () => void;
+  mode?: 'create' | 'edit';
+  post?: PostResponse;
+  onCreated?: () => void;
+  onUpdated?: (post: PostResponse) => void;
+  onCancel?: () => void;
 };
 
-export function CreatePostForm({ telegramId, initData, onCreated }: Props) {
+export function CreatePostForm({
+  telegramId,
+  initData,
+  mode = 'create',
+  post,
+  onCreated,
+  onUpdated,
+  onCancel,
+}: Props) {
   const { t } = useLanguage();
-  const [type, setType] = useState<PostType>('SEEKING_TEAM');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [stack, setStack] = useState('');
-  const [goal, setGoal] = useState<PostGoal>('HACKATHON');
-  const [eventLink, setEventLink] = useState('');
+  const isEdit = mode === 'edit';
+  const initialValues = useMemo(
+    () => ({
+      type: post?.type ?? 'SEEKING_TEAM',
+      title: post?.title ?? '',
+      description: post?.description ?? '',
+      stack: post?.stack ?? '',
+      goal: post?.goal ?? 'HACKATHON',
+      eventLink: post?.eventLink ?? '',
+    }),
+    [post],
+  );
+  const [type, setType] = useState<PostType>(initialValues.type);
+  const [title, setTitle] = useState(initialValues.title);
+  const [description, setDescription] = useState(initialValues.description);
+  const [stack, setStack] = useState(initialValues.stack);
+  const [goal, setGoal] = useState<PostGoal>(initialValues.goal);
+  const [eventLink, setEventLink] = useState(initialValues.eventLink);
 
   const [clientError, setClientError] = useState<string | null>(null);
   const [serverMessage, setServerMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    setType(initialValues.type);
+    setTitle(initialValues.title);
+    setDescription(initialValues.description);
+    setStack(initialValues.stack);
+    setGoal(initialValues.goal);
+    setEventLink(initialValues.eventLink);
+    setClientError(null);
+    setServerMessage(null);
+  }, [initialValues]);
 
   function validate(): string | null {
     if (!Number.isFinite(telegramId) || telegramId <= 0) return t.createPost.telegramIdInvalid;
@@ -48,8 +82,7 @@ export function CreatePostForm({ telegramId, initData, onCreated }: Props) {
       return;
     }
 
-    const payload: CreatePostRequest = {
-      telegramId,
+    const editablePayload: CreateCurrentUserPostRequest = {
       type,
       title: title.trim(),
       description: description.trim(),
@@ -60,13 +93,23 @@ export function CreatePostForm({ telegramId, initData, onCreated }: Props) {
 
     setSubmitting(true);
     try {
-      await createPostAuthAware(payload, initData);
-      setServerMessage(t.createPost.created);
-      setTitle('');
-      setDescription('');
-      setStack('');
-      setEventLink('');
-      onCreated();
+      if (isEdit && post) {
+        const updated = await updatePostAuthAware(post.id, telegramId, editablePayload, initData);
+        setServerMessage(t.createPost.updated);
+        onUpdated?.(updated);
+      } else {
+        const payload: CreatePostRequest = {
+          telegramId,
+          ...editablePayload,
+        };
+        await createPostAuthAware(payload, initData);
+        setServerMessage(t.createPost.created);
+        setTitle('');
+        setDescription('');
+        setStack('');
+        setEventLink('');
+        onCreated?.();
+      }
     } catch (err) {
       setServerMessage(getFriendlyErrorMessage(err, t.common.requestFailed, t));
     } finally {
@@ -76,7 +119,7 @@ export function CreatePostForm({ telegramId, initData, onCreated }: Props) {
 
   return (
     <section className="create-post">
-      <h2 className="create-post__heading">{t.createPost.heading}</h2>
+      <h2 className="create-post__heading">{isEdit ? t.createPost.editHeading : t.createPost.heading}</h2>
       <p className="create-post__hint">{t.createPost.postingAs}</p>
       <form className="create-post__form" onSubmit={onSubmit}>
         <label className="field">
@@ -129,14 +172,21 @@ export function CreatePostForm({ telegramId, initData, onCreated }: Props) {
 
         {clientError ? <p className="form-msg form-msg--error">{clientError}</p> : null}
         {serverMessage ? (
-          <p className={`form-msg ${serverMessage === t.createPost.created ? 'form-msg--ok' : 'form-msg--error'}`}>
+          <p className={`form-msg ${serverMessage === t.createPost.created || serverMessage === t.createPost.updated ? 'form-msg--ok' : 'form-msg--error'}`}>
             {serverMessage}
           </p>
         ) : null}
 
-        <button type="submit" className="btn btn--primary" disabled={submitting}>
-          {submitting ? t.createPost.submitting : t.createPost.submit}
-        </button>
+        <div className="create-post__actions">
+          <button type="submit" className="btn btn--primary" disabled={submitting}>
+            {submitting ? t.createPost.submitting : isEdit ? t.common.saveChanges : t.createPost.submit}
+          </button>
+          {isEdit && onCancel ? (
+            <button type="button" className="btn btn--secondary" disabled={submitting} onClick={onCancel}>
+              {t.common.cancel}
+            </button>
+          ) : null}
+        </div>
       </form>
     </section>
   );

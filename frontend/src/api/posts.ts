@@ -111,6 +111,36 @@ export async function deletePostSecure(postId: number, initData: string): Promis
   if (!res.ok) throw new Error(await parseErrorMessage(res));
 }
 
+/** PUT /api/posts/{id} */
+export async function updatePost(
+  postId: number,
+  telegramId: number,
+  payload: CreateCurrentUserPostRequest,
+): Promise<PostResponse> {
+  const res = await fetch(apiUrl(`/api/posts/${postId}?telegramId=${telegramId}`), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(await parseErrorMessage(res));
+  return res.json() as Promise<PostResponse>;
+}
+
+/** PUT /api/posts/{id} with Telegram init data */
+export async function updatePostForCurrentUser(
+  postId: number,
+  payload: CreateCurrentUserPostRequest,
+  initData: string,
+): Promise<PostResponse> {
+  const res = await apiFetch(`/api/posts/${postId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  }, initData);
+  if (!res.ok) throw new Error(await parseErrorMessage(res));
+  return res.json() as Promise<PostResponse>;
+}
+
 export async function createPostAuthAware(
   payload: CreatePostRequest,
   initData?: string | null,
@@ -151,4 +181,15 @@ export async function deletePostAuthAware(
   initData?: string | null,
 ): Promise<void> {
   return initData ? deletePostSecure(postId, initData) : deletePost(postId, telegramId);
+}
+
+export async function updatePostAuthAware(
+  postId: number,
+  telegramId: number,
+  payload: CreateCurrentUserPostRequest,
+  initData?: string | null,
+): Promise<PostResponse> {
+  return initData
+    ? updatePostForCurrentUser(postId, payload, initData)
+    : updatePost(postId, telegramId, payload);
 }

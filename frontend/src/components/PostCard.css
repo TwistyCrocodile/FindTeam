@@ -142,6 +142,57 @@
   font-size: 0.85rem;
 }
 
+.post-card__menu-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.post-card__menu-trigger {
+  width: var(--control-height);
+  padding: 0;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.post-card__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-width: 170px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: 0 12px 28px rgb(0 0 0 / 28%);
+}
+
+.post-card__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--text);
+  background: transparent;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.post-card__menu-item:hover {
+  background: var(--surface-muted);
+}
+
+.post-card__menu-item--danger {
+  color: var(--danger);
+}
+
 .post-card__error {
   margin: 8px 0 0;
   font-size: 0.85rem;

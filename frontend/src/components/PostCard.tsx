@@ -5,6 +5,7 @@ import { getFriendlyErrorMessage } from '../app/errors';
 import { getPostGoalLabel, getPostStatusLabel, getPostTypeLabel, getUserStatusLabel } from '../app/translations';
 import { useLanguage } from '../hooks/useLanguage';
 import type { PostResponse } from '../types/post';
+import { CreatePostForm } from './CreatePostForm';
 import { MarkdownText } from './MarkdownText';
 import './PostCard.css';
 
@@ -53,6 +54,8 @@ export function PostCard({
   const [applyNotice, setApplyNotice] = useState<string | null>(null);
   const [applied, setApplied] = useState(hasApplied);
   const [showMissingContactDialog, setShowMissingContactDialog] = useState(false);
+  const [showOwnerMenu, setShowOwnerMenu] = useState(false);
+  const [editingPost, setEditingPost] = useState(false);
 
   useEffect(() => {
     setApplied(hasApplied);
@@ -61,6 +64,23 @@ export function PostCard({
   const isOwner = post.telegramId === viewerTelegramId;
   const alreadyApplied = applied || hasApplied;
   const isClosed = post.status === 'CLOSED';
+
+  if (editingPost) {
+    return (
+      <CreatePostForm
+        mode="edit"
+        post={post}
+        telegramId={viewerTelegramId}
+        initData={initData}
+        onUpdated={(updated) => {
+          onPostUpdated(updated);
+          setEditingPost(false);
+          setApplyNotice(t.postActions.postUpdated);
+        }}
+        onCancel={() => setEditingPost(false)}
+      />
+    );
+  }
 
   async function submitApplication() {
     setActionError(null);
@@ -211,18 +231,69 @@ export function PostCard({
                 {t.applications.viewApplications}
               </button>
             ) : null}
-            {!isClosed ? (
-              <button type="button" className="btn btn--secondary" disabled={busy} onClick={() => void handleClose()}>
-                {t.postActions.closePost}
+            <div className="post-card__menu-wrap">
+              <button
+                type="button"
+                className="btn btn--secondary post-card__menu-trigger"
+                aria-label={t.postActions.actions}
+                aria-expanded={showOwnerMenu}
+                disabled={busy}
+                onClick={() => setShowOwnerMenu((open) => !open)}
+              >
+                ⋮
               </button>
-            ) : (
-              <button type="button" className="btn btn--secondary" disabled={busy} onClick={() => void handleReopen()}>
-                {t.postActions.reopenPost}
-              </button>
-            )}
-            <button type="button" className="btn btn--secondary" disabled={busy} onClick={() => void handleDelete()}>
-              {t.postActions.deletePost}
-            </button>
+              {showOwnerMenu ? (
+                <div className="post-card__menu" role="menu">
+                  <button
+                    type="button"
+                    className="post-card__menu-item"
+                    role="menuitem"
+                    onClick={() => {
+                      setShowOwnerMenu(false);
+                      setEditingPost(true);
+                    }}
+                  >
+                    ✏️ {t.postActions.editPost}
+                  </button>
+                  {!isClosed ? (
+                    <button
+                      type="button"
+                      className="post-card__menu-item"
+                      role="menuitem"
+                      onClick={() => {
+                        setShowOwnerMenu(false);
+                        void handleClose();
+                      }}
+                    >
+                      🔒 {t.postActions.closePost}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="post-card__menu-item"
+                      role="menuitem"
+                      onClick={() => {
+                        setShowOwnerMenu(false);
+                        void handleReopen();
+                      }}
+                    >
+                      🔓 {t.postActions.reopenPost}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="post-card__menu-item post-card__menu-item--danger"
+                    role="menuitem"
+                    onClick={() => {
+                      setShowOwnerMenu(false);
+                      void handleDelete();
+                    }}
+                  >
+                    🗑 {t.postActions.deletePost}
+                  </button>
+                </div>
+              ) : null}
+            </div>
           </>
         ) : null}
       </div>

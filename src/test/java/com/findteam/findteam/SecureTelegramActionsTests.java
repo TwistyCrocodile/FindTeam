@@ -76,6 +76,58 @@ class SecureTelegramActionsTests {
 	}
 
 	@Test
+	void postUpdateUsesVerifiedOwnerTelegramIdAndPreservesStatus() throws Exception {
+		User owner = saveUser(1401L, "edit_owner");
+		Post post = savePost(owner, PostStatus.CLOSED);
+
+		mockMvc.perform(put("/api/posts/{postId}", post.getId())
+						.header(INIT_DATA_HEADER, validInitData(owner.getTelegramId(), owner.getNickname()))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{
+								  "type": "SEEKING_MEMBER",
+								  "title": "Updated title",
+								  "description": "Updated **Markdown** description",
+								  "stack": "React, Spring Boot",
+								  "goal": "STARTUP",
+								  "eventLink": "https://example.com/event"
+								}
+								"""))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id", is(post.getId().intValue())))
+				.andExpect(jsonPath("$.telegramId", is(1401)))
+				.andExpect(jsonPath("$.type", is("SEEKING_MEMBER")))
+				.andExpect(jsonPath("$.title", is("Updated title")))
+				.andExpect(jsonPath("$.description", is("Updated **Markdown** description")))
+				.andExpect(jsonPath("$.stack", is("React, Spring Boot")))
+				.andExpect(jsonPath("$.goal", is("STARTUP")))
+				.andExpect(jsonPath("$.eventLink", is("https://example.com/event")))
+				.andExpect(jsonPath("$.status", is("CLOSED")));
+	}
+
+	@Test
+	void postUpdateRejectsNonOwner() throws Exception {
+		User owner = saveUser(1501L, "real_owner");
+		User other = saveUser(1502L, "not_owner");
+		Post post = savePost(owner, PostStatus.ACTIVE);
+
+		mockMvc.perform(put("/api/posts/{postId}", post.getId())
+						.header(INIT_DATA_HEADER, validInitData(other.getTelegramId(), other.getNickname()))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{
+								  "type": "SEEKING_MEMBER",
+								  "title": "Should not update",
+								  "description": "Forbidden",
+								  "stack": "React",
+								  "goal": "JOB",
+								  "eventLink": ""
+								}
+								"""))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
 	void secureApplicationAcceptUsesVerifiedPostOwnerTelegramId() throws Exception {
 		User owner = saveUser(3003L, "post_owner");
 		User applicant = saveUser(4004L, "applicant_user");

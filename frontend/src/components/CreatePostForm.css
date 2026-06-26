@@ -25,3 +25,10 @@
   gap: 14px;
   min-width: 0;
 }
+
+.create-post__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}

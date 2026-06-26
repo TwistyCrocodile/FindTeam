@@ -174,6 +174,20 @@ public class PostService {
 	}
 
 	@Transactional
+	public PostResponse updatePost(Long postId, Long requesterTelegramId, CreateCurrentUserPostRequest request) {
+		Post post = getPostOrThrow(postId);
+		assertRequesterIsOwner(post, requesterTelegramId);
+		post.setType(request.getType());
+		post.setTitle(request.getTitle());
+		post.setDescription(request.getDescription());
+		post.setLanguage(detectLanguage(request.getTitle(), request.getDescription()));
+		post.setStack(request.getStack());
+		post.setGoal(request.getGoal());
+		post.setEventLink(request.getEventLink());
+		return toPostResponse(postRepository.save(post));
+	}
+
+	@Transactional
 	public PostResponse deletePost(Long postId, Long requesterTelegramId) {
 		Post post = getPostOrThrow(postId);
 		assertRequesterIsOwner(post, requesterTelegramId);
