@@ -267,7 +267,7 @@ export function ProfilePage({
                 <p className="profile__row">
                   <span className="profile__label">{t.profile.github}</span>{' '}
                   {profile.githubUrl ? (
-                    <a href={profile.githubUrl} target="_blank" rel="noreferrer">
+                    <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer">
                       {profile.githubUrl}
                     </a>
                   ) : (
@@ -417,7 +417,7 @@ export function ProfilePage({
 
       <div className="profile__feedback-card">
         <h3 className="profile__posts-heading">{t.profile.feedbackTitle}</h3>
-        <a className="profile__feedback-link" href={DEVELOPER_CONTACT_URL} target="_blank" rel="noreferrer">
+        <a className="profile__feedback-link" href={DEVELOPER_CONTACT_URL} target="_blank" rel="noopener noreferrer">
           {t.profile.feedbackText}
         </a>
       </div>

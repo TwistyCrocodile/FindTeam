@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { getPublicUserPosts, getPublicUserProfile } from '../api/users';
 import { getFriendlyErrorMessage } from '../app/errors';
 import { getPostGoalLabel, getPostTypeLabel, getUserStatusLabel } from '../app/translations';
+import { MarkdownText } from '../components/MarkdownText';
 import { useLanguage } from '../hooks/useLanguage';
 import type { PostResponse } from '../types/post';
 import type { PublicUserProfileResponse } from '../types/user';
@@ -81,7 +82,7 @@ export function PublicProfileView({ telegramId, onBack }: Props) {
             <p className="public-profile__row">
               <span className="public-profile__label">{t.profile.github}</span>{' '}
               {profile.githubUrl ? (
-                <a href={profile.githubUrl} target="_blank" rel="noreferrer">
+                <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer">
                   {profile.githubUrl}
                 </a>
               ) : (
@@ -113,10 +114,10 @@ export function PublicProfileView({ telegramId, onBack }: Props) {
                     <p className="public-profile__post-stack">
                       <span className="public-profile__label">{t.profile.stack}</span> {post.stack}
                     </p>
-                    <p className="public-profile__post-description">{post.description}</p>
+                    <MarkdownText className="public-profile__post-description">{post.description}</MarkdownText>
                     {post.eventLink ? (
                       <p className="public-profile__post-link">
-                        <a href={post.eventLink} target="_blank" rel="noreferrer">
+                        <a href={post.eventLink} target="_blank" rel="noopener noreferrer">
                           {post.eventLink}
                         </a>
                       </p>
