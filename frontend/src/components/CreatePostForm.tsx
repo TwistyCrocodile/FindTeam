@@ -98,6 +98,7 @@ export function CreatePostForm({ telegramId, initData, onCreated }: Props) {
         <label className="field">
           <span>{t.createPost.description}</span>
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} maxLength={1000} />
+          <span className="field__helper">{t.createPost.markdownHelp}</span>
         </label>
 
         <label className="field">
