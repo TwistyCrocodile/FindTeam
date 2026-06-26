@@ -5,7 +5,6 @@ import { getFriendlyErrorMessage } from '../app/errors';
 import { getPostGoalLabel, getPostStatusLabel, getPostTypeLabel, getUserStatusLabel } from '../app/translations';
 import { useLanguage } from '../hooks/useLanguage';
 import type { PostResponse } from '../types/post';
-import { MarkdownText } from './MarkdownText';
 import './PostCard.css';
 
 type Props = {
@@ -171,11 +170,11 @@ export function PostCard({
       <p className="post-card__stack">
         <span className="post-card__label">{t.createPost.stack}</span> {post.stack}
       </p>
-      <MarkdownText className="post-card__description">{post.description}</MarkdownText>
+      <p className="post-card__description">{post.description}</p>
       {post.eventLink ? (
         <p className="post-card__link">
           <span className="post-card__label">{t.common.link}</span>{' '}
-          <a href={post.eventLink} target="_blank" rel="noopener noreferrer">
+          <a href={post.eventLink} target="_blank" rel="noreferrer">
             {post.eventLink}
           </a>
         </p>

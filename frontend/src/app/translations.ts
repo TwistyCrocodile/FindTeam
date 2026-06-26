@@ -67,7 +67,6 @@ export const translations = {
       titleRequired: 'Title is required.',
       descriptionRequired: 'Description is required.',
       stackRequired: 'Stack is required.',
-      markdownHelp: 'Supports Markdown: bold, lists, links, code',
     },
     profile: {
       profile: 'Profile',
@@ -287,7 +286,6 @@ export const translations = {
       titleRequired: 'Название обязательно.',
       descriptionRequired: 'Описание обязательно.',
       stackRequired: 'Стек обязателен.',
-      markdownHelp: 'Поддерживается Markdown: жирный текст, списки, ссылки, код',
     },
     profile: {
       profile: 'Профиль',
