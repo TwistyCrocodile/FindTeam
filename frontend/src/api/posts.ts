@@ -101,7 +101,8 @@ export async function reopenPostSecure(postId: number, initData: string): Promis
 
 /** DELETE /api/posts/{id} */
 export async function deletePost(postId: number, telegramId: number): Promise<void> {
-  const res = await fetch(apiUrl(`/api/posts/${postId}?telegramId=${telegramId}`), { method: 'DELETE' });
+  const params = new URLSearchParams({ telegramId: String(telegramId) });
+  const res = await fetch(apiUrl(`/api/posts/${postId}?${params.toString()}`), { method: 'DELETE' });
   if (!res.ok) throw new Error(await parseErrorMessage(res));
 }
 

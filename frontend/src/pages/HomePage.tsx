@@ -130,12 +130,14 @@ export function HomePage() {
     );
   }
 
+  const viewerTelegramId = profile.telegramId;
+
   return (
     <>
       {currentTab === 'posts' ? (
         <FeedPage
           reloadToken={feedReloadToken}
-          viewerTelegramId={telegramId}
+          viewerTelegramId={viewerTelegramId}
           initData={initData}
           viewerHasContactInfo={hasAnyContact(profile, contactInfo)}
           onAddContacts={handleAddContacts}
@@ -143,11 +145,11 @@ export function HomePage() {
         />
       ) : null}
       {currentTab === 'create' ? (
-        <CreatePostPage telegramId={telegramId} initData={initData} onCreated={handleCreated} />
+        <CreatePostPage telegramId={viewerTelegramId} initData={initData} onCreated={handleCreated} />
       ) : null}
       {currentTab === 'profile' ? (
         <ProfilePage
-          telegramId={telegramId}
+          telegramId={viewerTelegramId}
           initData={initData}
           profile={profile}
           onProfileUpdated={(p) => setProfile(p)}
