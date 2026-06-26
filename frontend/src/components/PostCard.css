@@ -263,3 +263,9 @@
   gap: 8px;
   margin-top: 14px;
 }
+
+.post-card__delete-confirm {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: var(--primary-contrast);
+}

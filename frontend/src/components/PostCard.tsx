@@ -56,6 +56,7 @@ export function PostCard({
   const [showMissingContactDialog, setShowMissingContactDialog] = useState(false);
   const [showOwnerMenu, setShowOwnerMenu] = useState(false);
   const [editingPost, setEditingPost] = useState(false);
+  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
 
   useEffect(() => {
     setApplied(hasApplied);
@@ -142,9 +143,6 @@ export function PostCard({
   }
 
   async function handleDelete() {
-    if (!window.confirm(t.common.deleteConfirmMessage)) {
-      return;
-    }
     setActionError(null);
     setApplyNotice(null);
     setBusy(true);
@@ -292,7 +290,7 @@ export function PostCard({
                     role="menuitem"
                     onClick={() => {
                       setShowOwnerMenu(false);
-                      void handleDelete();
+                      setShowDeleteConfirmDialog(true);
                     }}
                   >
                     🗑 {t.postActions.deletePost}
@@ -305,6 +303,42 @@ export function PostCard({
       </div>
       {applyNotice ? <p className="post-card__apply-notice post-card__apply-notice--ok">{applyNotice}</p> : null}
       {actionError ? <p className="post-card__error">{actionError}</p> : null}
+      {showDeleteConfirmDialog ? (
+        <div className="post-card__dialog-backdrop" role="presentation">
+          <div
+            className="post-card__dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`delete-post-title-${post.id}`}
+          >
+            <h3 id={`delete-post-title-${post.id}`} className="post-card__dialog-title">
+              {t.postActions.deleteConfirmTitle}
+            </h3>
+            <p className="post-card__dialog-copy">{t.postActions.deleteConfirmBody}</p>
+            <div className="post-card__dialog-actions">
+              <button
+                type="button"
+                className="btn btn--secondary"
+                disabled={busy}
+                onClick={() => setShowDeleteConfirmDialog(false)}
+              >
+                {t.postActions.deleteConfirmCancel}
+              </button>
+              <button
+                type="button"
+                className="btn btn--primary post-card__delete-confirm"
+                disabled={busy}
+                onClick={() => {
+                  setShowDeleteConfirmDialog(false);
+                  void handleDelete();
+                }}
+              >
+                {busy ? t.createPost.submitting : t.postActions.deleteConfirmDelete}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
       {showMissingContactDialog ? (
         <div className="post-card__dialog-backdrop" role="presentation">
           <div
