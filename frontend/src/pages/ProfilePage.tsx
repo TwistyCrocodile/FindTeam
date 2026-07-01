@@ -179,6 +179,7 @@ export function ProfilePage({
       nickname: profile.nickname,
       bio: profile.bio ?? '',
       stack: profile.stack,
+      interestedStacks: profile.interestedStacks ?? [],
       githubUrl: profile.githubUrl ?? '',
       status: profile.status ?? 'OPEN_TO_OFFERS',
     }),
@@ -261,6 +262,20 @@ export function ProfilePage({
                 <p className="profile__row profile__row--stack">
                   <span className="profile__label">{t.profile.stack}</span> {profile.stack}
                 </p>
+                <div className="profile__row">
+                  <span className="profile__label">{t.profile.interestedTechnologies}</span>
+                  {profile.interestedStacks.length > 0 ? (
+                    <span className="profile__chips">
+                      {profile.interestedStacks.map((technology) => (
+                        <span key={technology} className="profile__chip">
+                          {technology}
+                        </span>
+                      ))}
+                    </span>
+                  ) : (
+                    '—'
+                  )}
+                </div>
                 <p className="profile__row">
                   <span className="profile__label">{t.status.label}</span> {getUserStatusLabel(t, profile.status)}
                 </p>

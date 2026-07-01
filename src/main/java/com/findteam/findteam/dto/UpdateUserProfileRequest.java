@@ -4,6 +4,7 @@ import com.findteam.findteam.model.UserStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 import lombok.Data;
 
 @Data
@@ -23,6 +24,8 @@ public class UpdateUserProfileRequest {
 	@NotBlank(message = "stack must not be blank")
 	@Size(max = 500, message = "stack must be at most 500 characters")
 	private String stack;
+
+	private List<@Size(max = 64, message = "interestedStacks item must be at most 64 characters") String> interestedStacks;
 
 	@Size(max = 255, message = "githubUrl must be at most 255 characters")
 	@Pattern(

@@ -1,4 +1,5 @@
-import { FormEvent, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { FormEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { getTechnologies } from '../api/technologies';
 import { getFriendlyErrorMessage } from '../app/errors';
 import { getUserStatusLabel } from '../app/translations';
 import { useLanguage } from '../hooks/useLanguage';
@@ -8,11 +9,13 @@ import './UserProfileForm.css';
 const USER_STATUS_OPTIONS: UserStatus[] = ['LOOKING_FOR_TEAM', 'LOOKING_FOR_PROJECT', 'OPEN_TO_OFFERS', 'BUSY'];
 const BIO_MAX_LENGTH = 1000;
 const STACK_MAX_LENGTH = 500;
+const INTERESTED_STACKS_MAX = 10;
 
 type ProfileValues = {
   nickname: string;
   bio: string;
   stack: string;
+  interestedStacks: string[];
   githubUrl: string;
   status: UserStatus;
 };
@@ -46,6 +49,9 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
   const [nickname, setNickname] = useState(initialValues.nickname);
   const [bio, setBio] = useState(initialValues.bio);
   const [stack, setStack] = useState(initialValues.stack);
+  const [interestedStacks, setInterestedStacks] = useState<string[]>(initialValues.interestedStacks);
+  const [technologyOptions, setTechnologyOptions] = useState<string[]>([]);
+  const [customTechnology, setCustomTechnology] = useState('');
   const [githubUrl, setGithubUrl] = useState(initialValues.githubUrl);
   const [status, setStatus] = useState<UserStatus>(initialValues.status);
 
@@ -55,9 +61,30 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
 
   const nicknamePattern = useMemo(() => /^[A-Za-z0-9_.]{3,32}$/, []);
 
+  const customTechnologies = useMemo(
+    () => interestedStacks.filter((technology) => !technologyOptions.some((option) => sameTechnology(option, technology))),
+    [interestedStacks, technologyOptions],
+  );
+
   useLayoutEffect(() => {
     resizeStackTextarea();
   }, [stack]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadTechnologies() {
+      try {
+        const list = await getTechnologies();
+        if (!cancelled) setTechnologyOptions(list);
+      } catch {
+        if (!cancelled) setTechnologyOptions([]);
+      }
+    }
+    void loadTechnologies();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function resizeStackTextarea() {
     const textarea = stackTextareaRef.current;
@@ -78,12 +105,39 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
     if (!stack.trim()) return t.createPost.stackRequired;
     if (bio.length > BIO_MAX_LENGTH) return t.profile.bioTooLong;
     if (stack.length > STACK_MAX_LENGTH) return t.profile.stackTooLong;
+    if (interestedStacks.length > INTERESTED_STACKS_MAX) return t.profile.interestedTechLimit;
     const githubErr = validateGithubUrl(githubUrl, {
       httpUrl: t.profile.githubHttpUrl,
       validUrl: t.profile.githubValidUrl,
     });
     if (githubErr) return githubErr;
     return null;
+  }
+
+  function toggleInterestedStack(option: string) {
+    setInterestedStacks((current) => {
+      if (current.some((item) => sameTechnology(item, option))) {
+        return current.filter((item) => !sameTechnology(item, option));
+      }
+      if (current.length >= INTERESTED_STACKS_MAX) {
+        return current;
+      }
+      return [...current, option];
+    });
+  }
+
+  function addCustomTechnology() {
+    const normalized = customTechnology.trim();
+    if (!normalized) return;
+    const catalogMatch = technologyOptions.find((option) => sameTechnology(option, normalized));
+    const value = catalogMatch ?? normalized;
+    setInterestedStacks((current) => {
+      if (current.some((item) => sameTechnology(item, value)) || current.length >= INTERESTED_STACKS_MAX) {
+        return current;
+      }
+      return [...current, value];
+    });
+    setCustomTechnology('');
   }
 
   async function onFormSubmit(e: FormEvent) {
@@ -102,6 +156,7 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
         nickname: nickname.trim(),
         bio: bio.trim() || undefined,
         stack: stack.trim(),
+        interestedStacks,
         githubUrl: normalizeGithubUrl(githubUrl) || undefined,
         status,
       } as Omit<CreateUserProfileRequest, 'telegramId'>);
@@ -140,6 +195,62 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
         <span className="field__helper">{stack.length} / {STACK_MAX_LENGTH}</span>
       </label>
 
+      <div className="field">
+        <span>{t.profile.interestedTechnologies}</span>
+        <div className="profile-form__chips" role="group" aria-label={t.profile.interestedTechnologies}>
+          {technologyOptions.map((option) => {
+            const selected = interestedStacks.some((item) => sameTechnology(item, option));
+            const disabled = !selected && interestedStacks.length >= INTERESTED_STACKS_MAX;
+            return (
+              <button
+                key={option}
+                type="button"
+                className={`profile-form__chip ${selected ? 'profile-form__chip--selected' : ''}`}
+                disabled={disabled}
+                aria-pressed={selected}
+                onClick={() => toggleInterestedStack(option)}
+              >
+                {option}
+              </button>
+            );
+          })}
+          {customTechnologies.map((technology) => (
+            <button
+              key={technology}
+              type="button"
+              className="profile-form__chip profile-form__chip--selected"
+              aria-pressed="true"
+              onClick={() => toggleInterestedStack(technology)}
+            >
+              {technology}
+            </button>
+          ))}
+        </div>
+        <div className="profile-form__custom-tech">
+          <input
+            value={customTechnology}
+            onChange={(e) => setCustomTechnology(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                addCustomTechnology();
+              }
+            }}
+            placeholder={t.profile.customTechnologyPlaceholder}
+            maxLength={64}
+          />
+          <button
+            type="button"
+            className="profile-form__custom-tech-btn"
+            disabled={!customTechnology.trim() || interestedStacks.length >= INTERESTED_STACKS_MAX}
+            onClick={addCustomTechnology}
+          >
+            {t.profile.addTechnology}
+          </button>
+        </div>
+        <span className="field__helper">{interestedStacks.length} / {INTERESTED_STACKS_MAX}</span>
+      </div>
+
       <label className="field">
         <span>{t.status.label}</span>
         <select value={status} onChange={(e) => setStatus(e.target.value as UserStatus)}>
@@ -164,4 +275,8 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
       </button>
     </form>
   );
+}
+
+function sameTechnology(a: string, b: string) {
+  return a.trim().toLowerCase() === b.trim().toLowerCase();
 }

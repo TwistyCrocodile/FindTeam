@@ -29,6 +29,11 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error(ex.getMessage()));
 	}
 
+	@ExceptionHandler(InvalidInterestedStacksException.class)
+	public ResponseEntity<ErrorResponse> handleInvalidInterestedStacks(InvalidInterestedStacksException ex) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error(ex.getMessage()));
+	}
+
 	/**
 	 * Bean Validation failed on a {@code @Valid} controller parameter (e.g. request body).
 	 */

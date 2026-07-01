@@ -1,6 +1,7 @@
 package com.findteam.findteam.service;
 
 import com.findteam.findteam.model.PreferredLanguage;
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -80,6 +81,32 @@ public class TelegramNotificationMessages {
 		return message.toString();
 	}
 
+	public String buildNewMatchingPostMessage(
+			PreferredLanguage recipientLanguage,
+			String postTitle,
+			List<String> matchedTechnologies) {
+		Messages messages = messagesFor(recipientLanguage);
+
+		StringBuilder message = new StringBuilder();
+		message.append(messages.newMatchingPostTitle());
+		message.append("\n\n");
+		message.append(safeText(postTitle));
+		message.append("\n\n");
+		message.append(messages.matchedTechnologies());
+		message.append("\n");
+		for (String technology : matchedTechnologies) {
+			if (!hasText(technology)) {
+				continue;
+			}
+			message.append(messages.technologyPrefix());
+			message.append(technology.trim());
+			message.append("\n");
+		}
+		message.append("\n");
+		message.append(messages.openPost());
+		return message.toString();
+	}
+
 	private Messages messagesFor(PreferredLanguage recipientLanguage) {
 		if (recipientLanguage == PreferredLanguage.RU) {
 			return Messages.RU;
@@ -110,7 +137,11 @@ public class TelegramNotificationMessages {
 				"Good luck! 🚀",
 				"❌ Application rejected",
 				"Your application was rejected.",
-				"You can still apply to other posts in FindTeam."),
+				"You can still apply to other posts in FindTeam.",
+				"🔥 New matching post",
+				"Matched technologies:",
+				"",
+				"Open post"),
 		RU(
 				"🎉 Новый отклик!",
 				"На ваш пост:",
@@ -125,7 +156,11 @@ public class TelegramNotificationMessages {
 				"Удачи! 🚀",
 				"❌ Отклик отклонён",
 				"Ваш отклик отклонили.",
-				"Вы всё ещё можете откликаться на другие посты в FindTeam.");
+				"Вы всё ещё можете откликаться на другие посты в FindTeam.",
+				"🔥 Новый подходящий пост",
+				"Совпадения:",
+				"• ",
+				"Открыть пост");
 
 		private final String newApplicationTitle;
 		private final String yourPost;
@@ -141,6 +176,10 @@ public class TelegramNotificationMessages {
 		private final String applicationRejectedTitle;
 		private final String applicationRejectedBody;
 		private final String applyToOtherPosts;
+		private final String newMatchingPostTitle;
+		private final String matchedTechnologies;
+		private final String technologyPrefix;
+		private final String openPost;
 
 		Messages(
 				String newApplicationTitle,
@@ -156,7 +195,11 @@ public class TelegramNotificationMessages {
 				String goodLuck,
 				String applicationRejectedTitle,
 				String applicationRejectedBody,
-				String applyToOtherPosts) {
+				String applyToOtherPosts,
+				String newMatchingPostTitle,
+				String matchedTechnologies,
+				String technologyPrefix,
+				String openPost) {
 			this.newApplicationTitle = newApplicationTitle;
 			this.yourPost = yourPost;
 			this.receivedApplication = receivedApplication;
@@ -171,6 +214,10 @@ public class TelegramNotificationMessages {
 			this.applicationRejectedTitle = applicationRejectedTitle;
 			this.applicationRejectedBody = applicationRejectedBody;
 			this.applyToOtherPosts = applyToOtherPosts;
+			this.newMatchingPostTitle = newMatchingPostTitle;
+			this.matchedTechnologies = matchedTechnologies;
+			this.technologyPrefix = technologyPrefix;
+			this.openPost = openPost;
 		}
 
 		private String newApplicationTitle() {
@@ -227,6 +274,22 @@ public class TelegramNotificationMessages {
 
 		private String applyToOtherPosts() {
 			return applyToOtherPosts;
+		}
+
+		private String newMatchingPostTitle() {
+			return newMatchingPostTitle;
+		}
+
+		private String matchedTechnologies() {
+			return matchedTechnologies;
+		}
+
+		private String technologyPrefix() {
+			return technologyPrefix;
+		}
+
+		private String openPost() {
+			return openPost;
 		}
 	}
 }

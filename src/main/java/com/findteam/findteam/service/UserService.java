@@ -8,6 +8,7 @@ import com.findteam.findteam.dto.UpdateContactInfoRequest;
 import com.findteam.findteam.dto.PublicUserProfileResponse;
 import com.findteam.findteam.dto.UpdateUserProfileRequest;
 import com.findteam.findteam.dto.UserProfileResponse;
+import com.findteam.findteam.exception.InvalidInterestedStacksException;
 import com.findteam.findteam.exception.NicknameAlreadyTakenException;
 import com.findteam.findteam.exception.UserAlreadyExistsException;
 import com.findteam.findteam.exception.UserNotFoundException;
@@ -15,16 +16,24 @@ import com.findteam.findteam.model.PreferredLanguage;
 import com.findteam.findteam.model.User;
 import com.findteam.findteam.model.UserStatus;
 import com.findteam.findteam.repository.UserRepository;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
 
-	private final UserRepository userRepository;
+	private static final int MAX_INTERESTED_STACKS = 10;
 
-	public UserService(UserRepository userRepository) {
+	private final UserRepository userRepository;
+	private final TechnologyInterestMatcher technologyInterestMatcher;
+
+	public UserService(UserRepository userRepository, TechnologyInterestMatcher technologyInterestMatcher) {
 		this.userRepository = userRepository;
+		this.technologyInterestMatcher = technologyInterestMatcher;
 	}
 
 	@Transactional
@@ -34,6 +43,7 @@ public class UserService {
 		registerRequest.setNickname(request.getNickname());
 		registerRequest.setBio(request.getBio());
 		registerRequest.setStack(request.getStack());
+		registerRequest.setInterestedStacks(request.getInterestedStacks());
 		registerRequest.setGithubUrl(request.getGithubUrl());
 		registerRequest.setStatus(request.getStatus());
 		registerRequest.setPreferredLanguage(request.getPreferredLanguage());
@@ -56,6 +66,7 @@ public class UserService {
 		user.setNickname(request.getNickname());
 		user.setBio(request.getBio());
 		user.setStack(request.getStack());
+		user.setInterestedStacks(normalizeInterestedStacks(request.getInterestedStacks()));
 		user.setGithubUrl(request.getGithubUrl());
 		user.setStatus(resolveStatus(request.getStatus()));
 		user.setPreferredLanguage(request.getPreferredLanguage());
@@ -71,6 +82,7 @@ public class UserService {
 		registerRequest.setNickname(request.getNickname());
 		registerRequest.setBio(request.getBio());
 		registerRequest.setStack(request.getStack());
+		registerRequest.setInterestedStacks(request.getInterestedStacks());
 		registerRequest.setGithubUrl(request.getGithubUrl());
 		registerRequest.setStatus(request.getStatus());
 		registerRequest.setPreferredLanguage(request.getPreferredLanguage());
@@ -99,6 +111,7 @@ public class UserService {
 		user.setNickname(request.getNickname());
 		user.setBio(request.getBio());
 		user.setStack(request.getStack());
+		user.setInterestedStacks(normalizeInterestedStacks(request.getInterestedStacks()));
 		user.setGithubUrl(request.getGithubUrl());
 		user.setStatus(request.getStatus() == null ? resolveStatus(user.getStatus()) : request.getStatus());
 
@@ -106,6 +119,7 @@ public class UserService {
 		return toUserProfileResponse(saved);
 	}
 
+	@Transactional(readOnly = true)
 	public UserProfileResponse getByTelegramId(Long telegramId) {
 		return userRepository.findByTelegramId(telegramId)
 				.map(this::toUserProfileResponse)
@@ -143,6 +157,7 @@ public class UserService {
 		response.setNickname(user.getNickname());
 		response.setBio(user.getBio());
 		response.setStack(user.getStack());
+		response.setInterestedStacks(List.copyOf(user.getInterestedStacks()));
 		response.setGithubUrl(user.getGithubUrl());
 		response.setStatus(resolveStatus(user.getStatus()));
 		response.setCreatedAt(user.getCreatedAt());
@@ -156,6 +171,7 @@ public class UserService {
 		response.setNickname(user.getNickname());
 		response.setBio(user.getBio());
 		response.setStack(user.getStack());
+		response.setInterestedStacks(List.copyOf(user.getInterestedStacks()));
 		response.setGithubUrl(user.getGithubUrl());
 		response.setStatus(resolveStatus(user.getStatus()));
 		response.setCreatedAt(user.getCreatedAt());
@@ -164,6 +180,27 @@ public class UserService {
 
 	private UserStatus resolveStatus(UserStatus status) {
 		return status == null ? UserStatus.OPEN_TO_OFFERS : status;
+	}
+
+	private List<String> normalizeInterestedStacks(List<String> interestedStacks) {
+		if (interestedStacks == null) {
+			return new ArrayList<>();
+		}
+		Set<String> seen = new LinkedHashSet<>();
+		List<String> normalized = new ArrayList<>();
+		for (String value : interestedStacks) {
+			if (value == null || value.isBlank()) {
+				continue;
+			}
+			String trimmed = value.trim();
+			if (seen.add(technologyInterestMatcher.normalize(trimmed))) {
+				normalized.add(trimmed);
+			}
+		}
+		if (normalized.size() > MAX_INTERESTED_STACKS) {
+			throw new InvalidInterestedStacksException("interestedStacks must contain at most 10 items");
+		}
+		return normalized;
 	}
 
 	private ContactInfoResponse toContactInfoResponse(User user) {

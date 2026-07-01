@@ -6,6 +6,7 @@ export interface CreateUserProfileRequest {
   nickname: string;
   bio?: string;
   stack: string;
+  interestedStacks?: string[];
   githubUrl?: string;
   status?: UserStatus;
   preferredLanguage?: PreferredLanguage | null;
@@ -16,6 +17,7 @@ export interface RegisterUserRequest {
   nickname: string;
   bio?: string;
   stack: string;
+  interestedStacks?: string[];
   githubUrl?: string;
   status?: UserStatus;
   preferredLanguage?: PreferredLanguage | null;
@@ -25,6 +27,7 @@ export interface RegisterCurrentUserRequest {
   nickname: string;
   bio?: string;
   stack: string;
+  interestedStacks?: string[];
   githubUrl?: string;
   status?: UserStatus;
   preferredLanguage?: PreferredLanguage | null;
@@ -34,6 +37,7 @@ export interface UpdateUserProfileRequest {
   nickname: string;
   bio?: string;
   stack: string;
+  interestedStacks?: string[];
   githubUrl?: string;
   status?: UserStatus;
 }
@@ -44,6 +48,7 @@ export interface UserProfileResponse {
   nickname: string;
   bio?: string;
   stack: string;
+  interestedStacks: string[];
   githubUrl?: string;
   status: UserStatus;
   createdAt: string;
@@ -56,6 +61,7 @@ export interface PublicUserProfileResponse {
   nickname: string;
   bio?: string;
   stack: string;
+  interestedStacks: string[];
   githubUrl?: string;
   status: UserStatus;
   createdAt: string;

@@ -29,6 +29,7 @@ export function OnboardingProfilePage({ telegramId, nicknameSuggestion, onCreate
       nickname: sanitizeNicknameSuggestion(nicknameSuggestion),
       bio: '',
       stack: '',
+      interestedStacks: [],
       githubUrl: '',
       status: 'OPEN_TO_OFFERS' as const,
     }),

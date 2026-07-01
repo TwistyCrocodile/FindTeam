@@ -17,14 +17,15 @@ import com.findteam.findteam.model.PostStatus;
 import com.findteam.findteam.model.PreferredLanguage;
 import com.findteam.findteam.model.User;
 import com.findteam.findteam.model.UserStatus;
+import com.findteam.findteam.notification.ApplicationAcceptedNotification;
+import com.findteam.findteam.notification.ApplicationRejectedNotification;
+import com.findteam.findteam.notification.NewApplicationNotification;
 import com.findteam.findteam.repository.ApplicationRepository;
 import com.findteam.findteam.repository.PostRepository;
 import com.findteam.findteam.repository.UserRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
 public class ApplicationService {
@@ -32,17 +33,20 @@ public class ApplicationService {
 	private final ApplicationRepository applicationRepository;
 	private final PostRepository postRepository;
 	private final UserRepository userRepository;
-	private final TelegramNotificationService telegramNotificationService;
+	private final NotificationService notificationService;
+	private final TransactionAfterCommitService transactionAfterCommitService;
 
 	public ApplicationService(
 			ApplicationRepository applicationRepository,
 			PostRepository postRepository,
 			UserRepository userRepository,
-			TelegramNotificationService telegramNotificationService) {
+			NotificationService notificationService,
+			TransactionAfterCommitService transactionAfterCommitService) {
 		this.applicationRepository = applicationRepository;
 		this.postRepository = postRepository;
 		this.userRepository = userRepository;
-		this.telegramNotificationService = telegramNotificationService;
+		this.notificationService = notificationService;
+		this.transactionAfterCommitService = transactionAfterCommitService;
 	}
 
 	@Transactional
@@ -86,7 +90,7 @@ public class ApplicationService {
 		String applicantNickname = applicant.getNickname();
 		String applicantTelegramUsername = applicant.getContactTelegramUsername();
 		String applicantStack = applicant.getStack();
-		Runnable notification = () -> telegramNotificationService.notifyNewApplication(
+		NewApplicationNotification notification = new NewApplicationNotification(
 				authorTelegramId,
 				recipientLanguage,
 				applicantTelegramId,
@@ -96,21 +100,7 @@ public class ApplicationService {
 				applicantTelegramUsername,
 				applicantStack);
 
-		runAfterCommit(notification);
-	}
-
-	private void runAfterCommit(Runnable action) {
-		if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-			action.run();
-			return;
-		}
-
-		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-			@Override
-			public void afterCommit() {
-				action.run();
-			}
-		});
+		transactionAfterCommitService.runAfterCommit(() -> notificationService.notifyNewApplication(notification));
 	}
 
 	@Transactional(readOnly = true)
@@ -164,7 +154,7 @@ public class ApplicationService {
 		String authorTelegramUsername = author.getContactTelegramUsername();
 		Runnable notification = () -> {
 			if (status == ApplicationStatus.ACCEPTED) {
-				telegramNotificationService.notifyApplicationAccepted(
+				notificationService.notifyApplicationAccepted(new ApplicationAcceptedNotification(
 						authorTelegramId,
 						recipientLanguage,
 						applicantTelegramId,
@@ -172,19 +162,19 @@ public class ApplicationService {
 						applicationId,
 						postTitle,
 						authorNickname,
-						authorTelegramUsername);
+						authorTelegramUsername));
 				return;
 			}
-			telegramNotificationService.notifyApplicationRejected(
+			notificationService.notifyApplicationRejected(new ApplicationRejectedNotification(
 					authorTelegramId,
 					recipientLanguage,
 					applicantTelegramId,
 					postId,
 					applicationId,
-					postTitle);
+					postTitle));
 		};
 
-		runAfterCommit(notification);
+		transactionAfterCommitService.runAfterCommit(notification);
 	}
 
 	@Transactional(readOnly = true)

@@ -36,14 +36,20 @@ public class PostService {
 	private final UserRepository userRepository;
 	private final PostRepository postRepository;
 	private final ApplicationRepository applicationRepository;
+	private final MatchingPostNotificationService matchingPostNotificationService;
+	private final TransactionAfterCommitService transactionAfterCommitService;
 
 	public PostService(
 			UserRepository userRepository,
 			PostRepository postRepository,
-			ApplicationRepository applicationRepository) {
+			ApplicationRepository applicationRepository,
+			MatchingPostNotificationService matchingPostNotificationService,
+			TransactionAfterCommitService transactionAfterCommitService) {
 		this.userRepository = userRepository;
 		this.postRepository = postRepository;
 		this.applicationRepository = applicationRepository;
+		this.matchingPostNotificationService = matchingPostNotificationService;
+		this.transactionAfterCommitService = transactionAfterCommitService;
 	}
 
 	@Transactional
@@ -93,7 +99,17 @@ public class PostService {
 		post.setEventLink(eventLink);
 
 		Post saved = postRepository.save(post);
+		notifyInterestedUsersAfterCommit(saved);
 		return toPostResponse(saved);
+	}
+
+	private void notifyInterestedUsersAfterCommit(Post post) {
+		Long postId = post.getId();
+		String title = post.getTitle();
+		String stack = post.getStack();
+		Long authorTelegramId = post.getAuthor().getTelegramId();
+		transactionAfterCommitService.runAfterCommit(
+				() -> matchingPostNotificationService.notifyInterestedUsers(postId, title, stack, authorTelegramId));
 	}
 
 	/**

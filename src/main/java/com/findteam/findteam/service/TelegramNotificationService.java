@@ -1,6 +1,5 @@
 package com.findteam.findteam.service;
 
-import com.findteam.findteam.model.PreferredLanguage;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
@@ -15,64 +14,24 @@ public class TelegramNotificationService {
 	private static final Logger log = LoggerFactory.getLogger(TelegramNotificationService.class);
 
 	private final ObjectProvider<TelegramBot> telegramBotProvider;
-	private final TelegramNotificationMessages telegramNotificationMessages;
 
-	public TelegramNotificationService(
-			ObjectProvider<TelegramBot> telegramBotProvider,
-			TelegramNotificationMessages telegramNotificationMessages) {
+	public TelegramNotificationService(ObjectProvider<TelegramBot> telegramBotProvider) {
 		this.telegramBotProvider = telegramBotProvider;
-		this.telegramNotificationMessages = telegramNotificationMessages;
 	}
 
-	public void notifyNewApplication(
+	public void sendMessage(
+			Long recipientTelegramId,
+			String message,
+			String notificationType,
 			Long authorTelegramId,
-			PreferredLanguage recipientLanguage,
 			Long applicantTelegramId,
 			Long postId,
-			String postTitle,
-			String applicantNickname,
-			String applicantTelegramUsername,
-			String applicantStack) {
+			Long applicationId) {
 		TelegramBot telegramBot = telegramBotProvider.getIfAvailable();
 		if (telegramBot == null) {
 			log.info(
-					"Telegram new application notification skipped because bot is not configured: authorTelegramId={}, applicantTelegramId={}, postId={}",
-					authorTelegramId,
-					applicantTelegramId,
-					postId);
-			return;
-		}
-
-		String applicantName = resolveApplicantName(applicantNickname, applicantTelegramUsername);
-		String message = telegramNotificationMessages.buildNewApplicationMessage(
-				recipientLanguage,
-				postTitle,
-				applicantName,
-				applicantStack);
-		sendMessage(
-				telegramBot,
-				authorTelegramId,
-				authorTelegramId,
-				applicantTelegramId,
-				postId,
-				null,
-				message,
-				"new application");
-	}
-
-	public void notifyApplicationAccepted(
-			Long authorTelegramId,
-			PreferredLanguage recipientLanguage,
-			Long applicantTelegramId,
-			Long postId,
-			Long applicationId,
-			String postTitle,
-			String authorNickname,
-			String authorTelegramUsername) {
-		TelegramBot telegramBot = telegramBotProvider.getIfAvailable();
-		if (telegramBot == null) {
-			log.info(
-					"Telegram application accepted notification skipped because bot is not configured: authorTelegramId={}, applicantTelegramId={}, postId={}, applicationId={}",
+					"Telegram {} notification skipped because bot is not configured: authorTelegramId={}, applicantTelegramId={}, postId={}, applicationId={}",
+					notificationType,
 					authorTelegramId,
 					applicantTelegramId,
 					postId,
@@ -80,50 +39,15 @@ public class TelegramNotificationService {
 			return;
 		}
 
-		String authorName = resolveUserName(authorNickname, authorTelegramUsername);
-		String message = telegramNotificationMessages.buildApplicationAcceptedMessage(
-				recipientLanguage,
-				postTitle,
-				authorName);
 		sendMessage(
 				telegramBot,
-				applicantTelegramId,
+				recipientTelegramId,
 				authorTelegramId,
 				applicantTelegramId,
 				postId,
 				applicationId,
 				message,
-				"application accepted");
-	}
-
-	public void notifyApplicationRejected(
-			Long authorTelegramId,
-			PreferredLanguage recipientLanguage,
-			Long applicantTelegramId,
-			Long postId,
-			Long applicationId,
-			String postTitle) {
-		TelegramBot telegramBot = telegramBotProvider.getIfAvailable();
-		if (telegramBot == null) {
-			log.info(
-					"Telegram application rejected notification skipped because bot is not configured: authorTelegramId={}, applicantTelegramId={}, postId={}, applicationId={}",
-					authorTelegramId,
-					applicantTelegramId,
-					postId,
-					applicationId);
-			return;
-		}
-
-		String message = telegramNotificationMessages.buildApplicationRejectedMessage(recipientLanguage, postTitle);
-		sendMessage(
-				telegramBot,
-				applicantTelegramId,
-				authorTelegramId,
-				applicantTelegramId,
-				postId,
-				applicationId,
-				message,
-				"application rejected");
+				notificationType);
 	}
 
 	private void sendMessage(
@@ -170,22 +94,4 @@ public class TelegramNotificationService {
 		}
 	}
 
-	private String resolveApplicantName(String nickname, String telegramUsername) {
-		return resolveUserName(nickname, telegramUsername);
-	}
-
-	private String resolveUserName(String nickname, String telegramUsername) {
-		if (hasText(nickname)) {
-			return nickname.trim();
-		}
-		if (hasText(telegramUsername)) {
-			String normalized = telegramUsername.trim();
-			return normalized.startsWith("@") ? normalized : "@" + normalized;
-		}
-		return "";
-	}
-
-	private boolean hasText(String value) {
-		return value != null && !value.isBlank();
-	}
 }

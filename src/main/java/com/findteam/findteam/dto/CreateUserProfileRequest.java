@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 import lombok.Data;
 
 @Data
@@ -32,6 +33,8 @@ public class CreateUserProfileRequest {
 	@NotBlank(message = "stack must not be blank")
 	@Size(max = 500, message = "stack must be at most 500 characters")
 	private String stack;
+
+	private List<@Size(max = 64, message = "interestedStacks item must be at most 64 characters") String> interestedStacks;
 
 	/**
 	 * Optional profile link. Empty or omitted is allowed; when set, must look like an http(s) URL.
