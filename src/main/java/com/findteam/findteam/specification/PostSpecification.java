@@ -5,6 +5,7 @@ import com.findteam.findteam.model.PostGoal;
 import com.findteam.findteam.model.PostLanguage;
 import com.findteam.findteam.model.PostStatus;
 import com.findteam.findteam.model.PostType;
+import com.findteam.findteam.model.UserStatus;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
@@ -28,5 +29,19 @@ public final class PostSpecification {
 
 	public static Specification<Post> hasLanguage(PostLanguage language) {
 		return (root, query, cb) -> language == null ? cb.conjunction() : cb.equal(root.get("language"), language);
+	}
+
+	public static Specification<Post> hasAuthorStatus(UserStatus authorStatus) {
+		return (root, query, cb) -> {
+			if (authorStatus == null) {
+				return cb.conjunction();
+			}
+			if (authorStatus == UserStatus.OPEN_TO_OFFERS) {
+				return cb.or(
+						cb.equal(root.get("author").get("status"), authorStatus),
+						cb.isNull(root.get("author").get("status")));
+			}
+			return cb.equal(root.get("author").get("status"), authorStatus);
+		};
 	}
 }

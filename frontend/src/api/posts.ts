@@ -8,6 +8,7 @@ import type {
   PostStatus,
   PostType,
 } from '../types/post';
+import type { UserStatus } from '../types/user';
 import { apiError, apiFetch, apiUrl, parseErrorMessage } from './client';
 
 export interface PostFilters {
@@ -15,6 +16,7 @@ export interface PostFilters {
   goal?: PostGoal;
   language?: PostLanguage;
   status?: PostStatus;
+  authorStatus?: UserStatus;
 }
 
 /**
@@ -30,6 +32,7 @@ export async function getPosts(
   if (filters.goal) params.set('goal', filters.goal);
   if (filters.language) params.set('language', filters.language);
   if (filters.status) params.set('status', filters.status);
+  if (filters.authorStatus) params.set('authorStatus', filters.authorStatus);
   params.set('page', String(page));
   params.set('size', String(size));
 

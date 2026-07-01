@@ -10,6 +10,7 @@ import com.findteam.findteam.model.PostGoal;
 import com.findteam.findteam.model.PostLanguage;
 import com.findteam.findteam.model.PostStatus;
 import com.findteam.findteam.model.PostType;
+import com.findteam.findteam.model.UserStatus;
 import com.findteam.findteam.service.ApplicationService;
 import com.findteam.findteam.service.CurrentTelegramUserService;
 import com.findteam.findteam.service.PostService;
@@ -67,9 +68,10 @@ public class PostController {
 			@RequestParam(required = false) PostGoal goal,
 			@RequestParam(required = false) PostLanguage language,
 			@RequestParam(required = false) PostStatus status,
+			@RequestParam(required = false) UserStatus authorStatus,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size) {
-		return ResponseEntity.ok(postService.getFilteredPosts(type, goal, language, status, page, size));
+		return ResponseEntity.ok(postService.getFilteredPosts(type, goal, language, status, authorStatus, page, size));
 	}
 
 	@GetMapping("/me")

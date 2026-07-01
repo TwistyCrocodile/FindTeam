@@ -2,10 +2,17 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getApplicationsByApplicantAuthAware } from '../api/applications';
 import { getPosts } from '../api/posts';
 import { getFriendlyErrorMessage } from '../app/errors';
-import { getPostGoalLabel, getPostLanguageLabel, getPostStatusLabel, getPostTypeLabel } from '../app/translations';
+import {
+  getPostGoalLabel,
+  getPostLanguageLabel,
+  getPostStatusLabel,
+  getPostTypeLabel,
+  getUserStatusLabel,
+} from '../app/translations';
 import { PostCard } from '../components/PostCard';
 import { useLanguage } from '../hooks/useLanguage';
 import type { PostGoal, PostLanguage, PostResponse, PostStatus, PostType } from '../types/post';
+import type { UserStatus } from '../types/user';
 import './FeedPage.css';
 
 const PAGE_SIZE = 10;
@@ -45,6 +52,7 @@ export function FeedPage({
   const [filterLanguage, setFilterLanguage] = useState<PostLanguage | ''>('');
   // Product direction: default to ACTIVE-first when user hasn't explicitly changed it.
   const [filterStatus, setFilterStatus] = useState<PostStatus | ''>('ACTIVE');
+  const [filterAuthorStatus, setFilterAuthorStatus] = useState<UserStatus | ''>('');
 
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [page, setPage] = useState(0);
@@ -77,8 +85,9 @@ export function FeedPage({
       goal: filterGoal || undefined,
       language: filterLanguage || undefined,
       status: filterStatus || undefined,
+      authorStatus: filterAuthorStatus || undefined,
     }),
-    [filterType, filterGoal, filterLanguage, filterStatus],
+    [filterType, filterGoal, filterLanguage, filterStatus, filterAuthorStatus],
   );
 
   const refreshFirstPage = useCallback(async () => {
@@ -173,6 +182,16 @@ export function FeedPage({
             <option value="">{t.common.all}</option>
             <option value="ACTIVE">{getPostStatusLabel(t, 'ACTIVE')}</option>
             <option value="CLOSED">{getPostStatusLabel(t, 'CLOSED')}</option>
+          </select>
+        </label>
+        <label className="feed__filter">
+          <span>{t.feed.authorStatus}</span>
+          <select value={filterAuthorStatus} onChange={(e) => setFilterAuthorStatus(e.target.value as UserStatus | '')}>
+            <option value="">{t.feed.anyStatus}</option>
+            <option value="LOOKING_FOR_TEAM">{getUserStatusLabel(t, 'LOOKING_FOR_TEAM')}</option>
+            <option value="LOOKING_FOR_PROJECT">{getUserStatusLabel(t, 'LOOKING_FOR_PROJECT')}</option>
+            <option value="OPEN_TO_OFFERS">{getUserStatusLabel(t, 'OPEN_TO_OFFERS')}</option>
+            <option value="BUSY">{getUserStatusLabel(t, 'BUSY')}</option>
           </select>
         </label>
         <label className="feed__filter">

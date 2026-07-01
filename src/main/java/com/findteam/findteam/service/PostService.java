@@ -106,6 +106,7 @@ public class PostService {
 			PostGoal goal,
 			PostLanguage language,
 			PostStatus status,
+			UserStatus authorStatus,
 			int page,
 			int size) {
 		if (page < 0) {
@@ -119,7 +120,8 @@ public class PostService {
 		Specification<Post> spec = Specification.where(PostSpecification.hasType(type))
 				.and(PostSpecification.hasGoal(goal))
 				.and(PostSpecification.hasLanguage(language))
-				.and(PostSpecification.hasStatus(status));
+				.and(PostSpecification.hasStatus(status))
+				.and(PostSpecification.hasAuthorStatus(authorStatus));
 
 		Pageable pageable = PageRequest.of(page, effectiveSize, Sort.by(Sort.Direction.DESC, "createdAt"));
 		Page<Post> result = postRepository.findAll(spec, pageable);
