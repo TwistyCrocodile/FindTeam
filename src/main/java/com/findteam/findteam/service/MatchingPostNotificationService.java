@@ -27,6 +27,12 @@ public class MatchingPostNotificationService {
 	@Transactional(readOnly = true)
 	public void notifyInterestedUsers(Long postId, String postTitle, String postStack, Long authorTelegramId) {
 		Set<String> stackTokens = technologyInterestMatcher.tokenize(postStack);
+		notifyInterestedUsersForStackTokens(postId, postTitle, stackTokens, authorTelegramId);
+	}
+
+	@Transactional(readOnly = true)
+	public void notifyInterestedUsersForStackTokens(
+			Long postId, String postTitle, Set<String> stackTokens, Long authorTelegramId) {
 		if (stackTokens.isEmpty()) {
 			return;
 		}

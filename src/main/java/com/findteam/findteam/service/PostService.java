@@ -19,7 +19,9 @@ import com.findteam.findteam.repository.ApplicationRepository;
 import com.findteam.findteam.repository.PostRepository;
 import com.findteam.findteam.repository.UserRepository;
 import com.findteam.findteam.specification.PostSpecification;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,18 +40,21 @@ public class PostService {
 	private final ApplicationRepository applicationRepository;
 	private final MatchingPostNotificationService matchingPostNotificationService;
 	private final TransactionAfterCommitService transactionAfterCommitService;
+	private final TechnologyInterestMatcher technologyInterestMatcher;
 
 	public PostService(
 			UserRepository userRepository,
 			PostRepository postRepository,
 			ApplicationRepository applicationRepository,
 			MatchingPostNotificationService matchingPostNotificationService,
-			TransactionAfterCommitService transactionAfterCommitService) {
+			TransactionAfterCommitService transactionAfterCommitService,
+			TechnologyInterestMatcher technologyInterestMatcher) {
 		this.userRepository = userRepository;
 		this.postRepository = postRepository;
 		this.applicationRepository = applicationRepository;
 		this.matchingPostNotificationService = matchingPostNotificationService;
 		this.transactionAfterCommitService = transactionAfterCommitService;
+		this.technologyInterestMatcher = technologyInterestMatcher;
 	}
 
 	@Transactional
@@ -195,6 +200,7 @@ public class PostService {
 	public PostResponse updatePost(Long postId, Long requesterTelegramId, CreateCurrentUserPostRequest request) {
 		Post post = getPostOrThrow(postId);
 		assertRequesterIsOwner(post, requesterTelegramId);
+		Set<String> oldStackTokens = technologyInterestMatcher.tokenize(post.getStack());
 		post.setType(request.getType());
 		post.setTitle(request.getTitle());
 		post.setDescription(request.getDescription());
@@ -202,7 +208,23 @@ public class PostService {
 		post.setStack(request.getStack());
 		post.setGoal(request.getGoal());
 		post.setEventLink(request.getEventLink());
-		return toPostResponse(postRepository.save(post));
+		Post saved = postRepository.save(post);
+		notifyInterestedUsersForAddedStackTokensAfterCommit(saved, oldStackTokens);
+		return toPostResponse(saved);
+	}
+
+	private void notifyInterestedUsersForAddedStackTokensAfterCommit(Post post, Set<String> oldStackTokens) {
+		Set<String> addedStackTokens = new LinkedHashSet<>(technologyInterestMatcher.tokenize(post.getStack()));
+		addedStackTokens.removeAll(oldStackTokens);
+		if (addedStackTokens.isEmpty()) {
+			return;
+		}
+
+		Long postId = post.getId();
+		String title = post.getTitle();
+		Long authorTelegramId = post.getAuthor().getTelegramId();
+		transactionAfterCommitService.runAfterCommit(() -> matchingPostNotificationService
+				.notifyInterestedUsersForStackTokens(postId, title, addedStackTokens, authorTelegramId));
 	}
 
 	@Transactional
