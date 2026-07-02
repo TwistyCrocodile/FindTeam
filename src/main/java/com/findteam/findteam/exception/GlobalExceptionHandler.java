@@ -1,10 +1,15 @@
 package com.findteam.findteam.exception;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -22,6 +27,26 @@ public class GlobalExceptionHandler {
 		String detail = value != null ? " (received: " + value + ")" : "";
 		String message = "Invalid value for parameter '" + name + "'" + detail;
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error(message));
+	}
+
+	/** Invalid JSON body values, including enum literals such as {@code goal}. */
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+		if (ex.getCause() instanceof InvalidFormatException invalidFormat
+				&& invalidFormat.getTargetType().isEnum()) {
+			String field = invalidFormat.getPath().stream()
+					.map(JsonMappingException.Reference::getFieldName)
+					.filter(name -> name != null && !name.isBlank())
+					.reduce((first, second) -> second)
+					.orElse("field");
+			String allowedValues = Arrays.stream(invalidFormat.getTargetType().getEnumConstants())
+					.map(Object::toString)
+					.collect(Collectors.joining(", "));
+			String message = "Invalid value for field '" + field + "' (received: " + invalidFormat.getValue()
+					+ "). Allowed values: " + allowedValues;
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error(message));
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error("Invalid request body value"));
 	}
 
 	@ExceptionHandler(InvalidPaginationException.class)
