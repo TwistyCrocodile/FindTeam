@@ -16,6 +16,14 @@ spring:
 
 telegram:
   bot-token: ${TELEGRAM_BOT_TOKEN:}
+  mini-app-url: ${TELEGRAM_MINI_APP_URL:}
+  long-polling:
+    enabled: ${TELEGRAM_LONG_POLLING_ENABLED:true}
+
+findteam:
+  broadcast:
+    reddit-games-with-hook:
+      enabled: false
 
 ---
 

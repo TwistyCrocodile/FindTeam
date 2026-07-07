@@ -14,6 +14,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 	Optional<User> findByNickname(String nickname);
 
+	@Query("""
+			select distinct u.telegramId
+			from User u
+			where u.telegramId is not null
+			and u.telegramId > 0
+			""")
+	List<Long> findDistinctValidTelegramIds();
+
 	@EntityGraph(attributePaths = "interestedStacks")
 	@Query("""
 			select distinct u

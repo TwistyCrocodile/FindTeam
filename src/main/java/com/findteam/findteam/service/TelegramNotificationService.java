@@ -1,6 +1,7 @@
 package com.findteam.findteam.service;
 
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
 import org.slf4j.Logger;
@@ -19,6 +20,10 @@ public class TelegramNotificationService {
 		this.telegramBotProvider = telegramBotProvider;
 	}
 
+	public boolean isConfigured() {
+		return telegramBotProvider.getIfAvailable() != null;
+	}
+
 	public void sendMessage(
 			Long recipientTelegramId,
 			String message,
@@ -27,6 +32,26 @@ public class TelegramNotificationService {
 			Long applicantTelegramId,
 			Long postId,
 			Long applicationId) {
+		sendMessageWithResult(
+				recipientTelegramId,
+				message,
+				notificationType,
+				authorTelegramId,
+				applicantTelegramId,
+				postId,
+				applicationId,
+				null);
+	}
+
+	public SendResult sendMessageWithResult(
+			Long recipientTelegramId,
+			String message,
+			String notificationType,
+			Long authorTelegramId,
+			Long applicantTelegramId,
+			Long postId,
+			Long applicationId,
+			InlineKeyboardMarkup replyMarkup) {
 		TelegramBot telegramBot = telegramBotProvider.getIfAvailable();
 		if (telegramBot == null) {
 			log.info(
@@ -36,10 +61,10 @@ public class TelegramNotificationService {
 					applicantTelegramId,
 					postId,
 					applicationId);
-			return;
+			return SendResult.FAILED;
 		}
 
-		sendMessage(
+		return sendMessage(
 				telegramBot,
 				recipientTelegramId,
 				authorTelegramId,
@@ -47,10 +72,11 @@ public class TelegramNotificationService {
 				postId,
 				applicationId,
 				message,
-				notificationType);
+				notificationType,
+				replyMarkup);
 	}
 
-	private void sendMessage(
+	private SendResult sendMessage(
 			TelegramBot telegramBot,
 			Long recipientTelegramId,
 			Long authorTelegramId,
@@ -58,9 +84,13 @@ public class TelegramNotificationService {
 			Long postId,
 			Long applicationId,
 			String message,
-			String notificationType) {
+			String notificationType,
+			InlineKeyboardMarkup replyMarkup) {
 		try {
 			SendMessage request = new SendMessage((Object) recipientTelegramId, message);
+			if (replyMarkup != null) {
+				request.replyMarkup(replyMarkup);
+			}
 			BaseResponse response = telegramBot.execute(request);
 			if (!response.isOk()) {
 				log.warn(
@@ -72,7 +102,7 @@ public class TelegramNotificationService {
 						applicationId,
 						response.errorCode(),
 						response.description());
-				return;
+				return SendResult.FAILED;
 			}
 			log.info(
 					"Telegram {} notification sent: authorTelegramId={}, applicantTelegramId={}, postId={}, applicationId={}",
@@ -81,6 +111,7 @@ public class TelegramNotificationService {
 					applicantTelegramId,
 					postId,
 					applicationId);
+			return SendResult.SENT;
 		} catch (Exception ex) {
 			log.warn(
 					"Telegram {} notification failed: authorTelegramId={}, applicantTelegramId={}, postId={}, applicationId={}, exception={}, message={}",
@@ -91,7 +122,12 @@ public class TelegramNotificationService {
 					applicationId,
 					ex.getClass().getSimpleName(),
 					ex.getMessage());
+			return SendResult.FAILED;
 		}
 	}
 
+	public enum SendResult {
+		SENT,
+		FAILED
+	}
 }
