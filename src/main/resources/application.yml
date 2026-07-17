@@ -24,6 +24,8 @@ findteam:
   broadcast:
     reddit-games-with-hook:
       enabled: false
+    prometheus-july-ai:
+      enabled: false
 
 ---
 
