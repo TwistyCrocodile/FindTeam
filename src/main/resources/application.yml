@@ -26,6 +26,8 @@ findteam:
       enabled: false
     prometheus-july-ai:
       enabled: false
+    prometheus-july-ai-link:
+      enabled: false
 
 ---
 
