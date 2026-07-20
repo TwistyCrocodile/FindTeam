@@ -22,6 +22,8 @@ telegram:
 
 findteam:
   broadcast:
+    volthacks-2026:
+      enabled: false
     reddit-games-with-hook:
       enabled: false
     prometheus-july-ai:
