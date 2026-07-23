@@ -60,7 +60,7 @@ public class UserController {
 			@RequestHeader(name = "X-Telegram-Init-Data", required = false) String initData,
 			@Valid @RequestBody RegisterCurrentUserRequest request) {
 		TelegramAuthUser authUser = currentTelegramUserService.resolve(initData);
-		UserProfileResponse body = userService.registerCurrentUser(authUser.telegramId(), request);
+		UserProfileResponse body = userService.registerCurrentUser(authUser, request);
 		return ResponseEntity.status(HttpStatus.CREATED).body(body);
 	}
 

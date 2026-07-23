@@ -14,11 +14,8 @@ public class RegisterCurrentUserRequest {
 	/**
 	 * Public nickname (unique) shown inside the app.
 	 * Allowed characters: letters, numbers, underscore, dot.
+	 * Kept for backward-compatible request bodies; authenticated registration derives this from verified Telegram data.
 	 */
-	@NotBlank(message = "nickname must not be blank")
-	@Pattern(
-			regexp = "^[A-Za-z0-9_.]{3,32}$",
-			message = "nickname must be 3..32 characters and contain only letters, numbers, underscore, dot")
 	private String nickname;
 
 	/** Optional short description. */

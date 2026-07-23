@@ -22,7 +22,7 @@ export function HomePage() {
   const { user, initData } = useTelegramEnvironment();
 
   const telegramId = useMemo(() => user?.id ?? FALLBACK_TELEGRAM_ID, [user?.id]);
-  const nicknameSuggestion = user?.username ?? null;
+  const nicknameSuggestion = user?.username ?? user?.firstName ?? null;
 
   const [profileStatus, setProfileStatus] = useState<'loading' | 'onboarding' | 'ready'>('loading');
   const [profile, setProfile] = useState<UserProfileResponse | null>(null);

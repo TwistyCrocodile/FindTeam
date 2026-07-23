@@ -48,6 +48,7 @@ export function OnboardingPage({ telegramId, initData, nicknameSuggestion, onCre
       <UserProfileForm
         initialValues={initialValues}
         submitLabel={t.onboarding.createProfile}
+        nicknameOptional={Boolean(initData)}
         loading={loading}
         serverError={serverError}
         onSubmit={async (values) => {

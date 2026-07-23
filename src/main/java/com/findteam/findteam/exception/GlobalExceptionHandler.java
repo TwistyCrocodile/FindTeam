@@ -124,6 +124,11 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error(ex.getMessage()));
 	}
 
+	@ExceptionHandler(InvalidTelegramRegistrationException.class)
+	public ResponseEntity<ErrorResponse> handleInvalidTelegramRegistration(InvalidTelegramRegistrationException ex) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error(ex.getMessage()));
+	}
+
 	@ExceptionHandler(ContactNotAvailableException.class)
 	public ResponseEntity<ErrorResponse> handleContactNotAvailable(ContactNotAvailableException ex) {
 		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error(ex.getMessage()));

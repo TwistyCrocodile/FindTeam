@@ -25,6 +25,7 @@ type Props = {
   submitLabel: string;
   loading?: boolean;
   serverError?: string | null;
+  nicknameOptional?: boolean;
   onSubmit: (values: Omit<CreateUserProfileRequest, 'telegramId'>) => Promise<void>;
 };
 
@@ -44,7 +45,7 @@ function validateGithubUrl(value: string, messages: { httpUrl: string; validUrl:
   }
 }
 
-export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading, serverError }: Props) {
+export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading, serverError, nicknameOptional = false }: Props) {
   const { t } = useLanguage();
   const [nickname, setNickname] = useState(initialValues.nickname);
   const [bio, setBio] = useState(initialValues.bio);
@@ -100,8 +101,10 @@ export function UserProfileForm({ initialValues, submitLabel, onSubmit, loading,
 
   function validate(): string | null {
     const n = nickname.trim();
-    if (!n) return t.profile.nicknameRequired;
-    if (!nicknamePattern.test(n)) return t.profile.nicknameInvalid;
+    if (!nicknameOptional || n) {
+      if (!n) return t.profile.nicknameRequired;
+      if (!nicknamePattern.test(n)) return t.profile.nicknameInvalid;
+    }
     if (!stack.trim()) return t.createPost.stackRequired;
     if (bio.length > BIO_MAX_LENGTH) return t.profile.bioTooLong;
     if (stack.length > STACK_MAX_LENGTH) return t.profile.stackTooLong;

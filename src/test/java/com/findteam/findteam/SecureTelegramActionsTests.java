@@ -1,6 +1,7 @@
 package com.findteam.findteam;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -267,6 +268,147 @@ class SecureTelegramActionsTests {
 				.andExpect(status().isConflict());
 	}
 
+	@Test
+	void currentUserRegistrationInitializesNicknameAndTelegramContactFromUsername() throws Exception {
+		String initData = validInitData(1601L, "telegram_user", "Telegram");
+
+		mockMvc.perform(post("/api/users/me/register")
+						.header(INIT_DATA_HEADER, initData)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{
+								  "stack": "Java",
+								  "nickname": "ignored_client_value"
+								}
+								"""))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.telegramId", is(1601)))
+				.andExpect(jsonPath("$.nickname", is("telegram_user")));
+
+		mockMvc.perform(get("/api/users/me/contact")
+						.header(INIT_DATA_HEADER, initData))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.contactTelegramUsername", is("telegram_user")));
+	}
+
+	@Test
+	void currentUserRegistrationFallsBackToFirstNameWithoutTelegramContact() throws Exception {
+		String initData = validInitData(1602L, null, "FirstName");
+
+		mockMvc.perform(post("/api/users/me/register")
+						.header(INIT_DATA_HEADER, initData)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{
+								  "stack": "Java"
+								}
+								"""))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.telegramId", is(1602)))
+				.andExpect(jsonPath("$.nickname", is("FirstName")));
+
+		mockMvc.perform(get("/api/users/me/contact")
+						.header(INIT_DATA_HEADER, initData))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.contactTelegramUsername").value(nullValue()));
+	}
+
+	@Test
+	void currentUserRegistrationRejectsTelegramUserWithoutUsernameOrFirstName() throws Exception {
+		mockMvc.perform(post("/api/users/me/register")
+						.header(INIT_DATA_HEADER, validInitData(1603L, null, null))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{
+								  "stack": "Java"
+								}
+								"""))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.message", is("Telegram account must contain at least a first name to register")));
+	}
+
+	@Test
+	void currentUserRegistrationDoesNotOverwriteExistingUserContactInfo() throws Exception {
+		User existing = saveUser(1604L, "existing_user");
+		existing.setContactTelegramUsername("manual_contact");
+		userRepository.save(existing);
+
+		String initData = validInitData(existing.getTelegramId(), "new_telegram_user", "Telegram");
+		mockMvc.perform(post("/api/users/me/register")
+						.header(INIT_DATA_HEADER, initData)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{
+								  "stack": "Java"
+								}
+								"""))
+				.andExpect(status().isConflict());
+
+		mockMvc.perform(get("/api/users/me/contact")
+						.header(INIT_DATA_HEADER, initData))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.contactTelegramUsername", is("manual_contact")));
+	}
+
+	@Test
+	void authenticatedRequestBackfillsExistingUserNullContactFromVerifiedTelegramUsername() throws Exception {
+		User existing = saveUser(1701L, "legacy_user");
+
+		mockMvc.perform(get("/api/users/me/contact")
+						.header(INIT_DATA_HEADER, validInitData(existing.getTelegramId(), "legacy_telegram", "Legacy")))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.contactTelegramUsername", is("legacy_telegram")));
+	}
+
+	@Test
+	void authenticatedRequestBackfillsExistingUserBlankContactFromVerifiedTelegramUsername() throws Exception {
+		User existing = saveUser(1702L, "blank_contact_user");
+		existing.setContactTelegramUsername("  ");
+		userRepository.save(existing);
+
+		mockMvc.perform(get("/api/users/me/contact")
+						.header(INIT_DATA_HEADER, validInitData(existing.getTelegramId(), "@blank_telegram", "Blank")))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.contactTelegramUsername", is("blank_telegram")));
+	}
+
+	@Test
+	void authenticatedRequestDoesNotOverwriteManualContact() throws Exception {
+		User existing = saveUser(1703L, "manual_contact_user");
+		existing.setContactTelegramUsername("manual_contact");
+		userRepository.save(existing);
+
+		mockMvc.perform(get("/api/users/me/contact")
+						.header(INIT_DATA_HEADER, validInitData(existing.getTelegramId(), "verified_telegram", "Manual")))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.contactTelegramUsername", is("manual_contact")));
+	}
+
+	@Test
+	void authenticatedRequestWithoutTelegramUsernameDoesNotChangeContact() throws Exception {
+		User existing = saveUser(1704L, "no_username_user");
+
+		mockMvc.perform(get("/api/users/me/contact")
+						.header(INIT_DATA_HEADER, validInitData(existing.getTelegramId(), null, "NoUsername")))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.contactTelegramUsername").value(nullValue()));
+	}
+
+	@Test
+	void repeatedAuthenticatedRequestsDoNotSynchronizeLaterTelegramUsernameChanges() throws Exception {
+		User existing = saveUser(1705L, "repeat_user");
+
+		mockMvc.perform(get("/api/users/me/contact")
+						.header(INIT_DATA_HEADER, validInitData(existing.getTelegramId(), "first_username", "Repeat")))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.contactTelegramUsername", is("first_username")));
+
+		mockMvc.perform(get("/api/users/me/contact")
+						.header(INIT_DATA_HEADER, validInitData(existing.getTelegramId(), "second_username", "Repeat")))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.contactTelegramUsername", is("first_username")));
+	}
+
 	private User saveUser(Long telegramId, String nickname) {
 		User user = new User();
 		user.setTelegramId(telegramId);
@@ -299,13 +441,28 @@ class SecureTelegramActionsTests {
 	}
 
 	private String validInitData(Long telegramId, String username) {
+		return validInitData(telegramId, username, "Test");
+	}
+
+	private String validInitData(Long telegramId, String username, String firstName) {
 		long authDate = Instant.now().getEpochSecond();
-		String userJson = "{\"id\":" + telegramId + ",\"username\":\"" + username + "\",\"first_name\":\"Test\"}";
+		String userJson = telegramUserJson(telegramId, username, firstName);
 		String dataCheckString = "auth_date=" + authDate + "\nuser=" + userJson;
 		String hash = hmacHex(telegramSecretKey(), dataCheckString);
 		return "auth_date=" + authDate
 				+ "&user=" + urlEncode(userJson)
 				+ "&hash=" + hash;
+	}
+
+	private String telegramUserJson(Long telegramId, String username, String firstName) {
+		StringBuilder json = new StringBuilder("{\"id\":").append(telegramId);
+		if (username != null) {
+			json.append(",\"username\":\"").append(username).append("\"");
+		}
+		if (firstName != null) {
+			json.append(",\"first_name\":\"").append(firstName).append("\"");
+		}
+		return json.append("}").toString();
 	}
 
 	private byte[] telegramSecretKey() {

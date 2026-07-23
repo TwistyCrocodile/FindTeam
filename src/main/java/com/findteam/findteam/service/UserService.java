@@ -4,11 +4,13 @@ import com.findteam.findteam.dto.ContactInfoResponse;
 import com.findteam.findteam.dto.CreateUserProfileRequest;
 import com.findteam.findteam.dto.RegisterCurrentUserRequest;
 import com.findteam.findteam.dto.RegisterUserRequest;
+import com.findteam.findteam.dto.TelegramAuthUser;
 import com.findteam.findteam.dto.UpdateContactInfoRequest;
 import com.findteam.findteam.dto.PublicUserProfileResponse;
 import com.findteam.findteam.dto.UpdateUserProfileRequest;
 import com.findteam.findteam.dto.UserProfileResponse;
 import com.findteam.findteam.exception.InvalidInterestedStacksException;
+import com.findteam.findteam.exception.InvalidTelegramRegistrationException;
 import com.findteam.findteam.exception.NicknameAlreadyTakenException;
 import com.findteam.findteam.exception.UserAlreadyExistsException;
 import com.findteam.findteam.exception.UserNotFoundException;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +55,10 @@ public class UserService {
 
 	@Transactional
 	public UserProfileResponse registerUser(RegisterUserRequest request) {
+		return registerUser(request, user -> {});
+	}
+
+	private UserProfileResponse registerUser(RegisterUserRequest request, Consumer<User> newUserCustomizer) {
 		Long telegramId = request.getTelegramId();
 		if (userRepository.findByTelegramId(telegramId).isPresent()) {
 			throw new UserAlreadyExistsException(telegramId);
@@ -70,23 +77,36 @@ public class UserService {
 		user.setGithubUrl(request.getGithubUrl());
 		user.setStatus(resolveStatus(request.getStatus()));
 		user.setPreferredLanguage(request.getPreferredLanguage());
+		newUserCustomizer.accept(user);
 
 		User saved = userRepository.save(user);
 		return toUserProfileResponse(saved);
 	}
 
 	@Transactional
-	public UserProfileResponse registerCurrentUser(Long telegramId, RegisterCurrentUserRequest request) {
+	public UserProfileResponse registerCurrentUser(TelegramAuthUser authUser, RegisterCurrentUserRequest request) {
+		String telegramUsername = normalizeBlank(authUser.username());
+		String firstName = normalizeBlank(authUser.firstName());
+		String nickname = telegramUsername != null ? telegramUsername : firstName;
+		if (nickname == null) {
+			throw new InvalidTelegramRegistrationException(
+					"Telegram account must contain at least a first name to register");
+		}
+
 		RegisterUserRequest registerRequest = new RegisterUserRequest();
-		registerRequest.setTelegramId(telegramId);
-		registerRequest.setNickname(request.getNickname());
+		registerRequest.setTelegramId(authUser.telegramId());
+		registerRequest.setNickname(nickname);
 		registerRequest.setBio(request.getBio());
 		registerRequest.setStack(request.getStack());
 		registerRequest.setInterestedStacks(request.getInterestedStacks());
 		registerRequest.setGithubUrl(request.getGithubUrl());
 		registerRequest.setStatus(request.getStatus());
 		registerRequest.setPreferredLanguage(request.getPreferredLanguage());
-		return registerUser(registerRequest);
+		return registerUser(registerRequest, telegramUsername);
+	}
+
+	private UserProfileResponse registerUser(RegisterUserRequest request, String contactTelegramUsername) {
+		return registerUser(request, user -> user.setContactTelegramUsername(contactTelegramUsername));
 	}
 
 	@Transactional

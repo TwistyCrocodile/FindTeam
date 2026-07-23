@@ -24,7 +24,7 @@ export interface RegisterUserRequest {
 }
 
 export interface RegisterCurrentUserRequest {
-  nickname: string;
+  nickname?: string;
   bio?: string;
   stack: string;
   interestedStacks?: string[];
