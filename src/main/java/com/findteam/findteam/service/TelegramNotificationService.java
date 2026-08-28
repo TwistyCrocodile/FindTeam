@@ -2,6 +2,7 @@ package com.findteam.findteam.service;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
 import org.slf4j.Logger;
@@ -52,6 +53,28 @@ public class TelegramNotificationService {
 			Long postId,
 			Long applicationId,
 			InlineKeyboardMarkup replyMarkup) {
+		return sendMessageWithResult(
+				recipientTelegramId,
+				message,
+				notificationType,
+				authorTelegramId,
+				applicantTelegramId,
+				postId,
+				applicationId,
+				replyMarkup,
+				null);
+	}
+
+	public SendResult sendMessageWithResult(
+			Long recipientTelegramId,
+			String message,
+			String notificationType,
+			Long authorTelegramId,
+			Long applicantTelegramId,
+			Long postId,
+			Long applicationId,
+			InlineKeyboardMarkup replyMarkup,
+			ParseMode parseMode) {
 		TelegramBot telegramBot = telegramBotProvider.getIfAvailable();
 		if (telegramBot == null) {
 			log.info(
@@ -73,7 +96,8 @@ public class TelegramNotificationService {
 				applicationId,
 				message,
 				notificationType,
-				replyMarkup);
+				replyMarkup,
+				parseMode);
 	}
 
 	private SendResult sendMessage(
@@ -85,9 +109,13 @@ public class TelegramNotificationService {
 			Long applicationId,
 			String message,
 			String notificationType,
-			InlineKeyboardMarkup replyMarkup) {
+			InlineKeyboardMarkup replyMarkup,
+			ParseMode parseMode) {
 		try {
 			SendMessage request = new SendMessage((Object) recipientTelegramId, message);
+			if (parseMode != null) {
+				request.parseMode(parseMode);
+			}
 			if (replyMarkup != null) {
 				request.replyMarkup(replyMarkup);
 			}

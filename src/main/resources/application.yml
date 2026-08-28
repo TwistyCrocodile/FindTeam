@@ -30,6 +30,8 @@ findteam:
       enabled: false
     prometheus-july-ai-link:
       enabled: false
+    zubr-capital-ai-hackathon:
+      enabled: false
 
 ---
 
