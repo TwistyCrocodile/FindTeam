@@ -32,6 +32,8 @@ findteam:
       enabled: false
     zubr-capital-ai-hackathon:
       enabled: false
+    amazon-developer-hackathon:
+      enabled: false
     hack-alem-ai:
       enabled: false
 
