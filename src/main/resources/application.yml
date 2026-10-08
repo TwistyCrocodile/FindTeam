@@ -34,6 +34,8 @@ findteam:
       enabled: false
     amazon-developer-hackathon:
       enabled: false
+    nebius-nvidia-ai-hackathon:
+      enabled: false
     hack-alem-ai:
       enabled: false
 
