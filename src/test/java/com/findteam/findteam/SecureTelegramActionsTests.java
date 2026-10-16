@@ -34,7 +34,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest(properties = "telegram.bot-token=test-token")
+@SpringBootTest(properties = {
+		"telegram.bot-token=test-token",
+		"telegram.long-polling.enabled=false"
+})
 @AutoConfigureMockMvc
 class SecureTelegramActionsTests {
 

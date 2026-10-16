@@ -36,6 +36,8 @@ findteam:
       enabled: false
     nebius-nvidia-ai-hackathon:
       enabled: false
+    decentrathon-6:
+      enabled: false
     hack-alem-ai:
       enabled: false
 
